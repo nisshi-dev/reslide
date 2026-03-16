@@ -1,0 +1,86 @@
+:root {
+  --slide-bg: #0f172a;
+  --slide-text: #e2e8f0;
+  --slide-accent: #60a5fa;
+  --slide-section-text: #ffffff;
+
+  --mark-yellow: #854d0e;
+  --mark-orange: #9a3412;
+  --mark-red: #991b1b;
+  --mark-blue: #1e40af;
+  --mark-green: #166534;
+  --mark-purple: #6b21a8;
+}
+
+.reslide-deck {
+  font-family:
+    "Inter",
+    system-ui,
+    -apple-system,
+    sans-serif;
+  line-height: 1.6;
+}
+
+.reslide-slide h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+.reslide-slide h2 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.reslide-slide h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.reslide-slide p {
+  margin-bottom: 0.75rem;
+}
+
+.reslide-slide ul,
+.reslide-slide ol {
+  padding-left: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.reslide-slide li {
+  margin-bottom: 0.25rem;
+}
+
+.reslide-slide code {
+  background: #1e293b;
+  padding: 0.15em 0.4em;
+  border-radius: 0.25em;
+  font-size: 0.9em;
+}
+
+.reslide-slide pre {
+  background: #020617;
+  color: #e2e8f0;
+  padding: 1.25rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin-bottom: 1rem;
+}
+
+.reslide-slide pre code {
+  background: none;
+  padding: 0;
+}
+
+.reslide-slide a {
+  color: var(--slide-accent);
+  text-decoration: underline;
+}
+
+.reslide-slide img {
+  max-width: 100%;
+  border-radius: 0.5rem;
+}

@@ -12,7 +12,10 @@
   ],
   "type": "module",
   "exports": {
-    "./vite": "./dist/vite-plugin.mjs",
+    "./vite": {
+      "import": "./dist/vite-plugin.mjs",
+      "types": "./src/vite-plugin.ts"
+    },
     "./package.json": "./package.json"
   },
   "scripts": {
