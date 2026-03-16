@@ -1,0 +1,12 @@
+import { defineConfig } from "vite-plus/pack";
+
+export default defineConfig({
+  entry: {
+    cli: "src/cli.ts",
+    "vite-plugin": "src/vite-plugin.ts",
+  },
+  dts: {
+    tsgo: true,
+  },
+  exports: true,
+});

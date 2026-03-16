@@ -13,7 +13,7 @@ catalog:
   remark-frontmatter: ^5.0.0
   typescript: ^5
   unified: ^11.0.5
-  vite: npm:@voidzero-dev/vite-plus-core@latest
+  vite: npm:@voidzero-dev/vite-plus-core@^0.1.12
   vite-plus: latest
   vitest: npm:@voidzero-dev/vite-plus-test@latest
 
