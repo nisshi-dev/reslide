@@ -2,22 +2,32 @@ import { Children, useCallback, useEffect, useMemo, useRef, useState } from "rea
 import type { ReactNode } from "react";
 
 import { DeckContext } from "./context.js";
+import { DrawingLayer } from "./DrawingLayer.js";
 import { SlideIndexContext } from "./slide-context.js";
+import type { TransitionType } from "./SlideTransition.js";
+import { SlideTransition } from "./SlideTransition.js";
 import { useFullscreen } from "./use-fullscreen.js";
+import { openPresenterWindow, usePresenterSync } from "./use-presenter.js";
 import type { DeckContextValue } from "./types.js";
 
 export interface DeckProps {
   children: ReactNode;
+  /** Slide transition type */
+  transition?: TransitionType;
 }
 
-export function Deck({ children }: DeckProps) {
+export function Deck({ children, transition = "none" }: DeckProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [clickStep, setClickStep] = useState(0);
   const [isOverview, setIsOverview] = useState(false);
+  const [isDrawing, setIsDrawing] = useState(false);
   const [clickStepsMap, setClickStepsMap] = useState<Record<number, number>>({});
 
   const { isFullscreen, toggleFullscreen } = useFullscreen(containerRef);
+
+  // Sync state to presenter window
+  usePresenterSync(currentSlide, clickStep);
 
   const totalSlides = Children.count(children);
   const totalClickSteps = clickStepsMap[currentSlide] ?? 0;
@@ -94,6 +104,14 @@ export function Deck({ children }: DeckProps) {
           e.preventDefault();
           toggleFullscreen();
           break;
+        case "p":
+          e.preventDefault();
+          openPresenterWindow();
+          break;
+        case "d":
+          e.preventDefault();
+          setIsDrawing((v) => !v);
+          break;
       }
     }
 
@@ -151,26 +169,14 @@ export function Deck({ children }: DeckProps) {
             {children}
           </OverviewGrid>
         ) : (
-          <PresentationView currentSlide={currentSlide}>{children}</PresentationView>
+          <SlideTransition currentSlide={currentSlide} transition={transition}>
+            {children}
+          </SlideTransition>
         )}
         {!isOverview && <SlideNumber current={currentSlide + 1} total={totalSlides} />}
+        {!isOverview && <DrawingLayer active={isDrawing} />}
       </div>
     </DeckContext.Provider>
-  );
-}
-
-function PresentationView({
-  children,
-  currentSlide,
-}: {
-  children: ReactNode;
-  currentSlide: number;
-}) {
-  const slides = Children.toArray(children);
-  return (
-    <SlideIndexContext.Provider value={currentSlide}>
-      {slides[currentSlide]}
-    </SlideIndexContext.Provider>
   );
 }
 

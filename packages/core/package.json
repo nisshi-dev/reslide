@@ -15,6 +15,7 @@
     },
     "./themes/default.css": "./src/themes/default.css",
     "./themes/dark.css": "./src/themes/dark.css",
+    "./transitions.css": "./src/transitions.css",
     "./package.json": "./package.json"
   },
   "scripts": {

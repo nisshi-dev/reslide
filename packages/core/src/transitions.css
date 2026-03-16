@@ -1,0 +1,146 @@
+.reslide-transition-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.reslide-transition-slide {
+  position: absolute;
+  inset: 0;
+}
+
+/* ── fade ── */
+.reslide-transition-fade-enter {
+  animation: reslide-fade-in 0.3s ease forwards;
+}
+
+.reslide-transition-fade-exit {
+  animation: reslide-fade-out 0.3s ease forwards;
+}
+
+@keyframes reslide-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes reslide-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* ── slide-left ── */
+.reslide-transition-slide-left-enter {
+  animation: reslide-slide-left-in 0.3s ease forwards;
+}
+
+.reslide-transition-slide-left-exit {
+  animation: reslide-slide-left-out 0.3s ease forwards;
+}
+
+@keyframes reslide-slide-left-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes reslide-slide-left-out {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+/* ── slide-right ── */
+.reslide-transition-slide-right-enter {
+  animation: reslide-slide-right-in 0.3s ease forwards;
+}
+
+.reslide-transition-slide-right-exit {
+  animation: reslide-slide-right-out 0.3s ease forwards;
+}
+
+@keyframes reslide-slide-right-in {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes reslide-slide-right-out {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* ── slide-up ── */
+.reslide-transition-slide-up-enter {
+  animation: reslide-slide-up-in 0.3s ease forwards;
+}
+
+.reslide-transition-slide-up-exit {
+  animation: reslide-slide-up-out 0.3s ease forwards;
+}
+
+@keyframes reslide-slide-up-in {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes reslide-slide-up-out {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-100%);
+  }
+}
+
+/* ── slide-down ── */
+.reslide-transition-slide-down-enter {
+  animation: reslide-slide-down-in 0.3s ease forwards;
+}
+
+.reslide-transition-slide-down-exit {
+  animation: reslide-slide-down-out 0.3s ease forwards;
+}
+
+@keyframes reslide-slide-down-in {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes reslide-slide-down-out {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
