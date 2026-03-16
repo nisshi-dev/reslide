@@ -2,6 +2,7 @@ import { Children, useCallback, useEffect, useMemo, useRef, useState } from "rea
 import type { ReactNode } from "react";
 
 import { DeckContext } from "./context.js";
+import { SlideIndexContext } from "./slide-context.js";
 import { useFullscreen } from "./use-fullscreen.js";
 import type { DeckContextValue } from "./types.js";
 
@@ -43,9 +44,9 @@ export function Deck({ children }: DeckProps) {
     if (clickStep > 0) {
       setClickStep((s) => s - 1);
     } else if (currentSlide > 0) {
-      setCurrentSlide((s) => s - 1);
-      // When going to previous slide, show all click steps revealed
-      setClickStep(clickStepsMap[currentSlide - 1] ?? 0);
+      const prevSlide = currentSlide - 1;
+      setCurrentSlide(prevSlide);
+      setClickStep(clickStepsMap[prevSlide] ?? 0);
     }
   }, [isOverview, clickStep, currentSlide, clickStepsMap]);
 
@@ -82,8 +83,12 @@ export function Deck({ children }: DeckProps) {
           prev();
           break;
         case "Escape":
-          e.preventDefault();
-          toggleOverview();
+          // Don't toggle overview when exiting fullscreen — the browser
+          // handles fullscreen exit natively before JS events fire
+          if (!document.fullscreenElement) {
+            e.preventDefault();
+            toggleOverview();
+          }
           break;
         case "f":
           e.preventDefault();
@@ -162,7 +167,11 @@ function PresentationView({
   currentSlide: number;
 }) {
   const slides = Children.toArray(children);
-  return <>{slides[currentSlide]}</>;
+  return (
+    <SlideIndexContext.Provider value={currentSlide}>
+      {slides[currentSlide]}
+    </SlideIndexContext.Provider>
+  );
 }
 
 function OverviewGrid({
@@ -215,7 +224,7 @@ function OverviewGrid({
               pointerEvents: "none",
             }}
           >
-            {slide}
+            <SlideIndexContext.Provider value={i}>{slide}</SlideIndexContext.Provider>
           </div>
         </button>
       ))}

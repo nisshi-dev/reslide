@@ -9,7 +9,7 @@ test("Click content is hidden initially and shown after click step", () => {
   render(
     <Deck>
       <Slide>
-        <ClickSteps slideIndex={0} count={1} />
+        <ClickSteps count={1} />
         <span>Always visible</span>
         <Click>
           <span>Revealed</span>
@@ -32,7 +32,7 @@ test("Click with at prop respects step number", () => {
   render(
     <Deck>
       <Slide>
-        <ClickSteps slideIndex={0} count={2} />
+        <ClickSteps count={2} />
         <Click at={1}>
           <span>First</span>
         </Click>

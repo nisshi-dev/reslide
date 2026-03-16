@@ -9,4 +9,5 @@ export type { ClickProps } from "./Click.js";
 
 export { useDeck } from "./context.js";
 export { DeckContext } from "./context.js";
+export { useSlideIndex, SlideIndexContext } from "./slide-context.js";
 export type { DeckState, DeckActions, DeckContextValue } from "./types.js";

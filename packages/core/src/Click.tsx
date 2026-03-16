@@ -1,7 +1,8 @@
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import type { ReactNode } from "react";
 
 import { useDeck } from "./context.js";
+import { SlideIndexContext } from "./slide-context.js";
 
 export interface ClickProps {
   children: ReactNode;
@@ -19,7 +20,9 @@ export function Click({ children, at }: ClickProps) {
       className="reslide-click"
       style={{
         opacity: visible ? 1 : 0,
-        transition: "opacity 0.3s ease",
+        visibility: visible ? "visible" : "hidden",
+        pointerEvents: visible ? "auto" : "none",
+        transition: "opacity 0.3s ease, visibility 0.3s ease",
       }}
     >
       {children}
@@ -29,14 +32,19 @@ export function Click({ children, at }: ClickProps) {
 
 /**
  * Register click steps for the current slide.
- * Place this inside a <Slide> to declare how many click steps it has.
+ * Automatically reads the slide index from SlideIndexContext.
+ * If slideIndex prop is provided, it takes precedence (for backwards compatibility).
  */
-export function ClickSteps({ count, slideIndex }: { count: number; slideIndex: number }) {
+export function ClickSteps({ count, slideIndex }: { count: number; slideIndex?: number }) {
   const { registerClickSteps } = useDeck();
+  const contextIndex = useContext(SlideIndexContext);
+  const resolvedIndex = slideIndex ?? contextIndex;
 
   useEffect(() => {
-    registerClickSteps(slideIndex, count);
-  }, [slideIndex, count, registerClickSteps]);
+    if (resolvedIndex != null) {
+      registerClickSteps(resolvedIndex, count);
+    }
+  }, [resolvedIndex, count, registerClickSteps]);
 
   return null;
 }
