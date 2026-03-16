@@ -7,6 +7,14 @@ export type { SlideProps } from "./Slide.js";
 export { Click, ClickSteps } from "./Click.js";
 export type { ClickProps } from "./Click.js";
 
+export { Mark } from "./Mark.js";
+export type { MarkProps } from "./Mark.js";
+
+export { Notes } from "./Notes.js";
+export type { NotesProps } from "./Notes.js";
+
+export { SlotRight } from "./Slot.js";
+
 export { useDeck } from "./context.js";
 export { DeckContext } from "./context.js";
 export { useSlideIndex, SlideIndexContext } from "./slide-context.js";
