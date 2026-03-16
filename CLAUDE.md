@@ -74,3 +74,47 @@ These commands map to their corresponding tools. For example, `vp dev --port 300
 - [ ] Run `vp install` after pulling remote changes and before getting started.
 - [ ] Run `vp check` and `vp test` to validate changes.
 <!--VITE PLUS END-->
+
+# reslide
+
+React + MDX ベースの汎用プレゼンテーションフレームワーク。
+
+## プロジェクト概要
+
+Slidev（Vue ベース）の主要機能を React エコシステムで再実装する OSS ライブラリ。詳細な設計は [docs/design.md](docs/design.md) を参照。
+
+## パッケージ構成
+
+| パッケージ      | npm パッケージ名 | 役割                                                         |
+| --------------- | ---------------- | ------------------------------------------------------------ |
+| `packages/core` | `@reslide/core`  | 純粋 React コンポーネント（Deck, Slide, Click, Mark, Notes） |
+| `packages/mdx`  | `@reslide/mdx`   | remark/rehype プラグイン（スライド分割、ディレクティブ変換） |
+| `packages/cli`  | `@reslide/cli`   | Vite ベースの dev/build CLI                                  |
+
+## 技術スタック
+
+- React 19 + TypeScript
+- Tailwind CSS v4
+- Vite+（モノレポ・ビルド基盤）
+- tsdown（ライブラリビルド）
+- remark / rehype + remark-directive（MDX プラグイン）
+- Vitest（テスト）
+
+## 開発コマンド
+
+```bash
+vp install          # 依存インストール
+vp dev              # 開発サーバー
+vp test             # テスト実行
+vp check            # lint + format + 型チェック
+vp pack             # ライブラリビルド
+```
+
+## 実装の優先順位
+
+1. `@reslide/core` — Deck, Slide, useDeck, キーボードナビゲーション, フルスクリーン
+2. `@reslide/mdx` — remarkSlides（`---` 分割）, remarkClick, remarkMark
+3. `@reslide/core` レイアウト — default, center, two-cols, image-right, section, quote
+4. `@reslide/core` 概要モード — サムネイルグリッド表示
+5. `@reslide/cli` — Vite ベースの dev/build コマンド
+6. テーマ・スタイリング — Tailwind CSS v4, CSS 変数によるテーマカスタマイズ
