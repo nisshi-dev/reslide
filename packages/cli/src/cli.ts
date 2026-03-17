@@ -41,7 +41,7 @@ function generateEntryFiles(slidesPath: string, outDir: string) {
     resolve(outDir, "main.tsx"),
     `import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { Deck, Slide, Click, ClickSteps, Mark, Notes, SlotRight } from "@reslide/core";
+import { Deck, Slide, Click, ClickSteps, Mark, Notes, SlotRight } from "@reslide-dev/core";
 import Slides from "${absSlides}";
 
 // Make components available to MDX

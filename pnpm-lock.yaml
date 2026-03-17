@@ -6,9 +6,6 @@ settings:
 
 catalogs:
   default:
-    '@mdx-js/mdx':
-      specifier: ^3.1.1
-      version: 3.1.1
     '@testing-library/dom':
       specifier: ^10.4.1
       version: 10.4.1
@@ -45,10 +42,10 @@ importers:
 
   apps/website:
     dependencies:
-      '@reslide/cli':
+      '@reslide-dev/cli':
         specifier: workspace:*
         version: link:../../packages/cli
-      '@reslide/core':
+      '@reslide-dev/core':
         specifier: workspace:*
         version: link:../../packages/core
       react:
@@ -79,10 +76,10 @@ importers:
       '@mdx-js/rollup':
         specifier: ^3.1.0
         version: 3.1.1(rollup@4.59.0)
-      '@reslide/core':
+      '@reslide-dev/core':
         specifier: workspace:*
         version: link:../core
-      '@reslide/mdx':
+      '@reslide-dev/mdx':
         specifier: workspace:*
         version: link:../mdx
       cac:
@@ -120,7 +117,7 @@ importers:
   packages/core:
     dependencies:
       '@mdx-js/mdx':
-        specifier: 'catalog:'
+        specifier: ^3.1.1
         version: 3.1.1
     devDependencies:
       '@testing-library/dom':
@@ -154,7 +151,7 @@ importers:
   packages/mdx:
     dependencies:
       '@mdx-js/mdx':
-        specifier: 'catalog:'
+        specifier: ^3.1.1
         version: 3.1.1
       remark-frontmatter:
         specifier: ^5.0.0

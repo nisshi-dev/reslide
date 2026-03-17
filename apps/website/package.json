@@ -9,8 +9,8 @@
     "preview": "vp preview"
   },
   "dependencies": {
-    "@reslide/cli": "workspace:*",
-    "@reslide/core": "workspace:*",
+    "@reslide-dev/cli": "workspace:*",
+    "@reslide-dev/core": "workspace:*",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },

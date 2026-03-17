@@ -1,5 +1,5 @@
 {
-  "name": "@reslide/cli",
+  "name": "@reslide-dev/cli",
   "version": "0.0.0",
   "description": "Vite-based dev/build CLI for reslide presentations",
   "license": "MIT",
@@ -24,8 +24,8 @@
   },
   "dependencies": {
     "@mdx-js/rollup": "^3.1.0",
-    "@reslide/core": "workspace:*",
-    "@reslide/mdx": "workspace:*",
+    "@reslide-dev/core": "workspace:*",
+    "@reslide-dev/mdx": "workspace:*",
     "cac": "^6.7.14",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

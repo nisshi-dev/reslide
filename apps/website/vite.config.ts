@@ -1,4 +1,4 @@
-import { reslide } from "@reslide/cli/vite";
+import { reslide } from "@reslide-dev/cli/vite";
 
 import { defineConfig } from "vite-plus";
 

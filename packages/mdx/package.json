@@ -1,6 +1,6 @@
 {
-  "name": "@reslide/mdx",
-  "version": "0.0.0",
+  "name": "@reslide-dev/mdx",
+  "version": "0.0.1",
   "description": "Remark/rehype plugins for reslide MDX preprocessing",
   "license": "MIT",
   "files": [
@@ -17,7 +17,7 @@
     "test": "vp test"
   },
   "dependencies": {
-    "@mdx-js/mdx": "catalog:",
+    "@mdx-js/mdx": "^3.1.1",
     "remark-frontmatter": "^5.0.0",
     "unist-util-visit": "^5.0.0"
   },
@@ -34,6 +34,9 @@
   },
   "peerDependencies": {
     "remark-directive": "^3.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "inlinedDependencies": {
     "@types/mdast": "4.0.4",
