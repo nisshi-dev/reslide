@@ -1,5 +1,6 @@
 import { compile } from "@mdx-js/mdx";
 import remarkDirective from "remark-directive";
+import remarkFrontmatter from "remark-frontmatter";
 
 import { remarkClick } from "./remark-click.js";
 import { remarkMark } from "./remark-mark.js";
@@ -58,6 +59,7 @@ export async function compileMdxSlides(
     outputFormat: "function-body",
     remarkPlugins: [
       remarkDirective,
+      [remarkFrontmatter, ["yaml"]],
       remarkSlides,
       remarkClick,
       remarkMark,

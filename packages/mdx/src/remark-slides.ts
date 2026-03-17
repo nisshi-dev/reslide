@@ -1,6 +1,4 @@
 import type { Heading, Root, RootContent, Text, Yaml } from "mdast";
-import remarkFrontmatter from "remark-frontmatter";
-import type { Processor } from "unified";
 
 interface SlideOptions {
   layout?: string;
@@ -66,12 +64,10 @@ interface DirectiveNode {
  * Remark plugin that splits MDX content at `---` (thematic breaks)
  * into `<Slide>` components wrapped in a `<Deck>`.
  *
- * Internally enables remark-frontmatter for the first YAML block.
+ * Requires remark-frontmatter to be added before this plugin in the pipeline.
  * Subsequent slide frontmatters are detected via setext heading pattern.
  */
-export function remarkSlides(this: Processor) {
-  this.use(remarkFrontmatter, ["yaml"]);
-
+export function remarkSlides() {
   return (tree: Root) => {
     const slides: RootContent[][] = [];
     let current: RootContent[] = [];
@@ -99,7 +95,6 @@ export function remarkSlides(this: Processor) {
       if (content.length === 0 && Object.keys(options).length === 0) continue;
 
       const clickCount = countClickDirectives(content);
-      const slideIndex = slideElements.length;
 
       const attrs: Array<{ type: string; name: string; value: unknown }> = [];
 
@@ -125,17 +120,6 @@ export function remarkSlides(this: Processor) {
           type: "mdxJsxFlowElement",
           name: "ClickSteps",
           attributes: [
-            {
-              type: "mdxJsxAttribute",
-              name: "slideIndex",
-              value: {
-                type: "mdxJsxAttributeValueExpression",
-                value: String(slideIndex),
-                data: {
-                  estree: createNumericExpression(slideIndex),
-                },
-              },
-            },
             {
               type: "mdxJsxAttribute",
               name: "count",
