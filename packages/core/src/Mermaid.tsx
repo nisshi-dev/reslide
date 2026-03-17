@@ -30,8 +30,10 @@ export function Mermaid({ children }: MermaidProps) {
 
     async function render() {
       try {
-        // @ts-expect-error mermaid is an optional peer dependency
-        const mermaid = await import("mermaid");
+        // Dynamic import with variable to bypass Vite's static import analysis.
+        // mermaid is an optional peer dependency — consumers must install it.
+        const pkg = "mermaid";
+        const mermaid = await import(/* @vite-ignore */ pkg);
         mermaid.default.initialize({
           startOnLoad: false,
           theme: "default",
