@@ -6,6 +6,9 @@ settings:
 
 catalogs:
   default:
+    '@mdx-js/mdx':
+      specifier: ^3.1.1
+      version: 3.1.1
     '@testing-library/dom':
       specifier: ^10.4.1
       version: 10.4.1
@@ -115,6 +118,10 @@ importers:
         version: '@voidzero-dev/vite-plus-test@0.1.12(@types/node@25.5.0)(@voidzero-dev/vite-plus-core@0.1.12(@types/node@25.5.0)(jiti@2.6.1)(typescript@5.9.3)(yaml@2.8.2))(jiti@2.6.1)(jsdom@29.0.0)(typescript@5.9.3)(yaml@2.8.2)'
 
   packages/core:
+    dependencies:
+      '@mdx-js/mdx':
+        specifier: 'catalog:'
+        version: 3.1.1
     devDependencies:
       '@testing-library/dom':
         specifier: 'catalog:'
@@ -146,6 +153,9 @@ importers:
 
   packages/mdx:
     dependencies:
+      '@mdx-js/mdx':
+        specifier: 'catalog:'
+        version: 3.1.1
       remark-frontmatter:
         specifier: ^5.0.0
         version: 5.0.0

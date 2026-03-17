@@ -36,6 +36,9 @@ export type { DraggableProps } from "./Draggable.js";
 
 export { ClickNavigation } from "./ClickNavigation.js";
 
+export { ReslideEmbed } from "./ReslideEmbed.js";
+export type { ReslideEmbedProps } from "./ReslideEmbed.js";
+
 export { useDeck } from "./context.js";
 export { DeckContext } from "./context.js";
 export { useSlideIndex, SlideIndexContext } from "./slide-context.js";
