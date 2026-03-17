@@ -6,6 +6,7 @@ import react from "@vitejs/plugin-react";
 import rehypeKatex from "rehype-katex";
 import remarkDirective from "remark-directive";
 import remarkFrontmatter from "remark-frontmatter";
+import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 
 import { defineConfig } from "vite-plus";
@@ -16,6 +17,7 @@ export default defineConfig({
     mdx({
       remarkPlugins: [
         remarkDirective,
+        remarkGfm,
         [remarkFrontmatter, ["yaml"]],
         remarkMath,
         remarkSlides,

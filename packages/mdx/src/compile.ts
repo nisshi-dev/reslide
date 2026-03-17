@@ -4,6 +4,7 @@ import { transformerNotationHighlight } from "@shikijs/transformers";
 import rehypeKatex from "rehype-katex";
 import remarkDirective from "remark-directive";
 import remarkFrontmatter from "remark-frontmatter";
+import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 
 import { remarkClick } from "./remark-click.js";
@@ -63,6 +64,7 @@ export async function compileMdxSlides(
     outputFormat: "function-body",
     remarkPlugins: [
       remarkDirective,
+      remarkGfm,
       [remarkFrontmatter, ["yaml"]],
       remarkMath,
       remarkSlides,
