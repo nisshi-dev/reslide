@@ -34,6 +34,8 @@ export type { GlobalLayerProps } from "./GlobalLayer.js";
 export { Draggable } from "./Draggable.js";
 export type { DraggableProps } from "./Draggable.js";
 
+export { ClickNavigation } from "./ClickNavigation.js";
+
 export { useDeck } from "./context.js";
 export { DeckContext } from "./context.js";
 export { useSlideIndex, SlideIndexContext } from "./slide-context.js";

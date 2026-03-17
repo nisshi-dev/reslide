@@ -1,6 +1,7 @@
 import { Children, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 
+import { ClickNavigation } from "./ClickNavigation.js";
 import { DeckContext } from "./context.js";
 import { DrawingLayer } from "./DrawingLayer.js";
 import { PrintView } from "./PrintView.js";
@@ -192,6 +193,9 @@ export function Deck({ children, transition = "none" }: DeckProps) {
           <SlideTransition currentSlide={currentSlide} transition={transition}>
             {children}
           </SlideTransition>
+        )}
+        {!isOverview && !isPrinting && (
+          <ClickNavigation onPrev={prev} onNext={next} disabled={isDrawing} />
         )}
         {!isOverview && !isPrinting && (
           <SlideNumber current={currentSlide + 1} total={totalSlides} />
