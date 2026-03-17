@@ -15,6 +15,7 @@
     "@shikijs/rehype": "catalog:",
     "@shikijs/transformers": "catalog:",
     "katex": "catalog:",
+    "mermaid": "catalog:",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "rehype-katex": "catalog:",
