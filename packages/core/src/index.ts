@@ -15,6 +15,15 @@ export type { NotesProps } from "./Notes.js";
 
 export { SlotRight } from "./Slot.js";
 
+export type { TransitionType } from "./SlideTransition.js";
+
+export { PresenterView } from "./PresenterView.js";
+export type { PresenterViewProps } from "./PresenterView.js";
+export { isPresenterView, openPresenterWindow } from "./use-presenter.js";
+
+export { DrawingLayer } from "./DrawingLayer.js";
+export type { DrawingLayerProps } from "./DrawingLayer.js";
+
 export { useDeck } from "./context.js";
 export { DeckContext } from "./context.js";
 export { useSlideIndex, SlideIndexContext } from "./slide-context.js";
