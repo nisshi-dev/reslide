@@ -17,12 +17,22 @@ export { SlotRight } from "./Slot.js";
 
 export type { TransitionType } from "./SlideTransition.js";
 
+export { PrintView } from "./PrintView.js";
 export { PresenterView } from "./PresenterView.js";
 export type { PresenterViewProps } from "./PresenterView.js";
 export { isPresenterView, openPresenterWindow } from "./use-presenter.js";
 
 export { DrawingLayer } from "./DrawingLayer.js";
 export type { DrawingLayerProps } from "./DrawingLayer.js";
+
+export { CodeEditor } from "./CodeEditor.js";
+export type { CodeEditorProps } from "./CodeEditor.js";
+
+export { GlobalLayer } from "./GlobalLayer.js";
+export type { GlobalLayerProps } from "./GlobalLayer.js";
+
+export { Draggable } from "./Draggable.js";
+export type { DraggableProps } from "./Draggable.js";
 
 export { useDeck } from "./context.js";
 export { DeckContext } from "./context.js";

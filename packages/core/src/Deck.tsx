@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import { DeckContext } from "./context.js";
 import { DrawingLayer } from "./DrawingLayer.js";
+import { PrintView } from "./PrintView.js";
 import { SlideIndexContext } from "./slide-context.js";
 import type { TransitionType } from "./SlideTransition.js";
 import { SlideTransition } from "./SlideTransition.js";
@@ -22,6 +23,7 @@ export function Deck({ children, transition = "none" }: DeckProps) {
   const [clickStep, setClickStep] = useState(0);
   const [isOverview, setIsOverview] = useState(false);
   const [isDrawing, setIsDrawing] = useState(false);
+  const [isPrinting, setIsPrinting] = useState(false);
   const [clickStepsMap, setClickStepsMap] = useState<Record<number, number>>({});
 
   const { isFullscreen, toggleFullscreen } = useFullscreen(containerRef);
@@ -119,6 +121,22 @@ export function Deck({ children, transition = "none" }: DeckProps) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [next, prev, toggleOverview, toggleFullscreen]);
 
+  // Print mode: show all slides when printing
+  useEffect(() => {
+    function onBeforePrint() {
+      setIsPrinting(true);
+    }
+    function onAfterPrint() {
+      setIsPrinting(false);
+    }
+    window.addEventListener("beforeprint", onBeforePrint);
+    window.addEventListener("afterprint", onAfterPrint);
+    return () => {
+      window.removeEventListener("beforeprint", onBeforePrint);
+      window.removeEventListener("afterprint", onAfterPrint);
+    };
+  }, []);
+
   const contextValue = useMemo<DeckContextValue>(
     () => ({
       currentSlide,
@@ -164,7 +182,9 @@ export function Deck({ children, transition = "none" }: DeckProps) {
           color: "var(--slide-text, #1a1a1a)",
         }}
       >
-        {isOverview ? (
+        {isPrinting ? (
+          <PrintView>{children}</PrintView>
+        ) : isOverview ? (
           <OverviewGrid totalSlides={totalSlides} goTo={goTo}>
             {children}
           </OverviewGrid>
@@ -173,8 +193,10 @@ export function Deck({ children, transition = "none" }: DeckProps) {
             {children}
           </SlideTransition>
         )}
-        {!isOverview && <SlideNumber current={currentSlide + 1} total={totalSlides} />}
-        {!isOverview && <DrawingLayer active={isDrawing} />}
+        {!isOverview && !isPrinting && (
+          <SlideNumber current={currentSlide + 1} total={totalSlides} />
+        )}
+        {!isOverview && !isPrinting && <DrawingLayer active={isDrawing} />}
       </div>
     </DeckContext.Provider>
   );
