@@ -1,0 +1,84 @@
+---
+layout: center
+---
+
+# reslide
+
+React + MDX ベースのプレゼンテーションフレームワーク
+
+---
+
+## 特徴
+
+- **React ネイティブ** — Vue 依存なし
+- **MDX** でスライドを記述
+- **Vite ベース** — 高速な HMR
+
+::click
+
+- カスタム React コンポーネントを埋め込み可能
+- CSS 変数でテーマカスタマイズ
+
+---
+
+---
+
+## layout: two-cols
+
+## 左カラム
+
+コードやテキストを配置
+
+```tsx
+import { Deck, Slide } from "@reslide/core";
+
+function App() {
+  return (
+    <Deck>
+      <Slide>Hello!</Slide>
+    </Deck>
+  );
+}
+```
+
+<SlotRight>
+
+## 右カラム
+
+画像や補足情報を配置
+
+- React 19 対応
+- TypeScript 完全サポート
+- フレームワーク非依存
+
+</SlotRight>
+
+---
+
+---
+
+## layout: section
+
+# セクション区切り
+
+新しいトピックへ
+
+---
+
+---
+
+## layout: quote
+
+The best way to predict the future is to invent it.
+
+— Alan Kay
+
+---
+
+---
+
+## layout: center
+
+# ありがとうございました
+
+:mark[reslide]{.highlight.blue} で快適なプレゼンを

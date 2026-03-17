@@ -5,10 +5,18 @@
   "type": "module",
   "scripts": {
     "dev": "vp dev",
-    "build": "tsc && vp build",
+    "build": "vp build",
     "preview": "vp preview"
   },
+  "dependencies": {
+    "@reslide/cli": "workspace:*",
+    "@reslide/core": "workspace:*",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
   "devDependencies": {
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
     "typescript": "~5.9.3",
     "vite": "catalog:",
     "vite-plus": "catalog:"
