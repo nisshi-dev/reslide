@@ -48,5 +48,24 @@ Item C
     .process(input);
 
   const output = String(result);
-  expect(output).toBe("SHOW");
+
+  // Extract individual slides
+  const slides = output.split("</Slide>").slice(0, -1);
+  expect(slides).toHaveLength(4);
+
+  // Slide 1 (center layout, no clicks)
+  expect(slides[0]).toContain('layout="center"');
+  expect(slides[0]).not.toContain("ClickSteps");
+
+  // Slide 2 has 1 click
+  expect(slides[1]).toContain("count={1}");
+
+  // Slide 3 has no clicks
+  expect(slides[2]).toContain("No clicks here");
+  expect(slides[2]).not.toContain("ClickSteps");
+
+  // Slide 4 has 2 clicks
+  expect(slides[3]).toContain("count={2}");
+  expect(slides[3]).toContain("at={1}");
+  expect(slides[3]).toContain("at={2}");
 });
