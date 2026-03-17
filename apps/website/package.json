@@ -9,7 +9,6 @@
     "preview": "vp preview"
   },
   "dependencies": {
-    "@reslide-dev/cli": "workspace:*",
     "@reslide-dev/core": "workspace:*",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
@@ -17,6 +16,7 @@
   "devDependencies": {
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "catalog:",
     "typescript": "~5.9.3",
     "vite": "catalog:",
     "vite-plus": "catalog:"
