@@ -6,9 +6,13 @@
   "scripts": {
     "ready": "vp fmt && vp lint && vp run test -r && vp run build -r",
     "dev": "vp run website#dev",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
     "prepare": "vp config"
   },
   "devDependencies": {
+    "@changesets/changelog-github": "catalog:",
+    "@changesets/cli": "catalog:",
     "vite-plus": "catalog:"
   },
   "engines": {
