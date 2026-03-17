@@ -107,6 +107,28 @@ cli
     console.log(`\nBuild complete. Output: ${resolve(options.out)}`);
   });
 
+cli
+  .command("export <slides>", "Export slides to PDF or PNG (requires Playwright)")
+  .option("--format <format>", "Export format: pdf or png", { default: "pdf" })
+  .option("--out <dir>", "Output directory", { default: "export" })
+  .option("--width <width>", "Viewport width", { default: 1920 })
+  .option("--height <height>", "Viewport height", { default: 1080 })
+  .action(
+    async (
+      slides: string,
+      options: { format: string; out: string; width: number; height: number },
+    ) => {
+      const { exportSlides } = await import("./export.js");
+      await exportSlides(slides, generateEntryFiles, {
+        format: options.format as "pdf" | "png",
+        out: options.out,
+        width: options.width,
+        height: options.height,
+        port: 4173,
+      });
+    },
+  );
+
 cli.help();
 cli.version("0.0.0");
 cli.parse();

@@ -1,0 +1,58 @@
+/**
+ * Print stylesheet for reslide presentations.
+ * Import this to enable Ctrl+P / Cmd+P PDF export.
+ *
+ * Usage: import '@reslide/core/themes/print.css'
+ *
+ * This renders all slides vertically for printing,
+ * each slide on its own page at 16:9 aspect ratio.
+ */
+@media print {
+  /* Reset the deck for print layout */
+  .reslide-deck {
+    width: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+    position: static !important;
+  }
+
+  /* Show all slides stacked vertically */
+  .reslide-slide {
+    page-break-after: always;
+    page-break-inside: avoid;
+    width: 100vw !important;
+    height: 56.25vw !important; /* 16:9 aspect ratio */
+    max-height: 100vh;
+    position: relative !important;
+    overflow: hidden !important;
+  }
+
+  /* Remove the last page break */
+  .reslide-slide:last-child {
+    page-break-after: auto;
+  }
+
+  /* Hide UI elements */
+  .reslide-slide-number,
+  .reslide-overview,
+  .reslide-notes,
+  canvas {
+    display: none !important;
+  }
+
+  /* Show all click content */
+  .reslide-click {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  /* Ensure transition container shows content */
+  .reslide-transition-container {
+    position: static !important;
+  }
+
+  .reslide-transition-slide {
+    position: static !important;
+    animation: none !important;
+  }
+}
