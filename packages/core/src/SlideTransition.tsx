@@ -24,10 +24,14 @@ export function SlideTransition({ children, currentSlide, transition }: SlideTra
   const [displaySlide, setDisplaySlide] = useState(currentSlide);
   const [prevSlide, setPrevSlide] = useState<number | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
+  const prevCurrentRef = useRef(currentSlide);
   const timerRef = useRef<ReturnType<typeof setTimeout>>(null);
 
+  // Only trigger on currentSlide changes (not displaySlide)
   useEffect(() => {
-    if (currentSlide === displaySlide) return;
+    if (currentSlide === prevCurrentRef.current) return;
+    const from = prevCurrentRef.current;
+    prevCurrentRef.current = currentSlide;
 
     if (transition === "none") {
       setDisplaySlide(currentSlide);
@@ -35,7 +39,7 @@ export function SlideTransition({ children, currentSlide, transition }: SlideTra
     }
 
     // Start transition
-    setPrevSlide(displaySlide);
+    setPrevSlide(from);
     setDisplaySlide(currentSlide);
     setIsAnimating(true);
 
@@ -48,9 +52,8 @@ export function SlideTransition({ children, currentSlide, transition }: SlideTra
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [currentSlide, displaySlide, transition]);
+  }, [currentSlide, transition]);
 
-  // Determine actual transition based on direction
   const resolvedTransition = resolveTransition(transition, prevSlide, displaySlide);
 
   if (transition === "none" || !isAnimating) {
@@ -93,7 +96,6 @@ function resolveTransition(
   if (transition !== "slide-left" && transition !== "slide-right") return transition;
   if (from == null) return transition;
 
-  // Auto-reverse direction when going backward
   const goingForward = to > from;
   if (transition === "slide-left") {
     return goingForward ? "slide-left" : "slide-right";

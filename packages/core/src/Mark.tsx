@@ -8,20 +8,20 @@ export interface MarkProps {
   color?: string;
 }
 
-const markStyles: Record<string, (color: string) => CSSProperties> = {
-  highlight: (color) => ({
-    backgroundColor: `var(--mark-${color}, ${color})`,
+const markStyles: Record<string, (colorName: string, resolvedColor: string) => CSSProperties> = {
+  highlight: (colorName, resolvedColor) => ({
+    backgroundColor: `var(--mark-${colorName}, ${resolvedColor})`,
     padding: "0.1em 0.2em",
     borderRadius: "0.2em",
   }),
-  underline: (color) => ({
+  underline: (colorName, resolvedColor) => ({
     textDecoration: "underline",
-    textDecorationColor: `var(--mark-${color}, ${color})`,
+    textDecorationColor: `var(--mark-${colorName}, ${resolvedColor})`,
     textDecorationThickness: "0.15em",
     textUnderlineOffset: "0.15em",
   }),
-  circle: (color) => ({
-    border: `0.15em solid var(--mark-${color}, ${color})`,
+  circle: (colorName, resolvedColor) => ({
+    border: `0.15em solid var(--mark-${colorName}, ${resolvedColor})`,
     borderRadius: "50%",
     padding: "0.1em 0.3em",
   }),
@@ -41,7 +41,7 @@ export function Mark({ children, type = "highlight", color = "yellow" }: MarkPro
   const styleFn = markStyles[type] ?? markStyles.highlight;
 
   return (
-    <span className={`reslide-mark reslide-mark-${type}`} style={styleFn(resolvedColor)}>
+    <span className={`reslide-mark reslide-mark-${type}`} style={styleFn(color, resolvedColor)}>
       {children}
     </span>
   );

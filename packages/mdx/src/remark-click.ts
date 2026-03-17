@@ -1,92 +1,111 @@
 import type { Root, RootContent } from "mdast";
-import { visit } from "unist-util-visit";
 
 /**
  * Remark plugin that converts `::click` directives (from remark-directive)
  * into `<Click>` MDX JSX components.
  *
- * Supports both leaf (`::click`) and container (`::: click ... :::`) forms.
+ * For leaf directives (`::click`), all subsequent sibling nodes until the
+ * next `::click` or `---` are gathered as children of the `<Click>`.
+ *
+ * For container directives (`::: click ... :::`), children are wrapped directly.
+ *
  * Auto-increments the `at` attribute for sequential click steps.
  */
 export function remarkClick() {
   return (tree: Root) => {
-    let stepCounter = 0;
+    processNode(tree);
+  };
+}
 
-    visit(tree, (node, index, parent) => {
-      if (node.type !== "leafDirective" && node.type !== "containerDirective") {
-        return;
-      }
+function isClickDirective(node: RootContent): boolean {
+  return (
+    (node.type === "leafDirective" || node.type === "containerDirective") &&
+    "name" in node &&
+    node.name === "click"
+  );
+}
 
-      if (node.name !== "click") return;
-      if (index == null || !parent) return;
+function processNode(node: { children: RootContent[] }) {
+  // First, recurse into children that have their own children
+  for (const child of node.children) {
+    if ("children" in child && Array.isArray(child.children)) {
+      processNode(child as { children: RootContent[] });
+    }
+  }
 
-      stepCounter++;
+  // Then process this node's direct children for ::click directives
+  const newChildren: RootContent[] = [];
+  let stepCounter = 0;
+  let i = 0;
 
-      const attrs = [
-        {
-          type: "mdxJsxAttribute",
-          name: "at",
-          value: {
-            type: "mdxJsxAttributeValueExpression",
-            value: String(stepCounter),
-            data: {
-              estree: {
-                type: "Program",
-                sourceType: "module",
-                body: [
-                  {
-                    type: "ExpressionStatement",
-                    expression: {
-                      type: "Literal",
-                      value: stepCounter,
-                      raw: String(stepCounter),
-                    },
-                  },
-                ],
-              },
-            },
-          },
-        },
-      ];
+  while (i < node.children.length) {
+    const child = node.children[i];
 
-      if (node.type === "leafDirective") {
-        const siblings = parent.children as RootContent[];
-        const gathered: RootContent[] = [];
-        let i = index + 1;
+    if (!isClickDirective(child)) {
+      newChildren.push(child);
+      i++;
+      continue;
+    }
 
-        while (i < siblings.length) {
-          const sibling = siblings[i];
-          if (
-            (sibling.type === "leafDirective" || sibling.type === "containerDirective") &&
-            sibling.name === "click"
-          ) {
-            break;
-          }
-          if (sibling.type === "thematicBreak") break;
-          gathered.push(siblings[i]);
-          i++;
-        }
+    stepCounter++;
 
-        if (gathered.length > 0) {
-          siblings.splice(index + 1, gathered.length);
-        }
-
-        (parent.children as RootContent[])[index] = {
-          type: "mdxJsxFlowElement",
-          name: "Click",
-          attributes: attrs,
-          children: gathered,
-        } as unknown as RootContent;
-        return;
-      }
-
-      // Container directive
-      (parent.children as RootContent[])[index] = {
+    if (child.type === "containerDirective") {
+      // Container directive: wrap existing children
+      newChildren.push({
         type: "mdxJsxFlowElement",
         name: "Click",
-        attributes: attrs,
-        children: node.children,
-      } as unknown as RootContent;
-    });
+        attributes: [createAtAttribute(stepCounter)],
+        children: "children" in child ? (child.children as RootContent[]) : [],
+      } as unknown as RootContent);
+      i++;
+      continue;
+    }
+
+    // Leaf directive: gather subsequent siblings until next ::click or ---
+    const gathered: RootContent[] = [];
+    i++;
+    while (i < node.children.length) {
+      const sibling = node.children[i];
+      if (isClickDirective(sibling)) break;
+      if (sibling.type === "thematicBreak") break;
+      gathered.push(sibling);
+      i++;
+    }
+
+    newChildren.push({
+      type: "mdxJsxFlowElement",
+      name: "Click",
+      attributes: [createAtAttribute(stepCounter)],
+      children: gathered,
+    } as unknown as RootContent);
+  }
+
+  node.children = newChildren;
+}
+
+function createAtAttribute(step: number) {
+  return {
+    type: "mdxJsxAttribute",
+    name: "at",
+    value: {
+      type: "mdxJsxAttributeValueExpression",
+      value: String(step),
+      data: {
+        estree: {
+          type: "Program",
+          sourceType: "module",
+          body: [
+            {
+              type: "ExpressionStatement",
+              expression: {
+                type: "Literal",
+                value: step,
+                raw: String(step),
+              },
+            },
+          ],
+        },
+      },
+    },
   };
 }

@@ -1,14 +1,14 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { Click, ClickSteps, Deck, Mark, Notes, Slide, SlotRight } from "@reslide/core";
-import "@reslide/core/themes/default.css";
-// @ts-expect-error MDX module
+import { reslideComponents } from "@reslide-dev/core/mdx-components";
+import "@reslide-dev/core/themes/default.css";
+import "@reslide-dev/core/transitions.css";
+import "./style.css";
+// @ts-expect-error MDX module has no type declarations
 import Slides from "../slides.mdx";
-
-const components = { Deck, Slide, Click, ClickSteps, Mark, Notes, SlotRight };
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <Slides components={components} />
+    <Slides components={reslideComponents} />
   </StrictMode>,
 );

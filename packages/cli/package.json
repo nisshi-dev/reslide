@@ -1,5 +1,5 @@
 {
-  "name": "@reslide/cli",
+  "name": "@reslide-dev/cli",
   "version": "0.0.0",
   "description": "Vite-based dev/build CLI for reslide presentations",
   "license": "MIT",
@@ -12,11 +12,13 @@
   ],
   "type": "module",
   "exports": {
-    "./vite": {
-      "import": "./dist/vite-plugin.mjs",
-      "types": "./src/vite-plugin.ts"
-    },
+    "./cli": "./dist/cli.mjs",
+    "./export": "./dist/export.mjs",
+    "./vite-plugin": "./dist/vite-plugin.mjs",
     "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
     "build": "vp pack",
@@ -24,12 +26,12 @@
   },
   "dependencies": {
     "@mdx-js/rollup": "^3.1.0",
-    "@reslide/core": "workspace:*",
-    "@reslide/mdx": "workspace:*",
+    "@reslide-dev/core": "workspace:*",
+    "@reslide-dev/mdx": "workspace:*",
     "cac": "^6.7.14",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "remark-directive": "^3.0.0"
+    "remark-directive": "catalog:"
   },
   "devDependencies": {
     "@types/node": "^25",

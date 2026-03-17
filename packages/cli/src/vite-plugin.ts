@@ -1,5 +1,5 @@
 import mdx from "@mdx-js/rollup";
-import { remarkClick, remarkMark, remarkSlides } from "@reslide/mdx";
+import { remarkClick, remarkMark, remarkSlides } from "@reslide-dev/mdx";
 import remarkDirective from "remark-directive";
 import type { Plugin } from "vite";
 
@@ -49,7 +49,7 @@ export function reslide(options: ReslidePluginOptions = {}): Plugin[] {
       config() {
         return {
           optimizeDeps: {
-            include: ["react", "react-dom", "@reslide/core"],
+            include: ["react", "react-dom", "@reslide-dev/core"],
           },
         };
       },

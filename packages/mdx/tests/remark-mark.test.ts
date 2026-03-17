@@ -32,3 +32,32 @@ test("supports underline type", async () => {
   const output = await process(input);
   expect(output).toContain('type="underline"');
 });
+
+test("supports :highlight[text] shorthand", async () => {
+  const input = `Text :highlight[important] here`;
+  const output = await process(input);
+  expect(output).toContain("<Mark");
+  expect(output).toContain('type="highlight"');
+  expect(output).toContain("important");
+});
+
+test("supports :highlight-yellow[text] with color", async () => {
+  const input = `Text :highlight-yellow[重要] here`;
+  const output = await process(input);
+  expect(output).toContain('type="highlight"');
+  expect(output).toContain('color="yellow"');
+});
+
+test("supports :underline-blue[text] with color", async () => {
+  const input = `Text :underline-blue[keyword] here`;
+  const output = await process(input);
+  expect(output).toContain('type="underline"');
+  expect(output).toContain('color="blue"');
+});
+
+test("supports :circle-red[text] with color", async () => {
+  const input = `Text :circle-red[注目] here`;
+  const output = await process(input);
+  expect(output).toContain('type="circle"');
+  expect(output).toContain('color="red"');
+});

@@ -6,6 +6,7 @@ export default defineConfig({
     export: "src/export.ts",
     "vite-plugin": "src/vite-plugin.ts",
   },
+  external: ["vite", /^@vitejs\//, /^@mdx-js\//, "react", "react-dom", "cac", "remark-directive"],
   dts: {
     tsgo: true,
   },
