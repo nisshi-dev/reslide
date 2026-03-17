@@ -98,6 +98,30 @@ React + MDX ベースのプレゼンテーションフレームワーク
 
 ---
 
+## 数式サポート — KaTeX
+
+インライン数式: $E = mc^2$ や $a^2 + b^2 = c^2$
+
+ディスプレイ数式: $$1 + 2 + \cdots + n = n(n+1)/2$$
+
+`$...$` でインライン、`$$...$$` でディスプレイ数式を記述
+
+---
+
+## ダイアグラム — Mermaid
+
+<Mermaid>
+graph LR
+  A[MDX] --> B[remark plugins]
+  B --> C[rehype plugins]
+  C --> D[React Components]
+  D --> E[Presentation]
+</Mermaid>
+
+`<Mermaid>` コンポーネントでフローチャート・シーケンス図等を描画
+
+---
+
 ---
 
 ## layout: quote
