@@ -34,7 +34,15 @@ export type { GlobalLayerProps } from "./GlobalLayer.js";
 export { Draggable } from "./Draggable.js";
 export type { DraggableProps } from "./Draggable.js";
 
+export { Toc } from "./Toc.js";
+export type { TocProps } from "./Toc.js";
+
+export { Mermaid } from "./Mermaid.js";
+export type { MermaidProps } from "./Mermaid.js";
+
 export { ClickNavigation } from "./ClickNavigation.js";
+
+export { ProgressBar } from "./ProgressBar.js";
 
 export { ReslideEmbed } from "./ReslideEmbed.js";
 export type { ReslideEmbedProps } from "./ReslideEmbed.js";

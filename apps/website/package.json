@@ -12,10 +12,15 @@
     "@mdx-js/rollup": "catalog:",
     "@reslide-dev/core": "workspace:*",
     "@reslide-dev/mdx": "workspace:*",
+    "@shikijs/rehype": "catalog:",
+    "@shikijs/transformers": "catalog:",
+    "katex": "catalog:",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "rehype-katex": "catalog:",
     "remark-directive": "catalog:",
-    "remark-frontmatter": "catalog:"
+    "remark-frontmatter": "catalog:",
+    "remark-math": "catalog:"
   },
   "devDependencies": {
     "@types/react": "^19",

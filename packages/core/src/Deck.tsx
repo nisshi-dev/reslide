@@ -5,6 +5,7 @@ import { ClickNavigation } from "./ClickNavigation.js";
 import { DeckContext } from "./context.js";
 import { DrawingLayer } from "./DrawingLayer.js";
 import { PrintView } from "./PrintView.js";
+import { ProgressBar } from "./ProgressBar.js";
 import { SlideIndexContext } from "./slide-context.js";
 import type { TransitionType } from "./SlideTransition.js";
 import { SlideTransition } from "./SlideTransition.js";
@@ -200,6 +201,7 @@ export function Deck({ children, transition = "none" }: DeckProps) {
         {!isOverview && !isPrinting && (
           <SlideNumber current={currentSlide + 1} total={totalSlides} />
         )}
+        {!isOverview && !isPrinting && <ProgressBar />}
         {!isOverview && !isPrinting && <DrawingLayer active={isDrawing} />}
       </div>
     </DeckContext.Provider>

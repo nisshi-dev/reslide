@@ -1,6 +1,10 @@
 import { compile } from "@mdx-js/mdx";
+import rehypeShiki from "@shikijs/rehype";
+import { transformerNotationHighlight } from "@shikijs/transformers";
+import rehypeKatex from "rehype-katex";
 import remarkDirective from "remark-directive";
 import remarkFrontmatter from "remark-frontmatter";
+import remarkMath from "remark-math";
 
 import { remarkClick } from "./remark-click.js";
 import { remarkMark } from "./remark-mark.js";
@@ -60,12 +64,23 @@ export async function compileMdxSlides(
     remarkPlugins: [
       remarkDirective,
       [remarkFrontmatter, ["yaml"]],
+      remarkMath,
       remarkSlides,
       remarkClick,
       remarkMark,
       ...((options?.remarkPlugins ?? []) as never[]),
     ],
-    rehypePlugins: (options?.rehypePlugins ?? []) as never[],
+    rehypePlugins: [
+      rehypeKatex,
+      [
+        rehypeShiki,
+        {
+          theme: "github-dark",
+          transformers: [transformerNotationHighlight()],
+        },
+      ],
+      ...((options?.rehypePlugins ?? []) as never[]),
+    ],
     providerImportSource: undefined,
   });
 
