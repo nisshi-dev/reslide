@@ -25,6 +25,7 @@
     "@shikijs/transformers": "catalog:",
     "rehype-katex": "catalog:",
     "remark-frontmatter": "^5.0.0",
+    "remark-gfm": "catalog:",
     "remark-math": "catalog:",
     "unist-util-visit": "^5.0.0"
   },

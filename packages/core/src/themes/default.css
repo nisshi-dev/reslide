@@ -75,6 +75,29 @@
   padding: 0;
 }
 
+.reslide-slide table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+  font-size: 0.9em;
+}
+
+.reslide-slide th,
+.reslide-slide td {
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.reslide-slide th {
+  font-weight: 600;
+  border-bottom: 2px solid #cbd5e1;
+}
+
+.reslide-slide tr:last-child td {
+  border-bottom: none;
+}
+
 .reslide-slide a {
   color: var(--slide-accent);
   text-decoration: underline;

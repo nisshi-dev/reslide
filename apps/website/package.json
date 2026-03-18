@@ -21,6 +21,7 @@
     "rehype-katex": "catalog:",
     "remark-directive": "catalog:",
     "remark-frontmatter": "catalog:",
+    "remark-gfm": "catalog:",
     "remark-math": "catalog:"
   },
   "devDependencies": {
