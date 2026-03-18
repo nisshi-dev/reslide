@@ -73,7 +73,7 @@ function Hero() {
         <div className="lp-hero-badges">
           <a href={NPM_URL} target="_blank" rel="noopener noreferrer">
             <img
-              src="https://img.shields.io/npm/v/@reslide-dev/core?style=flat-square&color=3b82f6"
+              src="https://img.shields.io/npm/v/@reslide-dev/core?style=flat-square&color=16a34a"
               alt="npm version"
             />
           </a>
