@@ -259,7 +259,7 @@ function Footer() {
         <div className="lp-footer-content">
           <div>
             <span className="lp-footer-logo">reslide</span>
-            <p>React + MDX Presentation Framework</p>
+            <p>&copy; 2026 nisshi-dev</p>
           </div>
           <div className="lp-footer-links">
             <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
