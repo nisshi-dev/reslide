@@ -1,5 +1,11 @@
 # @reslide-dev/core
 
+## 0.1.0
+
+### Minor Changes
+
+- [#12](https://github.com/nisshi-dev/reslide/pull/12) [`8a88c02`](https://github.com/nisshi-dev/reslide/commit/8a88c021281e9b9f3c883b55a81a7a829a6d3172) Thanks [@nisshi-dev](https://github.com/nisshi-dev)! - プログレスバー、目次 (Toc)、Mermaid 図表コンポーネントを追加。KaTeX 数式と Shiki 構文ハイライトをサポート。
+
 ## 0.0.2
 
 ### Patch Changes
