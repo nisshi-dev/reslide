@@ -1,5 +1,11 @@
 # @reslide-dev/mdx
 
+## 0.1.1
+
+### Patch Changes
+
+- [#19](https://github.com/nisshi-dev/reslide/pull/19) [`990cf7b`](https://github.com/nisshi-dev/reslide/commit/990cf7be6510614ebc7cf09b90208e4cfa23de99) Thanks [@nisshi-dev](https://github.com/nisshi-dev)! - npm publish の version 衝突を回避するためのパッチバンプ
+
 ## 0.1.0
 
 ### Minor Changes
