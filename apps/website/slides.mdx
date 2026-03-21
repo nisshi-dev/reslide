@@ -6,7 +6,7 @@ layout: center
 
 React + MDX ベースのプレゼンテーションフレームワーク
 
-←→ キーでスライド移動 / Space で次へ / Escape で概要モード
+← → キーでスライド移動 / Space で次へ / Escape で概要モード
 
 ---
 
@@ -14,23 +14,15 @@ React + MDX ベースのプレゼンテーションフレームワーク
 
 ::click
 
-- **React ネイティブ** — Vue 依存なし、React 19 対応
+- **MDX** でスライドを記述 — Markdown の手軽さ + React コンポーネントの表現力
 
 ::click
 
-- **MDX** でスライドを記述、React コンポーネント埋め込み可能
+- **フレームワーク非依存** — Next.js / Vite / Remix 等あらゆる React プロジェクトで動作
 
 ::click
 
-- **Vite ベース** — 高速 HMR の開発体験
-
-::click
-
-- **トランジション** — fade / slide-left / slide-right / slide-up / slide-down
-
-::click
-
-- **フレームワーク非依存** — Next.js / Vite / Remix 等で利用可能
+- **Vite ベース** — 高速 HMR、トランジション、テーマ、PDF エクスポートを同梱
 
 ---
 
@@ -38,17 +30,20 @@ React + MDX ベースのプレゼンテーションフレームワーク
 
 ## layout: two-cols
 
-## 2カラムレイアウト
+## レイアウトシステム
 
-`layout="two-cols"` + `SlotRight` で左右にコンテンツを配置
+`layout` プロパティで多彩なレイアウトを切り替え
 
 ```tsx
-<Slide layout="two-cols">
-  <div>左カラム</div>
-  <SlotRight>
-    <div>右カラム</div>
-  </SlotRight>
-</Slide>
+---
+layout: two-cols
+---
+
+左カラムの内容
+
+<SlotRight>
+右カラムの内容
+</SlotRight>
 ```
 
 <SlotRight>
@@ -70,9 +65,9 @@ React + MDX ベースのプレゼンテーションフレームワーク
 
 ## layout: section
 
-# インタラクティブ機能
+# リッチコンテンツ
 
-プレゼンテーションを豊かにするコンポーネント群
+数式・ダイアグラム・ハイライトをネイティブサポート
 
 ---
 
@@ -124,15 +119,15 @@ graph LR
 
 ---
 
-## layout: quote
+## layout: section
 
-The best way to predict the future is to invent it.
+# プレゼンテーション操作
 
-— Alan Kay
+キーボード・マウス・プレゼンターモードで快適な発表体験
 
 ---
 
-## キーボードショートカット
+## 操作方法
 
 | キー       | 機能                             |
 | ---------- | -------------------------------- |
@@ -142,29 +137,20 @@ The best way to predict the future is to invent it.
 | **f**      | フルスクリーン                   |
 | **p**      | プレゼンターウィンドウ           |
 | **d**      | 描画モード（フリーハンド注釈）   |
-| **c**      | 描画クリア（描画モード中）       |
+
+画面の左端 / 右端クリックでもスライド送り・戻しが可能
 
 ---
 
-## クリックナビゲーション
-
-docswell 風の画面端クリックでスライド送り / 戻し
+## ツールと機能
 
 ::click
 
-画面の **左端15%** をクリック → 前のスライドへ
-
-画面の **右端15%** をクリック → 次のスライドへ
-
-中央70%はナビゲーションなし（コンテンツ操作を妨げない）
+- **プレゼンターモード** — 別ウィンドウでノート + タイマー表示（`p` キー）
 
 ::click
 
-← 今すぐ画面の左右端をホバーしてみてください！矢印が表示されます →
-
----
-
-## その他の機能
+- **描画モード** — フリーハンド注釈を重ねて表示（`d` キー）
 
 ::click
 
@@ -172,15 +158,7 @@ docswell 風の画面端クリックでスライド送り / 戻し
 
 ::click
 
-- **PresenterView** — 別ウィンドウでノート + タイマー表示（`p` キー）
-
-::click
-
-- **PDF エクスポート** — `Ctrl+P` で印刷 / PDF 保存
-
-::click
-
-- **テーマ** — CSS 変数ベース、default / dark テーマ同梱
+- **テーマ & PDF** — CSS 変数ベースのテーマ + `Ctrl+P` で PDF エクスポート
 
 ---
 
