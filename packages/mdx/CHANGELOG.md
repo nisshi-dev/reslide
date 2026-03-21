@@ -1,5 +1,11 @@
 # @reslide-dev/mdx
 
+## 0.2.1
+
+### Patch Changes
+
+- [#24](https://github.com/nisshi-dev/reslide/pull/24) [`9742eb6`](https://github.com/nisshi-dev/reslide/commit/9742eb661f18391008477c3d546e14ab797c4c7a) Thanks [@nisshi-dev](https://github.com/nisshi-dev)! - package.json の exports を dist 成果物に修正し、npm 公開パッケージで型解決が失敗する問題を修正
+
 ## 0.2.0
 
 ### Patch Changes
