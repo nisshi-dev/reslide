@@ -1,7 +1,7 @@
 import * as runtime from "react/jsx-runtime";
 import { useEffect, useState } from "react";
 import { Fragment } from "react";
-import type { ComponentType } from "react";
+import type { ComponentType, ElementType } from "react";
 
 import { Click, ClickSteps } from "./Click.js";
 import { Deck } from "./Deck.js";
@@ -19,7 +19,7 @@ export interface ReslideEmbedProps {
   /** Slide transition type */
   transition?: TransitionType;
   /** Additional MDX components to provide */
-  components?: Record<string, ComponentType<any>>;
+  components?: Record<string, ElementType>;
   /** Wrapper around the Deck (for styling) */
   className?: string;
   /** Inline styles for the container */
@@ -61,7 +61,7 @@ export function ReslideEmbed({
   style,
 }: ReslideEmbedProps) {
   const [Content, setContent] = useState<ComponentType<{
-    components?: Record<string, ComponentType<any>>;
+    components?: Record<string, ElementType>;
   }> | null>(null);
 
   useEffect(() => {
@@ -72,9 +72,7 @@ export function ReslideEmbed({
         Fragment,
         baseUrl: import.meta.url,
       });
-      setContent(
-        () => mod.default as ComponentType<{ components?: Record<string, ComponentType<any>> }>,
-      );
+      setContent(() => mod.default as ComponentType<{ components?: Record<string, ElementType> }>);
     }
     void evaluate();
   }, [code]);
@@ -103,7 +101,7 @@ export function ReslideEmbed({
   // via remarkSlides. We render it directly — the Deck is inside the MDX.
   return (
     <div className={className} style={{ width: "100%", height: "100%", ...style }}>
-      <Content components={allComponents as unknown as Record<string, ComponentType<any>>} />
+      <Content components={allComponents as Record<string, ElementType>} />
     </div>
   );
 }
