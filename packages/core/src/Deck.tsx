@@ -201,7 +201,9 @@ export function Deck({ children, transition = "none" }: DeckProps) {
           <ClickNavigation onPrev={prev} onNext={next} disabled={isDrawing} />
         )}
         {!isOverview && !isPrinting && <ProgressBar />}
-        {!isOverview && !isPrinting && <DrawingLayer active={isDrawing} />}
+        {!isOverview && !isPrinting && (
+          <DrawingLayer active={isDrawing} currentSlide={currentSlide} />
+        )}
         {!isPrinting && (
           <NavigationBar isDrawing={isDrawing} onToggleDrawing={() => setIsDrawing((v) => !v)} />
         )}
