@@ -9,7 +9,7 @@
   ],
   "type": "module",
   "exports": {
-    ".": "./dist/index.mjs",
+    ".": "./src/index.ts",
     "./mdx-components": "./src/mdx-components.ts",
     "./themes/default.css": "./src/themes/default.css",
     "./themes/dark.css": "./src/themes/dark.css",
@@ -26,21 +26,21 @@
     "test": "vp test"
   },
   "dependencies": {
-    "@mdx-js/mdx": "^3.1.1"
+    "@mdx-js/mdx": "3.1.1"
   },
   "devDependencies": {
     "@testing-library/dom": "catalog:",
     "@testing-library/react": "catalog:",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
     "jsdom": "catalog:",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
     "vite-plus": "catalog:",
     "vitest": "catalog:"
   },
   "peerDependencies": {
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react": ">=19.0.0",
+    "react-dom": ">=19.0.0"
   }
 }

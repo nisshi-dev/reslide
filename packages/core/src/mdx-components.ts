@@ -5,9 +5,11 @@ import { GlobalLayer } from "./GlobalLayer.js";
 import { Mark } from "./Mark.js";
 import { Mermaid } from "./Mermaid.js";
 import { Notes } from "./Notes.js";
+import { PresenterView } from "./PresenterView.js";
 import { Slide } from "./Slide.js";
 import { SlotRight } from "./Slot.js";
 import { Toc } from "./Toc.js";
+import { isPresenterView } from "./use-presenter.js";
 
 /**
  * All reslide components for use in MDX.
@@ -18,6 +20,10 @@ import { Toc } from "./Toc.js";
  * <MDXContent components={reslideComponents} />
  * ```
  */
+export { PresenterView };
+export type { PresenterViewProps } from "./PresenterView.js";
+export { isPresenterView };
+
 export const reslideComponents = {
   Deck,
   Slide,

@@ -36,6 +36,9 @@ export default defineConfig({
       ],
     }),
   ],
+  resolve: {
+    dedupe: ["mermaid"],
+  },
   server: {
     fs: {
       allow: ["../.."],
