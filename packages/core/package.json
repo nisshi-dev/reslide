@@ -9,8 +9,14 @@
   ],
   "type": "module",
   "exports": {
-    ".": "./src/index.ts",
-    "./mdx-components": "./src/mdx-components.ts",
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    },
+    "./mdx-components": {
+      "types": "./dist/mdx-components.d.mts",
+      "import": "./dist/mdx-components.mjs"
+    },
     "./themes/default.css": "./src/themes/default.css",
     "./themes/dark.css": "./src/themes/dark.css",
     "./transitions.css": "./src/transitions.css",
