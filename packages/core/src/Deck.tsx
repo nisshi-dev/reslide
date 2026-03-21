@@ -31,9 +31,6 @@ export function Deck({ children, transition = "none" }: DeckProps) {
 
   const { isFullscreen, toggleFullscreen } = useFullscreen(containerRef);
 
-  // Sync state to presenter window
-  usePresenterSync(currentSlide, clickStep);
-
   const totalSlides = Children.count(children);
   const totalClickSteps = clickStepsMap[currentSlide] ?? 0;
 
@@ -75,6 +72,10 @@ export function Deck({ children, transition = "none" }: DeckProps) {
     },
     [totalSlides, isOverview],
   );
+
+  // Sync state to presenter window & listen for navigation commands
+  const presenterHandlers = useMemo(() => ({ next, prev, goTo }), [next, prev, goTo]);
+  usePresenterSync(currentSlide, clickStep, presenterHandlers);
 
   const toggleOverview = useCallback(() => {
     setIsOverview((v) => !v);

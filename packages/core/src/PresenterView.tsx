@@ -1,10 +1,10 @@
-import { Children, useCallback, useEffect, useState } from "react";
+import { Children, useCallback, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 
 import { DeckContext } from "./context.js";
 import { SlideIndexContext } from "./slide-context.js";
 import type { DeckContextValue } from "./types.js";
-import type { PresenterMessage } from "./use-presenter.js";
+import { usePresenterChannel } from "./use-presenter.js";
 
 export interface PresenterViewProps {
   children: ReactNode;
@@ -15,6 +15,8 @@ export interface PresenterViewProps {
 /**
  * Presenter view that syncs with the main presentation window.
  * Shows: current slide, next slide preview, notes, and timer.
+ * Supports bidirectional control — navigate from this window to
+ * drive the main presentation.
  */
 export function PresenterView({ children, notes }: PresenterViewProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -23,20 +25,33 @@ export function PresenterView({ children, notes }: PresenterViewProps) {
   const slides = Children.toArray(children);
   const totalSlides = slides.length;
 
-  // Listen for sync messages from main window
+  // Bidirectional channel: listen for sync, send navigation commands
+  const { next, prev, goTo } = usePresenterChannel((msg) => {
+    setCurrentSlide(msg.currentSlide);
+    setClickStep(msg.clickStep);
+  });
+
+  // Keyboard navigation in presenter window
   useEffect(() => {
-    if (typeof BroadcastChannel === "undefined") return;
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
 
-    const channel = new BroadcastChannel("reslide-presenter");
-    channel.onmessage = (e: MessageEvent<PresenterMessage>) => {
-      if (e.data.type === "sync") {
-        setCurrentSlide(e.data.currentSlide);
-        setClickStep(e.data.clickStep);
+      switch (e.key) {
+        case "ArrowRight":
+        case " ":
+          e.preventDefault();
+          next();
+          break;
+        case "ArrowLeft":
+          e.preventDefault();
+          prev();
+          break;
       }
-    };
+    }
 
-    return () => channel.close();
-  }, []);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [next, prev]);
 
   // Timer
   useEffect(() => {
@@ -54,24 +69,26 @@ export function PresenterView({ children, notes }: PresenterViewProps) {
   };
 
   // Minimal context for child components that read useDeck
-  const noop = useCallback(() => {}, []);
-  const noopNum = useCallback((_n: number) => {}, []);
   const noopReg = useCallback((_i: number, _c: number) => {}, []);
+  const noop = useCallback(() => {}, []);
 
-  const contextValue: DeckContextValue = {
-    currentSlide,
-    totalSlides,
-    clickStep,
-    totalClickSteps: 0,
-    isOverview: false,
-    isFullscreen: false,
-    next: noop,
-    prev: noop,
-    goTo: noopNum,
-    toggleOverview: noop,
-    toggleFullscreen: noop,
-    registerClickSteps: noopReg,
-  };
+  const contextValue = useMemo<DeckContextValue>(
+    () => ({
+      currentSlide,
+      totalSlides,
+      clickStep,
+      totalClickSteps: 0,
+      isOverview: false,
+      isFullscreen: false,
+      next,
+      prev,
+      goTo,
+      toggleOverview: noop,
+      toggleFullscreen: noop,
+      registerClickSteps: noopReg,
+    }),
+    [currentSlide, totalSlides, clickStep, next, prev, goTo, noop, noopReg],
+  );
 
   return (
     <DeckContext.Provider value={contextValue}>
@@ -155,7 +172,7 @@ export function PresenterView({ children, notes }: PresenterViewProps) {
           </div>
         </div>
 
-        {/* Bottom bar: timer + slide counter */}
+        {/* Bottom bar: navigation + timer + slide counter */}
         <div
           style={{
             gridColumn: "1 / -1",
@@ -170,12 +187,64 @@ export function PresenterView({ children, notes }: PresenterViewProps) {
           <div style={{ fontSize: "1.5rem", fontVariantNumeric: "tabular-nums", fontWeight: 700 }}>
             {formatTime(elapsed)}
           </div>
-          <div style={{ fontSize: "1.125rem", fontVariantNumeric: "tabular-nums" }}>
-            {currentSlide + 1} / {totalSlides}
-            {clickStep > 0 && <span style={{ color: "#94a3b8" }}> (click {clickStep})</span>}
+
+          {/* Navigation controls */}
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <PresenterNavButton onClick={prev} title="Previous (←)">
+              ◀
+            </PresenterNavButton>
+            <span style={{ fontSize: "1.125rem", fontVariantNumeric: "tabular-nums" }}>
+              {currentSlide + 1} / {totalSlides}
+              {clickStep > 0 && <span style={{ color: "#94a3b8" }}> (click {clickStep})</span>}
+            </span>
+            <PresenterNavButton onClick={next} title="Next (→ / Space)">
+              ▶
+            </PresenterNavButton>
           </div>
+
+          <div style={{ width: "5rem" }} />
         </div>
       </div>
     </DeckContext.Provider>
+  );
+}
+
+function PresenterNavButton({
+  children,
+  onClick,
+  title,
+}: {
+  children: ReactNode;
+  onClick: () => void;
+  title: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={title}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: "2.25rem",
+        height: "2.25rem",
+        background: "rgba(255,255,255,0.1)",
+        border: "1px solid rgba(255,255,255,0.15)",
+        borderRadius: "0.375rem",
+        cursor: "pointer",
+        color: "#e2e8f0",
+        fontSize: "0.875rem",
+        transition: "background 0.15s",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = "rgba(255,255,255,0.2)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = "rgba(255,255,255,0.1)";
+      }}
+    >
+      {children}
+    </button>
   );
 }
