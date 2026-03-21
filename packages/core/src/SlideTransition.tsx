@@ -60,9 +60,7 @@ export function SlideTransition({ children, currentSlide, transition }: SlideTra
     return (
       <div className="reslide-transition-container">
         <SlideIndexContext.Provider value={displaySlide}>
-          <div className="reslide-transition-slide" style={{ position: "relative" }}>
-            {slides[displaySlide]}
-          </div>
+          <div className="reslide-transition-slide">{slides[displaySlide]}</div>
         </SlideIndexContext.Provider>
       </div>
     );
