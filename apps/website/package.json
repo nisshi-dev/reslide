@@ -16,8 +16,8 @@
     "@shikijs/transformers": "catalog:",
     "katex": "catalog:",
     "mermaid": "catalog:",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
     "rehype-katex": "catalog:",
     "remark-directive": "catalog:",
     "remark-frontmatter": "catalog:",
@@ -25,10 +25,10 @@
     "remark-math": "catalog:"
   },
   "devDependencies": {
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "catalog:",
-    "typescript": "~5.9.3",
+    "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plus": "catalog:"
   }
