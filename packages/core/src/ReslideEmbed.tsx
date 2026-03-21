@@ -19,7 +19,7 @@ export interface ReslideEmbedProps {
   /** Slide transition type */
   transition?: TransitionType;
   /** Additional MDX components to provide */
-  components?: Record<string, ComponentType>;
+  components?: Record<string, ComponentType<any>>;
   /** Wrapper around the Deck (for styling) */
   className?: string;
   /** Inline styles for the container */
@@ -61,7 +61,7 @@ export function ReslideEmbed({
   style,
 }: ReslideEmbedProps) {
   const [Content, setContent] = useState<ComponentType<{
-    components?: Record<string, ComponentType>;
+    components?: Record<string, ComponentType<any>>;
   }> | null>(null);
 
   useEffect(() => {
@@ -73,7 +73,7 @@ export function ReslideEmbed({
         baseUrl: import.meta.url,
       });
       setContent(
-        () => mod.default as ComponentType<{ components?: Record<string, ComponentType> }>,
+        () => mod.default as ComponentType<{ components?: Record<string, ComponentType<any>> }>,
       );
     }
     void evaluate();
@@ -103,7 +103,7 @@ export function ReslideEmbed({
   // via remarkSlides. We render it directly — the Deck is inside the MDX.
   return (
     <div className={className} style={{ width: "100%", height: "100%", ...style }}>
-      <Content components={allComponents as unknown as Record<string, ComponentType>} />
+      <Content components={allComponents as unknown as Record<string, ComponentType<any>>} />
     </div>
   );
 }
