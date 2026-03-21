@@ -8,6 +8,7 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 
 import { remarkClick } from "./remark-click.js";
+import { remarkDirectiveFallback } from "./remark-directive-fallback.js";
 import { remarkMark } from "./remark-mark.js";
 import { remarkSlides } from "./remark-slides.js";
 
@@ -70,6 +71,7 @@ export async function compileMdxSlides(
       remarkSlides,
       remarkClick,
       remarkMark,
+      remarkDirectiveFallback,
       ...((options?.remarkPlugins ?? []) as never[]),
     ],
     rehypePlugins: [
