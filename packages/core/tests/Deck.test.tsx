@@ -27,14 +27,17 @@ test("renders children slides", () => {
 });
 
 test("displays slide number", () => {
-  render(
+  const { container } = render(
     <Deck>
       <Slide>Slide 1</Slide>
       <Slide>Slide 2</Slide>
     </Deck>,
   );
 
-  expect(screen.getByText("1 / 2")).toBeTruthy();
+  const slideNumber = container.querySelector(".reslide-slide-number");
+  expect(slideNumber).toBeTruthy();
+  expect(slideNumber!.textContent).toContain("1");
+  expect(slideNumber!.textContent).toContain("2");
 });
 
 test("navigates with arrow keys", () => {

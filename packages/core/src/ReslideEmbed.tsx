@@ -4,14 +4,17 @@ import { Fragment } from "react";
 import type { ComponentType, ElementType } from "react";
 
 import { Click, ClickSteps } from "./Click.js";
+import { CodeEditor } from "./CodeEditor.js";
 import { Deck } from "./Deck.js";
 import { Draggable } from "./Draggable.js";
 import { GlobalLayer } from "./GlobalLayer.js";
 import { Mark } from "./Mark.js";
+import { Mermaid } from "./Mermaid.js";
 import { Notes } from "./Notes.js";
 import { Slide } from "./Slide.js";
 import type { TransitionType } from "./SlideTransition.js";
 import { SlotRight } from "./Slot.js";
+import { Toc } from "./Toc.js";
 
 export interface ReslideEmbedProps {
   /** Compiled MDX code from compileMdxSlides() */
@@ -37,6 +40,9 @@ const builtinComponents = {
   SlotRight,
   GlobalLayer,
   Draggable,
+  Mermaid,
+  Toc,
+  CodeEditor,
 };
 
 /**

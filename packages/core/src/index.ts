@@ -46,6 +46,8 @@ export { NavigationBar } from "./NavigationBar.js";
 
 export { ProgressBar } from "./ProgressBar.js";
 
+export { SlideNumber } from "./SlideNumber.js";
+
 export { ReslideEmbed } from "./ReslideEmbed.js";
 export type { ReslideEmbedProps } from "./ReslideEmbed.js";
 
