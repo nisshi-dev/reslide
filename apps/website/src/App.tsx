@@ -144,6 +144,12 @@ function Features() {
 }
 
 function Demo({ children }: { children: React.ReactNode }) {
+  const handlePresent = () => {
+    const url = new URL(window.location.href);
+    url.searchParams.set("mode", "play");
+    window.open(url.toString(), "_blank");
+  };
+
   return (
     <section id="demo" className="lp-demo">
       <div className="lp-section-inner">
@@ -152,6 +158,11 @@ function Demo({ children }: { children: React.ReactNode }) {
           実際に操作できます。← → キーまたは画面端クリックでスライド移動。Space で次へ。
         </p>
         <div className="lp-demo-frame">{children}</div>
+        <div className="lp-demo-actions">
+          <button type="button" className="lp-btn lp-btn-primary" onClick={handlePresent}>
+            プレゼンテーションを開始
+          </button>
+        </div>
       </div>
     </section>
   );

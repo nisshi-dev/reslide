@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { ClickNavigation } from "./ClickNavigation.js";
 import { DeckContext } from "./context.js";
 import { DrawingLayer } from "./DrawingLayer.js";
+import { NavigationBar } from "./NavigationBar.js";
 import { PrintView } from "./PrintView.js";
 import { ProgressBar } from "./ProgressBar.js";
 import { SlideIndexContext } from "./slide-context.js";
@@ -198,11 +199,11 @@ export function Deck({ children, transition = "none" }: DeckProps) {
         {!isOverview && !isPrinting && (
           <ClickNavigation onPrev={prev} onNext={next} disabled={isDrawing} />
         )}
-        {!isOverview && !isPrinting && (
-          <SlideNumber current={currentSlide + 1} total={totalSlides} />
-        )}
         {!isOverview && !isPrinting && <ProgressBar />}
         {!isOverview && !isPrinting && <DrawingLayer active={isDrawing} />}
+        {!isPrinting && (
+          <NavigationBar isDrawing={isDrawing} onToggleDrawing={() => setIsDrawing((v) => !v)} />
+        )}
       </div>
     </DeckContext.Provider>
   );
@@ -262,24 +263,6 @@ function OverviewGrid({
           </div>
         </button>
       ))}
-    </div>
-  );
-}
-
-function SlideNumber({ current, total }: { current: number; total: number }) {
-  return (
-    <div
-      className="reslide-slide-number"
-      style={{
-        position: "absolute",
-        bottom: "1rem",
-        right: "1rem",
-        fontSize: "0.875rem",
-        opacity: 0.6,
-        fontVariantNumeric: "tabular-nums",
-      }}
-    >
-      {current} / {total}
     </div>
   );
 }

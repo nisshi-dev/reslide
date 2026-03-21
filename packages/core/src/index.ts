@@ -42,6 +42,8 @@ export type { MermaidProps } from "./Mermaid.js";
 
 export { ClickNavigation } from "./ClickNavigation.js";
 
+export { NavigationBar } from "./NavigationBar.js";
+
 export { ProgressBar } from "./ProgressBar.js";
 
 export { ReslideEmbed } from "./ReslideEmbed.js";
