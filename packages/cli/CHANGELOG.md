@@ -1,5 +1,13 @@
 # @reslide-dev/cli
 
+## 0.2.0
+
+### Patch Changes
+
+- Updated dependencies [[`1a67508`](https://github.com/nisshi-dev/reslide/commit/1a675088067cb799f2215f7f65c847cc2003cbe5), [`3392add`](https://github.com/nisshi-dev/reslide/commit/3392addfc28e4c48550924e2e88658e39f2a6393)]:
+  - @reslide-dev/mdx@0.2.0
+  - @reslide-dev/core@0.2.0
+
 ## 0.1.1
 
 ### Patch Changes
