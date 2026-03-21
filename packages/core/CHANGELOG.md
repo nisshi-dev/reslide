@@ -1,5 +1,11 @@
 # @reslide-dev/core
 
+## 0.2.0
+
+### Minor Changes
+
+- [#22](https://github.com/nisshi-dev/reslide/pull/22) [`3392add`](https://github.com/nisshi-dev/reslide/commit/3392addfc28e4c48550924e2e88658e39f2a6393) Thanks [@nisshi-dev](https://github.com/nisshi-dev)! - プレゼンターモードの双方向操作、描画モードのスライド別保持、ナビゲーションバーを追加
+
 ## 0.1.0
 
 ### Minor Changes

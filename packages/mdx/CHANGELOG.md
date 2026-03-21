@@ -1,5 +1,11 @@
 # @reslide-dev/mdx
 
+## 0.2.0
+
+### Patch Changes
+
+- [#22](https://github.com/nisshi-dev/reslide/pull/22) [`1a67508`](https://github.com/nisshi-dev/reslide/commit/1a675088067cb799f2215f7f65c847cc2003cbe5) Thanks [@nisshi-dev](https://github.com/nisshi-dev)! - 時間表記（13:00）やポート番号（:3000）が remark-directive により消失する問題を修正
+
 ## 0.1.1
 
 ### Patch Changes
