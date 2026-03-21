@@ -1,5 +1,11 @@
 # @reslide-dev/core
 
+## 0.2.2
+
+### Patch Changes
+
+- [#26](https://github.com/nisshi-dev/reslide/pull/26) [`b65269e`](https://github.com/nisshi-dev/reslide/commit/b65269e4817c1a14b26b05ed91eefab3fccedf53) Thanks [@nisshi-dev](https://github.com/nisshi-dev)! - ReslideEmbed の builtinComponents に Mermaid, Toc, CodeEditor を追加。スライド番号の常時表示を追加
+
 ## 0.2.1
 
 ### Patch Changes
