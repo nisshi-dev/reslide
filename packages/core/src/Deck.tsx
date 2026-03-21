@@ -7,6 +7,7 @@ import { DrawingLayer } from "./DrawingLayer.js";
 import { NavigationBar } from "./NavigationBar.js";
 import { PrintView } from "./PrintView.js";
 import { ProgressBar } from "./ProgressBar.js";
+import { SlideNumber } from "./SlideNumber.js";
 import { SlideIndexContext } from "./slide-context.js";
 import type { TransitionType } from "./SlideTransition.js";
 import { SlideTransition } from "./SlideTransition.js";
@@ -201,6 +202,7 @@ export function Deck({ children, transition = "none" }: DeckProps) {
           <ClickNavigation onPrev={prev} onNext={next} disabled={isDrawing} />
         )}
         {!isOverview && !isPrinting && <ProgressBar />}
+        {!isOverview && !isPrinting && <SlideNumber />}
         {!isOverview && !isPrinting && (
           <DrawingLayer active={isDrawing} currentSlide={currentSlide} />
         )}
