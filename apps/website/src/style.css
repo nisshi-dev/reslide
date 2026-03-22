@@ -270,6 +270,7 @@ body {
   border: 1px solid var(--lp-border);
   overflow: hidden;
   background: #fff;
+  --reslide-letterbox-bg: #fff;
   box-shadow:
     0 1px 3px rgba(0, 0, 0, 0.06),
     0 12px 40px rgba(0, 0, 0, 0.08);

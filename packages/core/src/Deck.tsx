@@ -98,6 +98,8 @@ export function Deck({ children, transition = "none", aspectRatio = 16 / 9 }: De
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
         return;
       }
+      // Ignore if modifier keys are held (allow Cmd+P for print, etc.)
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
 
       switch (e.key) {
         case "ArrowRight":
@@ -193,7 +195,7 @@ export function Deck({ children, transition = "none", aspectRatio = 16 / 9 }: De
     };
   }, []);
 
-  // Scale slide content to fit container
+  // Calculate scale from the deck element size
   useEffect(() => {
     const el = deckRef.current;
     if (!el) return;
@@ -258,31 +260,32 @@ export function Deck({ children, transition = "none", aspectRatio = 16 / 9 }: De
         cursor: isPointer ? "none" : undefined,
       }}
     >
-      {/* Scaled content layer — renders at fixed design size, scaled to fit */}
-      <div
-        className="reslide-scale-wrapper"
-        style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          width: DESIGN_WIDTH,
-          height: DESIGN_HEIGHT,
-          transform: `translate(-50%, -50%) scale(${scale})`,
-          transformOrigin: "center center",
-        }}
-      >
-        {isPrinting ? (
-          <PrintView>{children}</PrintView>
-        ) : isOverview ? (
-          <OverviewGrid totalSlides={totalSlides} goTo={goTo}>
-            {children}
-          </OverviewGrid>
-        ) : (
-          <SlideTransition currentSlide={currentSlide} transition={transition}>
-            {children}
-          </SlideTransition>
-        )}
-      </div>
+      {isPrinting ? (
+        <PrintView>{children}</PrintView>
+      ) : (
+        <div
+          className="reslide-scale-wrapper"
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            width: DESIGN_WIDTH,
+            height: DESIGN_HEIGHT,
+            transform: `translate(-50%, -50%) scale(${scale})`,
+            transformOrigin: "center center",
+          }}
+        >
+          {isOverview ? (
+            <OverviewGrid totalSlides={totalSlides} goTo={goTo}>
+              {children}
+            </OverviewGrid>
+          ) : (
+            <SlideTransition currentSlide={currentSlide} transition={transition}>
+              {children}
+            </SlideTransition>
+          )}
+        </div>
+      )}
       {/* UI overlays — not scaled, stay at actual viewport size */}
       {!isOverview && !isPrinting && (
         <ClickNavigation onPrev={prev} onNext={next} disabled={isDrawing} />
@@ -320,16 +323,17 @@ export function Deck({ children, transition = "none", aspectRatio = 16 / 9 }: De
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: "#000",
+          backgroundColor: "var(--reslide-letterbox-bg, #000)",
           overflow: "hidden",
         }}
       >
         <div
           className="reslide-letterbox-inner"
           style={{
-            width: "100%",
-            maxHeight: "100%",
+            height: "100%",
+            maxWidth: "100%",
             aspectRatio: String(aspectRatio),
+            overflow: "hidden",
           }}
         >
           {slideArea}
