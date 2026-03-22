@@ -5,6 +5,7 @@ import { ClickNavigation } from "./ClickNavigation.js";
 import { DeckContext } from "./context.js";
 import { DrawingLayer } from "./DrawingLayer.js";
 import { NavigationBar } from "./NavigationBar.js";
+import { Pointer } from "./Pointer.js";
 import { PrintView } from "./PrintView.js";
 import { ProgressBar } from "./ProgressBar.js";
 import { SlideNumber } from "./SlideNumber.js";
@@ -29,6 +30,7 @@ export function Deck({ children, transition = "none", aspectRatio = 16 / 9 }: De
   const [clickStep, setClickStep] = useState(0);
   const [isOverview, setIsOverview] = useState(false);
   const [isDrawing, setIsDrawing] = useState(false);
+  const [isPointer, setIsPointer] = useState(false);
   const [isPrinting, setIsPrinting] = useState(false);
   const [clickStepsMap, setClickStepsMap] = useState<Record<number, number>>({});
 
@@ -120,6 +122,12 @@ export function Deck({ children, transition = "none", aspectRatio = 16 / 9 }: De
         case "d":
           e.preventDefault();
           setIsDrawing((v) => !v);
+          setIsPointer(false);
+          break;
+        case "q":
+          e.preventDefault();
+          setIsPointer((v) => !v);
+          setIsDrawing(false);
           break;
       }
     }
@@ -187,6 +195,7 @@ export function Deck({ children, transition = "none", aspectRatio = 16 / 9 }: De
         overflow: "hidden",
         backgroundColor: "var(--slide-bg, #fff)",
         color: "var(--slide-text, #1a1a1a)",
+        cursor: isPointer ? "none" : undefined,
       }}
     >
       {isPrinting ? (
@@ -208,6 +217,7 @@ export function Deck({ children, transition = "none", aspectRatio = 16 / 9 }: De
       {!isOverview && !isPrinting && (
         <DrawingLayer active={isDrawing} currentSlide={currentSlide} />
       )}
+      {!isOverview && !isPrinting && <Pointer active={isPointer} />}
       {!isPrinting && (
         <NavigationBar isDrawing={isDrawing} onToggleDrawing={() => setIsDrawing((v) => !v)} />
       )}

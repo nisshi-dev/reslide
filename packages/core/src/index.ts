@@ -44,6 +44,9 @@ export { ClickNavigation } from "./ClickNavigation.js";
 
 export { NavigationBar } from "./NavigationBar.js";
 
+export { Pointer } from "./Pointer.js";
+export type { PointerProps } from "./Pointer.js";
+
 export { ProgressBar } from "./ProgressBar.js";
 
 export { SlideNumber } from "./SlideNumber.js";
