@@ -107,7 +107,7 @@ export function Toc({ children, className, style }: TocProps) {
               lineHeight: 1.4,
               fontFamily: "inherit",
               color: isActive
-                ? "var(--toc-active-text, var(--slide-accent, #3b82f6))"
+                ? "var(--toc-active-text, var(--slide-accent, #16a34a))"
                 : "var(--toc-text, var(--slide-text, #1a1a1a))",
               backgroundColor: isActive
                 ? "var(--toc-active-bg, rgba(59, 130, 246, 0.1))"

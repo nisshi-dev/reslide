@@ -79,7 +79,7 @@ function Hero() {
           </a>
           <a href={`${GITHUB_URL}/blob/main/LICENSE`} target="_blank" rel="noopener noreferrer">
             <img
-              src="https://img.shields.io/badge/license-MIT-green?style=flat-square"
+              src="https://img.shields.io/badge/license-MIT-16a34a?style=flat-square"
               alt="MIT License"
             />
           </a>

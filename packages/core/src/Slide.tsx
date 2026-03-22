@@ -140,7 +140,7 @@ export function Slide({ children, layout = "default", image, className, style }:
             alignItems: "center",
             textAlign: "center",
             padding: "3rem 4rem",
-            backgroundColor: "var(--slide-accent, #3b82f6)",
+            backgroundColor: "var(--slide-accent, #16a34a)",
             color: "var(--slide-section-text, #fff)",
             ...style,
           }}
@@ -165,7 +165,7 @@ export function Slide({ children, layout = "default", image, className, style }:
             style={{
               fontSize: "1.5em",
               fontStyle: "italic",
-              borderLeft: "4px solid var(--slide-accent, #3b82f6)",
+              borderLeft: "4px solid var(--slide-accent, #16a34a)",
               paddingLeft: "1.5rem",
               margin: 0,
             }}

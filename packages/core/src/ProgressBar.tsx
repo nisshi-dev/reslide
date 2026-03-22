@@ -30,7 +30,7 @@ export function ProgressBar() {
         style={{
           height: "100%",
           width: `${progress * 100}%`,
-          backgroundColor: "var(--slide-progress, #009185)",
+          backgroundColor: "var(--slide-progress, #16a34a)",
           transition: "width 0.3s ease",
         }}
       />

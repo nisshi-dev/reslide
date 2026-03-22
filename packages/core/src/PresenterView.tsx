@@ -110,7 +110,7 @@ export function PresenterView({ children, notes }: PresenterViewProps) {
         {/* Current slide */}
         <div
           style={{
-            border: "2px solid #3b82f6",
+            border: "2px solid #16a34a",
             borderRadius: "0.5rem",
             overflow: "hidden",
             position: "relative",

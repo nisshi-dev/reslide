@@ -285,7 +285,7 @@ function OverviewGrid({
           type="button"
           onClick={() => goTo(i)}
           style={{
-            border: "1px solid var(--slide-accent, #3b82f6)",
+            border: "1px solid var(--slide-accent, #16a34a)",
             borderRadius: "0.5rem",
             overflow: "hidden",
             cursor: "pointer",
