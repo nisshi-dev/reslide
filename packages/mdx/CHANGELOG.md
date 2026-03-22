@@ -1,5 +1,11 @@
 # @reslide-dev/mdx
 
+## 0.3.1
+
+### Patch Changes
+
+- [#30](https://github.com/nisshi-dev/reslide/pull/30) [`3c2e2a2`](https://github.com/nisshi-dev/reslide/commit/3c2e2a26d399d3882883e301408bf78de33bcb0b) Thanks [@nisshi-dev](https://github.com/nisshi-dev)! - MDX の image frontmatter が Slide に渡されない問題を修正し、CSS リセット環境でリストマーカーが表示されるよう list-style-type を追加
+
 ## 0.2.1
 
 ### Patch Changes
