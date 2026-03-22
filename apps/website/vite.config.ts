@@ -1,7 +1,7 @@
 import mdx from "@mdx-js/rollup";
 import rehypeShiki from "@shikijs/rehype";
 import { transformerNotationHighlight } from "@shikijs/transformers";
-import { remarkClick, remarkMark, remarkSlides } from "@reslide-dev/mdx";
+import { remarkClick, remarkDirectiveFallback, remarkMark, remarkSlides } from "@reslide-dev/mdx";
 import react from "@vitejs/plugin-react";
 import rehypeKatex from "rehype-katex";
 import remarkDirective from "remark-directive";
@@ -23,6 +23,7 @@ export default defineConfig({
         remarkSlides,
         remarkClick,
         remarkMark,
+        remarkDirectiveFallback,
       ],
       rehypePlugins: [
         rehypeKatex,
