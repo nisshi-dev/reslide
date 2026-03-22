@@ -16,6 +16,10 @@ import { useFullscreen } from "./use-fullscreen.js";
 import { openPresenterWindow, usePresenterSync } from "./use-presenter.js";
 import type { DeckContextValue } from "./types.js";
 
+/** Design resolution — slides are authored at this size and scaled to fit */
+const DESIGN_WIDTH = 960;
+const DESIGN_HEIGHT = 540;
+
 export interface DeckProps {
   children: ReactNode;
   /** Slide transition type */
@@ -26,6 +30,7 @@ export interface DeckProps {
 
 export function Deck({ children, transition = "none", aspectRatio = 16 / 9 }: DeckProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const deckRef = useRef<HTMLDivElement>(null);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [clickStep, setClickStep] = useState(0);
   const [isOverview, setIsOverview] = useState(false);
@@ -33,6 +38,7 @@ export function Deck({ children, transition = "none", aspectRatio = 16 / 9 }: De
   const [isPointer, setIsPointer] = useState(false);
   const [isPrinting, setIsPrinting] = useState(false);
   const [clickStepsMap, setClickStepsMap] = useState<Record<number, number>>({});
+  const [scale, setScale] = useState(1);
 
   const { isFullscreen, toggleFullscreen } = useFullscreen(containerRef);
 
@@ -136,6 +142,41 @@ export function Deck({ children, transition = "none", aspectRatio = 16 / 9 }: De
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [next, prev, toggleOverview, toggleFullscreen]);
 
+  // Touch swipe navigation
+  useEffect(() => {
+    const el = deckRef.current;
+    if (!el) return;
+
+    let startX = 0;
+    let startY = 0;
+
+    function handleTouchStart(e: TouchEvent) {
+      const touch = e.touches[0];
+      startX = touch.clientX;
+      startY = touch.clientY;
+    }
+
+    function handleTouchEnd(e: TouchEvent) {
+      if (isOverview || isDrawing) return;
+      const touch = e.changedTouches[0];
+      const dx = touch.clientX - startX;
+      const dy = touch.clientY - startY;
+
+      // Only trigger if horizontal swipe is dominant and exceeds threshold
+      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+        if (dx < 0) next();
+        else prev();
+      }
+    }
+
+    el.addEventListener("touchstart", handleTouchStart, { passive: true });
+    el.addEventListener("touchend", handleTouchEnd, { passive: true });
+    return () => {
+      el.removeEventListener("touchstart", handleTouchStart);
+      el.removeEventListener("touchend", handleTouchEnd);
+    };
+  }, [next, prev, isOverview, isDrawing]);
+
   // Print mode: show all slides when printing
   useEffect(() => {
     function onBeforePrint() {
@@ -150,6 +191,24 @@ export function Deck({ children, transition = "none", aspectRatio = 16 / 9 }: De
       window.removeEventListener("beforeprint", onBeforePrint);
       window.removeEventListener("afterprint", onAfterPrint);
     };
+  }, []);
+
+  // Scale slide content to fit container
+  useEffect(() => {
+    const el = deckRef.current;
+    if (!el) return;
+
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect;
+        if (width > 0 && height > 0) {
+          setScale(Math.min(width / DESIGN_WIDTH, height / DESIGN_HEIGHT));
+        }
+      }
+    });
+
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
   const contextValue = useMemo<DeckContextValue>(
@@ -187,6 +246,7 @@ export function Deck({ children, transition = "none", aspectRatio = 16 / 9 }: De
 
   const slideArea = (
     <div
+      ref={deckRef}
       className="reslide-deck"
       style={{
         position: "relative",
@@ -198,17 +258,32 @@ export function Deck({ children, transition = "none", aspectRatio = 16 / 9 }: De
         cursor: isPointer ? "none" : undefined,
       }}
     >
-      {isPrinting ? (
-        <PrintView>{children}</PrintView>
-      ) : isOverview ? (
-        <OverviewGrid totalSlides={totalSlides} goTo={goTo}>
-          {children}
-        </OverviewGrid>
-      ) : (
-        <SlideTransition currentSlide={currentSlide} transition={transition}>
-          {children}
-        </SlideTransition>
-      )}
+      {/* Scaled content layer — renders at fixed design size, scaled to fit */}
+      <div
+        className="reslide-scale-wrapper"
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          width: DESIGN_WIDTH,
+          height: DESIGN_HEIGHT,
+          transform: `translate(-50%, -50%) scale(${scale})`,
+          transformOrigin: "center center",
+        }}
+      >
+        {isPrinting ? (
+          <PrintView>{children}</PrintView>
+        ) : isOverview ? (
+          <OverviewGrid totalSlides={totalSlides} goTo={goTo}>
+            {children}
+          </OverviewGrid>
+        ) : (
+          <SlideTransition currentSlide={currentSlide} transition={transition}>
+            {children}
+          </SlideTransition>
+        )}
+      </div>
+      {/* UI overlays — not scaled, stay at actual viewport size */}
       {!isOverview && !isPrinting && (
         <ClickNavigation onPrev={prev} onNext={next} disabled={isDrawing} />
       )}
