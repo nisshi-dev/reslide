@@ -19,9 +19,11 @@ export interface DeckProps {
   children: ReactNode;
   /** Slide transition type */
   transition?: TransitionType;
+  /** Aspect ratio (default: 16/9). Set to 0 to disable and fill parent. */
+  aspectRatio?: number;
 }
 
-export function Deck({ children, transition = "none" }: DeckProps) {
+export function Deck({ children, transition = "none", aspectRatio = 16 / 9 }: DeckProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [clickStep, setClickStep] = useState(0);
@@ -173,42 +175,80 @@ export function Deck({ children, transition = "none" }: DeckProps) {
     ],
   );
 
+  const useLetterbox = aspectRatio > 0;
+
+  const slideArea = (
+    <div
+      className="reslide-deck"
+      style={{
+        position: "relative",
+        width: "100%",
+        height: "100%",
+        overflow: "hidden",
+        backgroundColor: "var(--slide-bg, #fff)",
+        color: "var(--slide-text, #1a1a1a)",
+      }}
+    >
+      {isPrinting ? (
+        <PrintView>{children}</PrintView>
+      ) : isOverview ? (
+        <OverviewGrid totalSlides={totalSlides} goTo={goTo}>
+          {children}
+        </OverviewGrid>
+      ) : (
+        <SlideTransition currentSlide={currentSlide} transition={transition}>
+          {children}
+        </SlideTransition>
+      )}
+      {!isOverview && !isPrinting && (
+        <ClickNavigation onPrev={prev} onNext={next} disabled={isDrawing} />
+      )}
+      {!isOverview && !isPrinting && <ProgressBar />}
+      {!isOverview && !isPrinting && <SlideNumber />}
+      {!isOverview && !isPrinting && (
+        <DrawingLayer active={isDrawing} currentSlide={currentSlide} />
+      )}
+      {!isPrinting && (
+        <NavigationBar isDrawing={isDrawing} onToggleDrawing={() => setIsDrawing((v) => !v)} />
+      )}
+    </div>
+  );
+
+  if (!useLetterbox) {
+    return (
+      <DeckContext.Provider value={contextValue}>
+        <div ref={containerRef} style={{ width: "100%", height: "100%" }}>
+          {slideArea}
+        </div>
+      </DeckContext.Provider>
+    );
+  }
+
   return (
     <DeckContext.Provider value={contextValue}>
       <div
         ref={containerRef}
-        className="reslide-deck"
+        className="reslide-letterbox"
         style={{
-          position: "relative",
           width: "100%",
           height: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "#000",
           overflow: "hidden",
-          backgroundColor: "var(--slide-bg, #fff)",
-          color: "var(--slide-text, #1a1a1a)",
         }}
       >
-        {isPrinting ? (
-          <PrintView>{children}</PrintView>
-        ) : isOverview ? (
-          <OverviewGrid totalSlides={totalSlides} goTo={goTo}>
-            {children}
-          </OverviewGrid>
-        ) : (
-          <SlideTransition currentSlide={currentSlide} transition={transition}>
-            {children}
-          </SlideTransition>
-        )}
-        {!isOverview && !isPrinting && (
-          <ClickNavigation onPrev={prev} onNext={next} disabled={isDrawing} />
-        )}
-        {!isOverview && !isPrinting && <ProgressBar />}
-        {!isOverview && !isPrinting && <SlideNumber />}
-        {!isOverview && !isPrinting && (
-          <DrawingLayer active={isDrawing} currentSlide={currentSlide} />
-        )}
-        {!isPrinting && (
-          <NavigationBar isDrawing={isDrawing} onToggleDrawing={() => setIsDrawing((v) => !v)} />
-        )}
+        <div
+          className="reslide-letterbox-inner"
+          style={{
+            width: "100%",
+            maxHeight: "100%",
+            aspectRatio: String(aspectRatio),
+          }}
+        >
+          {slideArea}
+        </div>
       </div>
     </DeckContext.Provider>
   );
