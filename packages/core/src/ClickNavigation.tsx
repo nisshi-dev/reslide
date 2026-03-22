@@ -10,7 +10,7 @@ interface ClickNavigationProps {
  * Invisible click zones on the left/right edges of the slide.
  * Clicking the left ~15% goes to the previous slide,
  * clicking the right ~15% goes to the next slide.
- * Shows a subtle arrow indicator on hover.
+ * Shows a gradient overlay and arrow indicator on hover (docswell style).
  */
 export function ClickNavigation({ onPrev, onNext, disabled }: ClickNavigationProps) {
   if (disabled) return null;
@@ -28,12 +28,17 @@ function NavZone({ direction, onClick }: { direction: "prev" | "next"; onClick: 
   const isPrev = direction === "prev";
 
   const handleClick = useCallback(
-    (e: React.MouseEvent) => {
+    (e: React.MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation();
+      e.currentTarget.blur();
       onClick();
     },
     [onClick],
   );
+
+  const gradient = isPrev
+    ? "linear-gradient(to right, rgba(0,0,0,0.08), transparent)"
+    : "linear-gradient(to left, rgba(0,0,0,0.08), transparent)";
 
   return (
     <button
@@ -48,16 +53,16 @@ function NavZone({ direction, onClick }: { direction: "prev" | "next"; onClick: 
         bottom: 0,
         [isPrev ? "left" : "right"]: 0,
         width: "15%",
-        background: "none",
+        background: hovered ? gradient : "none",
         border: "none",
+        outline: "none",
         cursor: "pointer",
         zIndex: 20,
         display: "flex",
         alignItems: "center",
         justifyContent: isPrev ? "flex-start" : "flex-end",
         padding: "0 1.5rem",
-        opacity: hovered ? 1 : 0,
-        transition: "opacity 0.2s ease",
+        transition: "background 0.25s ease",
       }}
     >
       <svg
@@ -71,9 +76,10 @@ function NavZone({ direction, onClick }: { direction: "prev" | "next"; onClick: 
         strokeLinejoin="round"
         style={{
           color: "var(--slide-text, #1a1a1a)",
-          opacity: 0.4,
-          filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.2))",
+          opacity: hovered ? 0.6 : 0,
+          filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.15))",
           transform: isPrev ? "none" : "rotate(180deg)",
+          transition: "opacity 0.25s ease",
         }}
       >
         <polyline points="15 18 9 12 15 6" />

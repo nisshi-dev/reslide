@@ -79,7 +79,7 @@ function Hero() {
           </a>
           <a href={`${GITHUB_URL}/blob/main/LICENSE`} target="_blank" rel="noopener noreferrer">
             <img
-              src="https://img.shields.io/badge/license-MIT-green?style=flat-square"
+              src="https://img.shields.io/badge/license-MIT-16a34a?style=flat-square"
               alt="MIT License"
             />
           </a>
@@ -97,10 +97,10 @@ const FEATURE_LIST = [
     icon: "M",
   },
   {
-    title: "フレームワーク非依存",
+    title: "16:9 レスポンシブ",
     description:
-      "Next.js、Remix、Vite、どんな React プロジェクトにも組み込める純粋な React コンポーネント。",
-    icon: "R",
+      "固定アスペクト比でレンダリング。PC でもスマホでも同じレイアウトで表示。タッチスワイプ対応。",
+    icon: "16:9",
   },
   {
     title: "KaTeX & Mermaid",
@@ -108,19 +108,20 @@ const FEATURE_LIST = [
     icon: "∑",
   },
   {
-    title: "クリックアニメーション",
-    description: "::click ディレクティブで段階的なコンテンツ表示。Slidev ライクな操作感。",
-    icon: "▶",
-  },
-  {
-    title: "Shiki 構文ハイライト",
-    description: "ビルド時にコードブロックを美しくハイライト。行単位の強調表示にも対応。",
-    icon: "<>",
-  },
-  {
     title: "プレゼンターモード",
-    description: "別ウィンドウでノート・タイマーを表示。描画モードでフリーハンド注釈も可能。",
+    description:
+      "別ウィンドウでノート・タイマー・次スライドを表示。双方向操作でプレゼンターからスライド送り可能。",
     icon: "P",
+  },
+  {
+    title: "ポインター & 描画",
+    description: "ポインターモードでクリック箇所を強調。描画モードはスライドごとに注釈を保持。",
+    icon: "Q",
+  },
+  {
+    title: "Shiki & クリックアニメーション",
+    description: "ビルド時に構文ハイライト。::click ディレクティブで段階的コンテンツ表示。",
+    icon: "<>",
   },
 ] as const;
 

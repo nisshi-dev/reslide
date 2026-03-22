@@ -6,5 +6,6 @@ export default defineConfig({
   pack: tsdownConfig,
   test: {
     environment: "jsdom",
+    setupFiles: ["tests/setup.ts"],
   },
 });

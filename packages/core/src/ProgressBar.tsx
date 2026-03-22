@@ -19,7 +19,7 @@ export function ProgressBar() {
       className="reslide-progress-bar"
       style={{
         position: "absolute",
-        top: 0,
+        bottom: 0,
         left: 0,
         width: "100%",
         height: "3px",
@@ -30,7 +30,7 @@ export function ProgressBar() {
         style={{
           height: "100%",
           width: `${progress * 100}%`,
-          backgroundColor: "var(--slide-accent, #3b82f6)",
+          backgroundColor: "var(--slide-progress, #16a34a)",
           transition: "width 0.3s ease",
         }}
       />

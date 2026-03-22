@@ -1,5 +1,22 @@
 # @reslide-dev/core
 
+## 0.3.0
+
+### Minor Changes
+
+- スライド表示・ナビゲーション・印刷機能の強化
+  - スライドのアスペクト比を 16:9 に固定し、レターボックス表示に対応
+  - タッチスワイプによるスライド操作を追加
+  - プレゼンテーションポインター機能を追加
+  - プレゼンタービューのスライド表示を 16:9 にスケーリング
+  - 印刷モード（?mode=print）のルーティングとナビゲーションバーの印刷ボタンを追加
+  - 印刷時の背景色保持（print-color-adjust: exact）とスケーリングを修正
+  - クリックナビゲーションのホバー表示改善
+
+### Patch Changes
+
+- [#29](https://github.com/nisshi-dev/reslide/pull/29) [`803ae84`](https://github.com/nisshi-dev/reslide/commit/803ae8485c8f4a6bc63ef70aea905df1e3edd5c1) Thanks [@nisshi-dev](https://github.com/nisshi-dev)! - MDX 内の `<Mermaid>` コンポーネントでダイアグラムが描画されない問題を修正
+
 ## 0.2.2
 
 ### Patch Changes

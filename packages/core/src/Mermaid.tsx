@@ -1,8 +1,30 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { isValidElement, useEffect, useId, useRef, useState } from "react";
+import type { ReactNode } from "react";
 
 export interface MermaidProps {
-  /** Mermaid diagram code */
-  children: string;
+  /** Mermaid diagram code (string or MDX children) */
+  children: ReactNode;
+}
+
+/**
+ * Recursively extract text content from React children.
+ * MDX wraps raw text in paragraphs and other elements,
+ * so we need to traverse the tree to get the original text.
+ */
+function extractText(node: ReactNode): string {
+  if (node == null || typeof node === "boolean") return "";
+  if (typeof node === "string") return node;
+  if (typeof node === "number") return String(node);
+  if (Array.isArray(node)) return node.map(extractText).join("");
+  if (isValidElement(node)) {
+    const { children } = node.props as { children?: ReactNode };
+    const text = extractText(children);
+    // MDX wraps lines in <p>, restore line breaks between block elements
+    const tag = typeof node.type === "string" ? node.type : "";
+    if (tag === "p" || tag === "br") return `${text}\n`;
+    return text;
+  }
+  return "";
 }
 
 /**
@@ -25,7 +47,11 @@ export function Mermaid({ children }: MermaidProps) {
   const [error, setError] = useState<string>("");
   const id = useId().replace(/:/g, "_");
 
+  const code = extractText(children).trim();
+
   useEffect(() => {
+    if (!code) return;
+
     let cancelled = false;
 
     async function render() {
@@ -39,9 +65,6 @@ export function Mermaid({ children }: MermaidProps) {
           theme: "default",
           securityLevel: "loose",
         });
-
-        const code = typeof children === "string" ? children.trim() : "";
-        if (!code) return;
 
         const { svg: rendered } = await mermaid.default.render(`mermaid-${id}`, code);
 
@@ -60,7 +83,7 @@ export function Mermaid({ children }: MermaidProps) {
     return () => {
       cancelled = true;
     };
-  }, [children, id]);
+  }, [code, id]);
 
   if (error) {
     return (

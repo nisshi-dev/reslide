@@ -27,6 +27,12 @@ export function NavigationBar({
     toggleFullscreen,
   } = useDeck();
 
+  const handlePrint = useCallback(() => {
+    const url = new URL(window.location.href);
+    url.searchParams.set("mode", "print");
+    window.open(url.toString(), "_blank");
+  }, []);
+
   const [visible, setVisible] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout>>(null);
   const barRef = useRef<HTMLDivElement>(null);
@@ -126,6 +132,13 @@ export function NavigationBar({
       {/* Drawing */}
       <NavButton onClick={onToggleDrawing} title="Drawing (d)" active={isDrawing}>
         <PenIcon />
+      </NavButton>
+
+      <Divider />
+
+      {/* Print / PDF */}
+      <NavButton onClick={handlePrint} title="Print / PDF (Cmd+P)">
+        <PrintIcon />
       </NavButton>
     </div>
   );
@@ -299,6 +312,25 @@ function PenIcon() {
       <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
       <path d="M2 2l7.586 7.586" />
       <circle cx="11" cy="11" r="2" />
+    </svg>
+  );
+}
+
+function PrintIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <polyline points="6 9 6 2 18 2 18 9" />
+      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+      <rect x="6" y="14" width="12" height="8" />
     </svg>
   );
 }

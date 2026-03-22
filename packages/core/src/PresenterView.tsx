@@ -1,4 +1,4 @@
-import { Children, useCallback, useEffect, useMemo, useState } from "react";
+import { Children, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 
 import { DeckContext } from "./context.js";
@@ -6,10 +6,65 @@ import { SlideIndexContext } from "./slide-context.js";
 import type { DeckContextValue } from "./types.js";
 import { usePresenterChannel } from "./use-presenter.js";
 
+const DESIGN_WIDTH = 960;
+const DESIGN_HEIGHT = 540;
+
 export interface PresenterViewProps {
   children: ReactNode;
   /** Render function for notes content per slide */
   notes?: ReactNode[];
+}
+
+/**
+ * Scaled slide preview — renders at design size and scales to fit container.
+ * Maintains 16:9 aspect ratio.
+ */
+function ScaledSlide({ children }: { children: ReactNode }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect;
+        if (width > 0 && height > 0) {
+          setScale(Math.min(width / DESIGN_WIDTH, height / DESIGN_HEIGHT));
+        }
+      }
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={containerRef}
+      style={{
+        width: "100%",
+        aspectRatio: "16 / 9",
+        position: "relative",
+        overflow: "hidden",
+        backgroundColor: "var(--slide-bg, #fff)",
+        color: "var(--slide-text, #1a1a1a)",
+      }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          width: DESIGN_WIDTH,
+          height: DESIGN_HEIGHT,
+          transform: `translate(-50%, -50%) scale(${scale})`,
+          transformOrigin: "center center",
+        }}
+      >
+        {children}
+      </div>
+    </div>
+  );
 }
 
 /**
@@ -110,16 +165,17 @@ export function PresenterView({ children, notes }: PresenterViewProps) {
         {/* Current slide */}
         <div
           style={{
-            border: "2px solid #3b82f6",
+            border: "2px solid #16a34a",
             borderRadius: "0.5rem",
             overflow: "hidden",
-            position: "relative",
-            backgroundColor: "var(--slide-bg, #fff)",
-            color: "var(--slide-text, #1a1a1a)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: "#000",
           }}
         >
           <SlideIndexContext.Provider value={currentSlide}>
-            {slides[currentSlide]}
+            <ScaledSlide>{slides[currentSlide]}</ScaledSlide>
           </SlideIndexContext.Provider>
         </div>
 
@@ -128,28 +184,34 @@ export function PresenterView({ children, notes }: PresenterViewProps) {
           {/* Next slide preview */}
           <div
             style={{
-              flex: "0 0 40%",
               border: "1px solid #334155",
               borderRadius: "0.5rem",
               overflow: "hidden",
               opacity: 0.8,
-              backgroundColor: "var(--slide-bg, #fff)",
-              color: "var(--slide-text, #1a1a1a)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: "#000",
             }}
           >
-            {currentSlide < totalSlides - 1 && (
+            {currentSlide < totalSlides - 1 ? (
               <SlideIndexContext.Provider value={currentSlide + 1}>
-                <div
-                  style={{
-                    transform: "scale(0.5)",
-                    transformOrigin: "top left",
-                    width: "200%",
-                    height: "200%",
-                  }}
-                >
-                  {slides[currentSlide + 1]}
-                </div>
+                <ScaledSlide>{slides[currentSlide + 1]}</ScaledSlide>
               </SlideIndexContext.Provider>
+            ) : (
+              <div
+                style={{
+                  width: "100%",
+                  aspectRatio: "16 / 9",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "#64748b",
+                  fontSize: "0.875rem",
+                }}
+              >
+                End of slides
+              </div>
             )}
           </div>
 
