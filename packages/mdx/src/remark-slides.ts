@@ -112,6 +112,13 @@ export function remarkSlides() {
           value: options.class,
         });
       }
+      if (options.image) {
+        attrs.push({
+          type: "mdxJsxAttribute",
+          name: "image",
+          value: options.image,
+        });
+      }
 
       const slideChildren: RootContent[] = [...content];
 
