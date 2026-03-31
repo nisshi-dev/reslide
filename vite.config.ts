@@ -6,6 +6,6 @@ export default defineConfig({
   },
   lint: { options: { typeAware: true, typeCheck: true } },
   test: {
-    projects: ["packages/core", "packages/mdx"],
+    projects: ["packages/core", "packages/mdx", "packages/cli"],
   },
 });

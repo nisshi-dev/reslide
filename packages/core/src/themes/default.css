@@ -21,6 +21,12 @@
   --mark-purple: #e9d5ff;
 }
 
+/* Transition container must propagate height for full-height layouts */
+.reslide-transition-container,
+.reslide-transition-slide {
+  height: 100%;
+}
+
 .reslide-deck {
   font-family: var(--slide-font-family);
   line-height: 1.6;

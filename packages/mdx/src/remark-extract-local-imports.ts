@@ -209,19 +209,12 @@ export function remarkExtractLocalImports(options?: { baseUrl?: string }) {
 function buildInlineModule(importClause: string, compiledCode: string): string {
   let code = stripExports(compiledCode);
 
-  // Sucrase generates _Fragment references when JSX Fragment (<>...</>) is used.
-  // After stripping the react/jsx-runtime import, _Fragment would be undefined.
-  // In MDX's function-body output, arguments[0] contains the JSX runtime.
-  // We bind the needed runtime variables at the top of the inlined code.
-  const needsJsxBindings: string[] = [];
-  if (code.includes("_Fragment")) needsJsxBindings.push("Fragment: _Fragment");
-  if (code.includes("_jsx") && !code.includes("_jsx =") && !code.includes("_jsx,"))
-    needsJsxBindings.push("jsx: _jsx");
-  if (code.includes("_jsxs") && !code.includes("_jsxs =") && !code.includes("_jsxs,"))
-    needsJsxBindings.push("jsxs: _jsxs");
-
-  if (needsJsxBindings.length > 0) {
-    code = `var {${needsJsxBindings.join(", ")}} = arguments[0];\n${code}`;
+  // MDX's function-body output declares _jsx/_jsxs from arguments[0] at the top level,
+  // but _Fragment is only included when the MDX content itself uses fragments.
+  // If the inlined component uses <> (Fragment) but the MDX content doesn't,
+  // _Fragment won't be declared. We add it only when needed.
+  if (code.includes("_Fragment")) {
+    code = `var {Fragment: _Fragment} = arguments[0];\n${code}`;
   }
 
   const defaultMatch = importClause.match(/^(\w+)$/);

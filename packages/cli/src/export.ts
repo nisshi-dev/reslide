@@ -3,6 +3,7 @@ import { dirname, resolve } from "node:path";
 
 import { createServer } from "vite";
 
+import { parseSlideRange } from "./utils.js";
 import { reslide } from "./vite-plugin.js";
 
 type ImageFormat = "png" | "jpg" | "webp" | "avif";
@@ -52,30 +53,6 @@ interface ExportOptions {
   quality?: number;
   publicDir?: string;
   tailwind?: boolean;
-}
-
-/**
- * Parse a slide range string like "1", "1,3,5", "2-5", "1,3-5,8" into
- * a sorted array of 0-based slide indices.
- */
-function parseSlideRange(range: string | number, total: number): number[] {
-  const rangeStr = String(range);
-  const indices = new Set<number>();
-  for (const token of rangeStr.split(",")) {
-    const trimmed = token.trim();
-    const dashMatch = trimmed.match(/^(\d+)-(\d+)$/);
-    if (dashMatch) {
-      const start = parseInt(dashMatch[1], 10);
-      const end = parseInt(dashMatch[2], 10);
-      for (let i = start; i <= end; i++) {
-        if (i >= 1 && i <= total) indices.add(i - 1);
-      }
-    } else {
-      const n = parseInt(trimmed, 10);
-      if (n >= 1 && n <= total) indices.add(n - 1);
-    }
-  }
-  return [...indices].sort((a, b) => a - b);
 }
 
 /**

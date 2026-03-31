@@ -35,6 +35,7 @@
     "@types/mdast": "catalog:",
     "@types/node": "catalog:",
     "@types/unist": "catalog:",
+    "react": "19.2.4",
     "remark": "15.0.1",
     "remark-directive": "catalog:",
     "remark-frontmatter": "catalog:",
