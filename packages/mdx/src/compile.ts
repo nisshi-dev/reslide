@@ -17,6 +17,8 @@ export interface CompileResult {
   code: string;
   /** Extracted metadata from frontmatter */
   metadata: SlideMetadata;
+  /** Base URL for resolving relative imports in MDX (pass-through from options) */
+  baseUrl?: string;
 }
 
 export interface SlideMetadata {
@@ -57,6 +59,8 @@ export async function compileMdxSlides(
   options?: {
     remarkPlugins?: unknown[];
     rehypePlugins?: unknown[];
+    /** Base URL for resolving relative imports in the MDX source (e.g. directory URL of the MDX file) */
+    baseUrl?: string;
   },
 ): Promise<CompileResult> {
   const metadata = parseSlideMetadata(source);
@@ -91,6 +95,7 @@ export async function compileMdxSlides(
   return {
     code: String(result),
     metadata,
+    ...(options?.baseUrl != null && { baseUrl: options.baseUrl }),
   };
 }
 

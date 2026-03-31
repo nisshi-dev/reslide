@@ -23,6 +23,8 @@ export interface ReslideEmbedProps {
   transition?: TransitionType;
   /** Additional MDX components to provide */
   components?: Record<string, ElementType>;
+  /** Base URL for resolving relative imports in MDX (e.g. directory URL of the MDX file) */
+  baseUrl?: string;
   /** Wrapper around the Deck (for styling) */
   className?: string;
   /** Inline styles for the container */
@@ -63,6 +65,7 @@ export function ReslideEmbed({
   code,
   transition,
   components: userComponents,
+  baseUrl,
   className,
   style,
 }: ReslideEmbedProps) {
@@ -76,12 +79,12 @@ export function ReslideEmbed({
       const mod = await run(code, {
         ...(runtime as Record<string, unknown>),
         Fragment,
-        baseUrl: import.meta.url,
+        baseUrl: baseUrl ?? import.meta.url,
       });
       setContent(() => mod.default as ComponentType<{ components?: Record<string, ElementType> }>);
     }
     void evaluate();
-  }, [code]);
+  }, [code, baseUrl]);
 
   if (!Content) {
     return (
