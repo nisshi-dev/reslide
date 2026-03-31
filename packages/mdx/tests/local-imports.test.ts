@@ -55,6 +55,8 @@ import { FeatureCard } from "./components/feature-card"
     const result = await compileMdxSlides(source, { baseUrl });
     expect(result.code).not.toContain('from "./components/feature-card"');
     expect(result.code).toContain("FeatureCard");
+    // Inlined component should NOT be in props.components destructuring
+    expect(result.code).not.toContain('_missingMdxReference("FeatureCard"');
   });
 
   test("inlines TS utility import", { timeout: 30_000 }, async () => {

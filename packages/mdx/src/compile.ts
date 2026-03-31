@@ -7,6 +7,7 @@ import remarkFrontmatter from "remark-frontmatter";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 
+import { recmaExcludeInlinedComponents } from "./recma-exclude-inlined-components.js";
 import { rehypeExtractStyle } from "./rehype-extract-style.js";
 import { remarkClick } from "./remark-click.js";
 import { remarkDirectiveFallback } from "./remark-directive-fallback.js";
@@ -101,6 +102,7 @@ export async function compileMdxSlides(
       ],
       ...((options?.rehypePlugins ?? []) as never[]),
     ],
+    recmaPlugins: [recmaExcludeInlinedComponents],
     providerImportSource: undefined,
   });
 
