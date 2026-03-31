@@ -1,5 +1,11 @@
 # @reslide-dev/core
 
+## 0.9.0
+
+### Minor Changes
+
+- [#44](https://github.com/nisshi-dev/reslide/pull/44) [`893bf93`](https://github.com/nisshi-dev/reslide/commit/893bf933356b73955c7ccc6ebfaa2e0581b83e0a) Thanks [@nisshi-dev](https://github.com/nisshi-dev)! - MDX 内の`<style>`タグおよび CSS ファイル import から CSS を抽出・スコーピング注入する機能を追加。UI オーバーレイ（SlideNumber, ProgressBar, ClickNavigation, NavigationBar）をレスポンシブ対応し、モバイルでも適切にスケールされるように修正。
+
 ## 0.8.1
 
 ### Patch Changes
