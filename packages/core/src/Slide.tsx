@@ -7,6 +7,8 @@ export interface SlideProps {
   layout?: string;
   /** Image URL for image-right / image-left layouts */
   image?: string;
+  /** Background style (color, gradient, or image URL) */
+  background?: string;
   /** Additional CSS class name */
   className?: string;
   /** Additional inline styles */
@@ -18,6 +20,8 @@ const baseStyle: CSSProperties = {
   height: "100%",
   display: "flex",
   boxSizing: "border-box",
+  overflow: "hidden",
+  position: "relative",
 };
 
 function isSlotRight(child: ReactNode): child is ReactElement {
@@ -50,10 +54,41 @@ function splitChildren(children: ReactNode): { left: ReactNode[]; right: ReactNo
   return { left, right };
 }
 
-export function Slide({ children, layout = "default", image, className, style }: SlideProps) {
+export function Slide({
+  children,
+  layout = "default",
+  image,
+  background,
+  className,
+  style,
+}: SlideProps) {
   const cls = `reslide-slide reslide-layout-${layout}${className ? ` ${className}` : ""}`;
 
+  const bgStyle: CSSProperties | undefined = background
+    ? background.startsWith("url(")
+      ? { background: `${background} no-repeat center/cover` }
+      : { backgroundColor: background }
+    : undefined;
+
   switch (layout) {
+    case "none":
+      return (
+        <div
+          className={cls}
+          style={{
+            width: "100%",
+            height: "100%",
+            boxSizing: "border-box",
+            position: "relative",
+            overflow: "hidden",
+            ...bgStyle,
+            ...style,
+          }}
+        >
+          {children}
+        </div>
+      );
+
     case "center":
       return (
         <div
@@ -64,7 +99,8 @@ export function Slide({ children, layout = "default", image, className, style }:
             justifyContent: "center",
             alignItems: "center",
             textAlign: "center",
-            padding: "3rem 4rem",
+            padding: "72px 100px",
+            ...bgStyle,
             ...style,
           }}
         >
@@ -80,8 +116,9 @@ export function Slide({ children, layout = "default", image, className, style }:
           style={{
             ...baseStyle,
             flexDirection: "row",
-            gap: "2rem",
-            padding: "3rem 4rem",
+            gap: "80px",
+            padding: "72px 100px",
+            ...bgStyle,
             ...style,
           }}
         >
@@ -93,8 +130,8 @@ export function Slide({ children, layout = "default", image, className, style }:
 
     case "image-right":
       return (
-        <div className={cls} style={{ ...baseStyle, flexDirection: "row", ...style }}>
-          <div style={{ flex: 1, padding: "3rem 2rem 3rem 4rem", overflow: "auto" }}>
+        <div className={cls} style={{ ...baseStyle, flexDirection: "row", ...bgStyle, ...style }}>
+          <div style={{ flex: 1, padding: "72px 40px 72px 100px", overflow: "auto" }}>
             {children}
           </div>
           {image && (
@@ -112,7 +149,7 @@ export function Slide({ children, layout = "default", image, className, style }:
 
     case "image-left":
       return (
-        <div className={cls} style={{ ...baseStyle, flexDirection: "row", ...style }}>
+        <div className={cls} style={{ ...baseStyle, flexDirection: "row", ...bgStyle, ...style }}>
           {image && (
             <div
               style={{
@@ -123,7 +160,7 @@ export function Slide({ children, layout = "default", image, className, style }:
               }}
             />
           )}
-          <div style={{ flex: 1, padding: "3rem 4rem 3rem 2rem", overflow: "auto" }}>
+          <div style={{ flex: 1, padding: "72px 100px 72px 40px", overflow: "auto" }}>
             {children}
           </div>
         </div>
@@ -139,9 +176,10 @@ export function Slide({ children, layout = "default", image, className, style }:
             justifyContent: "center",
             alignItems: "center",
             textAlign: "center",
-            padding: "3rem 4rem",
+            padding: "72px 100px",
             backgroundColor: "var(--slide-accent, #16a34a)",
             color: "var(--slide-section-text, #fff)",
+            ...bgStyle,
             ...style,
           }}
         >
@@ -157,7 +195,8 @@ export function Slide({ children, layout = "default", image, className, style }:
             ...baseStyle,
             flexDirection: "column",
             justifyContent: "center",
-            padding: "3rem 6rem",
+            padding: "72px 150px",
+            ...bgStyle,
             ...style,
           }}
         >
@@ -182,7 +221,8 @@ export function Slide({ children, layout = "default", image, className, style }:
           style={{
             ...baseStyle,
             flexDirection: "column",
-            padding: "3rem 4rem",
+            padding: "72px 100px",
+            ...bgStyle,
             ...style,
           }}
         >

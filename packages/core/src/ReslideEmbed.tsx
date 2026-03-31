@@ -30,6 +30,8 @@ export interface ReslideEmbedProps {
   designWidth?: number;
   /** Design height for scaling (default: 1080) */
   designHeight?: number;
+  /** Show slide numbers. true=all, false=none, "except-first"=hide on first slide */
+  slideNumbers?: boolean | "except-first";
   /** Wrapper around the Deck (for styling) */
   className?: string;
   /** Inline styles for the container */
@@ -73,6 +75,7 @@ export function ReslideEmbed({
   baseUrl,
   designWidth,
   designHeight,
+  slideNumbers,
   className,
   style,
 }: ReslideEmbedProps) {
@@ -112,17 +115,18 @@ export function ReslideEmbed({
   }
 
   const DeckWithDesign = useMemo(() => {
-    if (designWidth == null && designHeight == null) return Deck;
-    return function DeckWithResolution(props: DeckProps) {
+    if (designWidth == null && designHeight == null && slideNumbers == null) return Deck;
+    return function DeckWithOverrides(props: DeckProps) {
       return (
         <Deck
           {...props}
           designWidth={designWidth ?? props.designWidth}
           designHeight={designHeight ?? props.designHeight}
+          slideNumbers={slideNumbers ?? props.slideNumbers}
         />
       );
     };
-  }, [designWidth, designHeight]);
+  }, [designWidth, designHeight, slideNumbers]);
 
   const allComponents = { ...builtinComponents, Deck: DeckWithDesign, ...userComponents };
 
