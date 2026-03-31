@@ -216,14 +216,20 @@ function buildAliases(specs: string): string | null {
 
 /**
  * Strip `export` keywords from compiled ESM code so names become local declarations.
- * - `export function X` → `function X`
- * - `export const X` → `const X`
- * - `export default function X` → `function X; var __default = X`
- * - `export default <expr>` → `var __default = <expr>`
- * - `export { ... }` → removed
+ * Also strip `import` statements for React JSX runtime — these are provided by
+ * MDX's `run()` scope, so the inlined code should use the ambient `_jsx` / `_jsxs`
+ * / `_Fragment` bindings already in scope from the MDX function body.
  */
 function stripExports(code: string): string {
   let result = code;
+
+  // Remove import statements for react/jsx-runtime and react (provided by MDX run() scope)
+  result = result.replace(
+    /import\s*\{[^}]*\}\s*from\s*["']react(?:\/jsx-(?:dev-)?runtime)?["']\s*;?\n?/g,
+    "",
+  );
+  // Also remove bare react imports: import React from "react"
+  result = result.replace(/import\s+\w+\s+from\s*["']react["']\s*;?\n?/g, "");
 
   // export default function/class Name → function/class Name + __default assignment
   result = result.replace(
