@@ -11,6 +11,7 @@ import { rehypeExtractStyle } from "./rehype-extract-style.js";
 import { remarkClick } from "./remark-click.js";
 import { remarkDirectiveFallback } from "./remark-directive-fallback.js";
 import { remarkExtractCssImports } from "./remark-extract-css-imports.js";
+import { remarkExtractLocalImports } from "./remark-extract-local-imports.js";
 import { remarkMark } from "./remark-mark.js";
 import { remarkSlides } from "./remark-slides.js";
 
@@ -79,6 +80,7 @@ export async function compileMdxSlides(
       [remarkFrontmatter, ["yaml"]],
       remarkMath,
       [remarkExtractCssImports, { baseUrl: options?.baseUrl }],
+      [remarkExtractLocalImports, { baseUrl: options?.baseUrl }],
       rehypeExtractStyle,
       remarkSlides,
       remarkClick,
