@@ -1,8 +1,12 @@
 import { useDeck } from "./context.js";
 
 /**
- * Displays the current slide number in the bottom-right corner.
- * Automatically reads state from DeckContext.
+ * Displays the current slide number.
+ * Positioned inside the scale wrapper so it scales with slide content.
+ * Customizable via CSS variables:
+ *   --slide-number-bottom, --slide-number-right,
+ *   --slide-number-font-size, --slide-number-letter-spacing,
+ *   --slide-number-color
  */
 export function SlideNumber() {
   const { currentSlide, totalSlides } = useDeck();
@@ -12,13 +16,12 @@ export function SlideNumber() {
       className="reslide-slide-number"
       style={{
         position: "absolute",
-        bottom: 24,
-        right: 40,
-        fontSize: 18,
-        fontFamily: "system-ui, sans-serif",
+        bottom: "var(--slide-number-bottom, 36px)",
+        right: "var(--slide-number-right, 64px)",
+        fontSize: "var(--slide-number-font-size, 16px)",
+        letterSpacing: "var(--slide-number-letter-spacing, .08em)",
         fontVariantNumeric: "tabular-nums",
-        color: "var(--slide-text, #1a1a1a)",
-        opacity: 0.4,
+        color: "var(--slide-number-color, #ccc)",
         pointerEvents: "none",
         zIndex: 10,
       }}

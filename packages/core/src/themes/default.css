@@ -7,6 +7,12 @@
   --slide-progress: var(--slide-accent, #16a34a);
   --slide-progress-height: 3px;
 
+  --slide-number-bottom: 36px;
+  --slide-number-right: 64px;
+  --slide-number-font-size: 16px;
+  --slide-number-letter-spacing: 0.08em;
+  --slide-number-color: #ccc;
+
   --mark-yellow: #fef08a;
   --mark-orange: #fed7aa;
   --mark-red: #fecaca;

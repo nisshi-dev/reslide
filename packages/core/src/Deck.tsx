@@ -41,7 +41,12 @@ export function Deck({
 }: DeckProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const deckRef = useRef<HTMLDivElement>(null);
-  const [currentSlide, setCurrentSlide] = useState(0);
+  const [currentSlide, setCurrentSlide] = useState(() => {
+    if (typeof window === "undefined") return 0;
+    const hash = window.location.hash.replace("#", "");
+    const n = parseInt(hash, 10);
+    return Number.isFinite(n) && n >= 1 ? n - 1 : 0;
+  });
   const [clickStep, setClickStep] = useState(0);
   const [isOverview, setIsOverview] = useState(false);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -204,6 +209,13 @@ export function Deck({
       window.removeEventListener("afterprint", onAfterPrint);
     };
   }, []);
+
+  // Sync current slide to URL hash
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const hash = currentSlide === 0 ? "" : `#${currentSlide + 1}`;
+    window.history.replaceState(null, "", window.location.pathname + window.location.search + hash);
+  }, [currentSlide]);
 
   // Calculate scale from the deck element size
   useEffect(() => {
