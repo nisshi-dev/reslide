@@ -10,9 +10,11 @@ import { openPresenterWindow } from "./use-presenter.js";
 export function NavigationBar({
   isDrawing,
   onToggleDrawing,
+  scale = 1,
 }: {
   isDrawing: boolean;
   onToggleDrawing: () => void;
+  scale?: number;
 }) {
   const {
     currentSlide,
@@ -74,7 +76,8 @@ export function NavigationBar({
         position: "absolute",
         bottom: 0,
         left: "50%",
-        transform: `translateX(-50%) translateY(${visible ? "0" : "100%"})`,
+        transform: `translateX(-50%) translateY(${visible ? "0" : "100%"}) scale(${Math.min(scale * 2, 1)})`,
+        transformOrigin: "bottom center",
         display: "flex",
         alignItems: "center",
         gap: "0.25rem",

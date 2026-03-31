@@ -12,9 +12,9 @@ export function SlideNumber() {
       className="reslide-slide-number"
       style={{
         position: "absolute",
-        bottom: "0.75rem",
-        right: "1rem",
-        fontSize: "0.75rem",
+        bottom: 24,
+        right: 40,
+        fontSize: 18,
         fontFamily: "system-ui, sans-serif",
         fontVariantNumeric: "tabular-nums",
         color: "var(--slide-text, #1a1a1a)",

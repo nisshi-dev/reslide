@@ -61,13 +61,13 @@ function NavZone({ direction, onClick }: { direction: "prev" | "next"; onClick: 
         display: "flex",
         alignItems: "center",
         justifyContent: isPrev ? "flex-start" : "flex-end",
-        padding: "0 1.5rem",
+        padding: "0 48px",
         transition: "background 0.25s ease",
       }}
     >
       <svg
-        width="32"
-        height="32"
+        width="48"
+        height="48"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
