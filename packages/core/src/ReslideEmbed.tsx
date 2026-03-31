@@ -144,11 +144,25 @@ export function ReslideEmbed({
 
     let loaded = 0;
     const total = images.length;
+    let settled = false;
+
+    const settle = () => {
+      if (settled) return;
+      settled = true;
+      waitForPaint(() => setReady(true));
+    };
+
     const onLoad = () => {
       loaded++;
-      if (loaded >= total) {
-        waitForPaint(() => setReady(true));
-      }
+      if (loaded >= total) settle();
+    };
+
+    // Fallback timeout — don't block rendering forever if images stall
+    const timeout = setTimeout(settle, 5000);
+
+    const onAllLoaded = () => {
+      clearTimeout(timeout);
+      settle();
     };
 
     for (const img of images) {
@@ -159,6 +173,9 @@ export function ReslideEmbed({
         img.addEventListener("error", onLoad, { once: true });
       }
     }
+
+    // If all images were already complete, clear the timeout
+    if (loaded >= total) onAllLoaded();
   }, [waitForPaint]);
 
   // Trigger image check after Content is set

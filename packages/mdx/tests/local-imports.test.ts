@@ -280,11 +280,10 @@ import { Badge } from "./components/badge"
 <Badge label="New" />
 `;
     const result = await compileMdxSlides(source, { baseUrl });
-    // Both components should be inlined
-    expect(result.code).toContain("FeatureCard");
-    expect(result.code).toContain("Badge");
+    // Inlined component functions should exist at top level
+    expect(result.code).toContain("function FeatureCard(");
+    expect(result.code).toContain("function Badge(");
     // Components should NOT be in props.components (recma plugin should exclude them)
-    // Debug: find all _missingMdxReference calls in the output
     const missingRefs = [...result.code.matchAll(/_missingMdxReference\("(\w+)"/g)].map(
       (m) => m[1],
     );
@@ -310,5 +309,9 @@ import { FragmentUser } from "./components/fragment-user"
     expect(result.code).toContain("FragmentUser");
     // Should not have unresolved _Fragment import
     expect(result.code).not.toContain('from "react/jsx-runtime"');
+    // If _Fragment is referenced, it must have a binding declaration
+    if (result.code.includes("_Fragment")) {
+      expect(result.code).toContain("Fragment: _Fragment");
+    }
   });
 });
