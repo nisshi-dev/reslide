@@ -46,13 +46,33 @@ reslide/
 
 - `default` — 標準（タイトル + コンテンツ）
 - `center` — 中央寄せ
-- `two-cols` — 2カラム（`::right` で右カラム開始）
-- `image-right` — 右に画像、左にコンテンツ
-- `image-left` — 左に画像、右にコンテンツ
+- `two-cols` — 2カラム（`<SlotRight>` で右カラム開始、`cols: 6/4` で比率カスタマイズ）
+- `image-right` — 右に画像、左にコンテンツ（`imageWidth: 40%` で画像幅指定）
+- `image-left` — 左に画像、右にコンテンツ（`imageWidth: 40%` で画像幅指定）
 - `section` — セクション区切り
 - `quote` — 引用
+- `grid` — CSS Grid レイアウト（`grid: "1fr 1fr 1fr"` / `rows: 2` / `gap: 40`）
+- `none` — フルコントロール（padding/flex なし、absolute 配置向け）
 
 カスタムレイアウトは React コンポーネントとして追加可能。
+
+### デザイン解像度
+
+デフォルト 1920x1080（Full HD）。`Deck` / `ReslideEmbed` の `designWidth` / `designHeight` props で変更可能。スケーリングは `transform: scale()` でコンテナサイズに自動フィット。
+
+### スライド属性（frontmatter）
+
+| 属性                    | 説明                                                    |
+| ----------------------- | ------------------------------------------------------- |
+| `layout`                | レイアウト種別                                          |
+| `background`            | 背景色 / グラデーション / 画像URL                       |
+| `vars`                  | CSS 変数上書き（`slide-bg:#0f172a,slide-text:#e2e8f0`） |
+| `cols`                  | two-cols のカラム比率（`6/4`）                          |
+| `imageWidth`            | image-right/left の画像幅（`40%`）                      |
+| `grid` / `rows` / `gap` | grid レイアウトの設定                                   |
+| `style`                 | インラインCSS文字列（`background: red;`）               |
+| `class`                 | CSS クラス名                                            |
+| `image`                 | image-right/left の画像URL                              |
 
 ### ナビゲーション
 
@@ -67,11 +87,25 @@ reslide/
 - スライド番号表示
 - 概要モード（全スライドのサムネイルグリッド、クリックでジャンプ）
 
+### ビルトインコンポーネント（追加）
+
+| コンポーネント  | 役割                                                                         |
+| --------------- | ---------------------------------------------------------------------------- |
+| `<GlobalLayer>` | 全スライド共通オーバーレイ（`excludeSlides` / `from` / `to` で除外指定可能） |
+| `<SlideIndex>`  | 現在のスライド番号（1始まり）をインラインテキストで表示                      |
+| `<TotalSlides>` | 総スライド数をインラインテキストで表示                                       |
+| `<CodeEditor>`  | インタラクティブなコードエディタ                                             |
+| `<Mermaid>`     | Mermaid ダイアグラム描画                                                     |
+| `<Draggable>`   | ドラッグ可能な要素                                                           |
+| `<Toc>`         | 目次                                                                         |
+
 ### スタイリング
 
 - Tailwind CSS v4
-- CSS 変数でテーマカスタマイズ（`--slide-bg`, `--slide-text`, `--slide-accent` 等）
+- CSS 変数でテーマカスタマイズ（`--slide-bg`, `--slide-text`, `--slide-accent`, `--slide-font-family`, `--slide-progress`, `--slide-progress-height` 等）
 - テーマは CSS 変数セットとして定義・切り替え
+- `bare.css` テーマ: 装飾なしの最小限テーマ（カスタムデザイン向け）
+- スライドごとに `vars` frontmatter で CSS 変数を上書き可能
 
 ## @reslide/mdx
 
@@ -79,11 +113,11 @@ MDX の前処理を行う remark/rehype プラグイン群。
 
 ### remark プラグイン
 
-| プラグイン     | 役割                                                             |
-| -------------- | ---------------------------------------------------------------- |
-| `remarkSlides` | `---` でスライド分割。フロントマターからレイアウト・クラスを抽出 |
-| `remarkClick`  | `::click` ディレクティブを `<Click>` コンポーネントに変換        |
-| `remarkMark`   | `::mark[テキスト]{.highlight.orange}` を `<Mark>` に変換         |
+| プラグイン     | 役割                                                                                      |
+| -------------- | ----------------------------------------------------------------------------------------- |
+| `remarkSlides` | `---` でスライド分割。フロントマターからレイアウト・クラスを抽出                          |
+| `remarkClick`  | `::click{animation=slide-up}` を `<Click>` コンポーネントに変換（アニメーション指定対応） |
+| `remarkMark`   | `::mark[テキスト]{.highlight.orange}` を `<Mark>` に変換                                  |
 
 ### 記法
 
@@ -168,16 +202,12 @@ export default defineConfig({
 });
 ```
 
-## 将来の拡張（MVP 後）
+## 将来の拡張
 
-- スピーカーノート（別ウィンドウ表示）
-- タイマー（経過/残り時間）
-- レーザーポインター
-- PDF エクスポート（Playwright）
 - レコーダー
-- トランジションアニメーション（slide-left, fade 等）
-- シンタックスハイライト（Shiki 統合）
 - テーマパッケージ（`@reslide/theme-seriph` 等）
+- スライドごとのトランジション指定（frontmatter `transition` が各スライド入場時に適用）
+- リモートコントロール（WebSocket / WebRTC 経由）
 
 ## 技術スタック
 

@@ -15,6 +15,14 @@ export interface SlideProps {
   background?: string;
   /** CSS string from frontmatter (e.g. "background: red; color: white;") — parsed to CSSProperties */
   cssStyle?: string;
+  /** CSS variable overrides for this slide (e.g. "slide-bg:#0f172a,slide-text:#e2e8f0") */
+  vars?: string;
+  /** Grid template for grid layout (e.g. "1fr 1fr 1fr") */
+  grid?: string;
+  /** Number of rows for grid layout */
+  rows?: string;
+  /** Gap size in px for grid layout (default: 40) */
+  gap?: string;
   /** Additional CSS class name */
   className?: string;
   /** Additional inline styles */
@@ -67,6 +75,22 @@ function parseCols(cols?: string): [number, number] {
   return [1, 1];
 }
 
+function parseVars(vars?: string): Record<string, string> | undefined {
+  if (!vars) return undefined;
+  const result: Record<string, string> = {};
+  for (const pair of vars.split(",")) {
+    const colonIdx = pair.indexOf(":");
+    if (colonIdx === -1) continue;
+    const key = pair.slice(0, colonIdx).trim();
+    const value = pair
+      .slice(colonIdx + 1)
+      .trim()
+      .replace(/^["']|["']$/g, "");
+    if (key && value) result[`--${key}`] = value;
+  }
+  return Object.keys(result).length > 0 ? result : undefined;
+}
+
 function parseCssString(css?: string): CSSProperties | undefined {
   if (!css) return undefined;
   const result: Record<string, string> = {};
@@ -90,13 +114,20 @@ export function Slide({
   cols,
   background,
   cssStyle,
+  vars,
+  grid,
+  rows,
+  gap,
   className,
   style,
 }: SlideProps) {
   const cls = `reslide-slide reslide-layout-${layout}${className ? ` ${className}` : ""}`;
   const parsedCssStyle = parseCssString(cssStyle);
+  const varsStyle = parseVars(vars);
   const mergedStyle: CSSProperties | undefined =
-    parsedCssStyle || style ? { ...parsedCssStyle, ...style } : style;
+    parsedCssStyle || varsStyle || style
+      ? ({ ...varsStyle, ...parsedCssStyle, ...style } as CSSProperties)
+      : style;
 
   const bgStyle: CSSProperties | undefined = background
     ? background.startsWith("url(")
@@ -256,6 +287,33 @@ export function Slide({
           </blockquote>
         </div>
       );
+
+    case "grid": {
+      const gridCols = grid ?? `repeat(${cols ? parseCols(cols)[0] : 2}, 1fr)`;
+      const gridRows = rows ? `repeat(${Number(rows)}, 1fr)` : undefined;
+      const gapPx = gap ? `${Number(gap)}px` : "40px";
+      return (
+        <div
+          className={cls}
+          style={{
+            width: "100%",
+            height: "100%",
+            boxSizing: "border-box",
+            position: "relative",
+            overflow: "hidden",
+            display: "grid",
+            gridTemplateColumns: gridCols,
+            gridTemplateRows: gridRows,
+            gap: gapPx,
+            padding: "72px 100px",
+            ...bgStyle,
+            ...mergedStyle,
+          }}
+        >
+          {children}
+        </div>
+      );
+    }
 
     default:
       return (

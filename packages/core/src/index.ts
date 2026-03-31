@@ -51,6 +51,8 @@ export { ProgressBar } from "./ProgressBar.js";
 
 export { SlideNumber } from "./SlideNumber.js";
 
+export { SlideIndex, TotalSlides } from "./SlideInfo.js";
+
 export { ReslideEmbed } from "./ReslideEmbed.js";
 export type { ReslideEmbedProps } from "./ReslideEmbed.js";
 
