@@ -32,6 +32,8 @@ export interface ReslideEmbedProps {
   designHeight?: number;
   /** Show slide numbers. true=all, false=none, "except-first"=hide on first slide */
   slideNumbers?: boolean | "except-first";
+  /** Aspect ratio (default: 16/9). Set to 0 to disable and fill parent. */
+  aspectRatio?: number;
   /** Wrapper around the Deck (for styling) */
   className?: string;
   /** Inline styles for the container */
@@ -76,6 +78,7 @@ export function ReslideEmbed({
   designWidth,
   designHeight,
   slideNumbers,
+  aspectRatio,
   className,
   style,
 }: ReslideEmbedProps) {
@@ -115,7 +118,8 @@ export function ReslideEmbed({
   }
 
   const DeckWithDesign = useMemo(() => {
-    if (designWidth == null && designHeight == null && slideNumbers == null) return Deck;
+    if (designWidth == null && designHeight == null && slideNumbers == null && aspectRatio == null)
+      return Deck;
     return function DeckWithOverrides(props: DeckProps) {
       return (
         <Deck
@@ -123,10 +127,11 @@ export function ReslideEmbed({
           designWidth={designWidth ?? props.designWidth}
           designHeight={designHeight ?? props.designHeight}
           slideNumbers={slideNumbers ?? props.slideNumbers}
+          aspectRatio={aspectRatio ?? props.aspectRatio}
         />
       );
     };
-  }, [designWidth, designHeight, slideNumbers]);
+  }, [designWidth, designHeight, slideNumbers, aspectRatio]);
 
   const allComponents = { ...builtinComponents, Deck: DeckWithDesign, ...userComponents };
 

@@ -9,7 +9,10 @@ export type TransitionType =
   | "slide-left"
   | "slide-right"
   | "slide-up"
-  | "slide-down";
+  | "slide-down"
+  | "zoom"
+  | "cover"
+  | "reveal";
 
 const DURATION = 300;
 

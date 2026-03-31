@@ -22,7 +22,7 @@ export function ProgressBar() {
         bottom: 0,
         left: 0,
         width: "100%",
-        height: "3px",
+        height: "var(--slide-progress-height, 3px)",
         zIndex: 100,
       }}
     >
