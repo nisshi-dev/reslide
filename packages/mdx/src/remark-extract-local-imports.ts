@@ -1,28 +1,55 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { transformSync } from "esbuild";
 import type { Root } from "mdast";
 
 /**
- * Regex to match local relative imports of TS/JS files.
+ * Regex to match local relative imports (with or without extension).
  * Captures: [1] = full import clause, [2] = import path
  *
  * Examples:
  *   import { FeatureCard } from "./components/feature-card"
- *   import TimelineItem from "./timeline-item.tsx"
+ *   import { FeatureCard } from "./components/feature-card.tsx"
+ *   import TimelineItem from "./timeline-item"
  *   import * as utils from "./lib/utils.ts"
+ *
+ * Excludes CSS imports (handled by remarkExtractCssImports).
  */
-const LOCAL_IMPORT_RE = /^import\s+(.+)\s+from\s+["'](\.[^"']+\.(?:tsx?|jsx?))["']/;
+const LOCAL_IMPORT_RE = /^import\s+(.+)\s+from\s+["'](\.[^"']+?)["']/;
 
 interface VFileData {
   data: Record<string, unknown>;
 }
+
+/** Extensions handled by remarkExtractCssImports — skip here. */
+const CSS_EXT_RE = /\.css$/;
+
+/** Extensions that indicate a TS/JS module. */
+const MODULE_EXTENSIONS = [".tsx", ".ts", ".jsx", ".js"] as const;
 
 function getLoader(filePath: string): "tsx" | "ts" | "jsx" | "js" {
   if (filePath.endsWith(".tsx")) return "tsx";
   if (filePath.endsWith(".ts")) return "ts";
   if (filePath.endsWith(".jsx")) return "jsx";
   return "js";
+}
+
+/**
+ * Resolve a module import path to an absolute file path.
+ * If the path already has a TS/JS extension, resolve directly.
+ * Otherwise try .tsx → .ts → .jsx → .js in order.
+ */
+function resolveModulePath(importPath: string, baseUrl: string): string {
+  if (/\.(?:tsx?|jsx?)$/.test(importPath)) {
+    return fileURLToPath(new URL(importPath, baseUrl));
+  }
+  for (const ext of MODULE_EXTENSIONS) {
+    const candidate = fileURLToPath(new URL(importPath + ext, baseUrl));
+    if (existsSync(candidate)) return candidate;
+  }
+  throw new Error(
+    `Local module not found: "${importPath}" (tried ${MODULE_EXTENSIONS.join(", ")})`,
+  );
 }
 
 /**
@@ -55,6 +82,9 @@ export function remarkExtractLocalImports(options?: { baseUrl?: string }) {
       const importClause = match[1].trim();
       const importPath = match[2];
 
+      // Skip CSS imports — handled by remarkExtractCssImports
+      if (CSS_EXT_RE.test(importPath)) continue;
+
       if (!baseUrl) {
         throw new Error(
           `Cannot resolve local import "${importPath}": no baseUrl provided. ` +
@@ -62,11 +92,16 @@ export function remarkExtractLocalImports(options?: { baseUrl?: string }) {
         );
       }
 
-      const resolvedUrl = new URL(importPath, baseUrl);
-      const filePath = fileURLToPath(resolvedUrl);
+      // Resolve the file path, trying extensions if omitted
+      let filePath: string;
+      try {
+        filePath = resolveModulePath(importPath, baseUrl);
+      } catch {
+        throw new Error(`Local module not found: "${importPath}" (imported from MDX)`);
+      }
 
-      // Compile only once per unique file path
-      if (!compiled.has(importPath)) {
+      // Compile only once per resolved file path
+      if (!compiled.has(filePath)) {
         let source: string;
         try {
           source = readFileSync(filePath, "utf-8");
@@ -83,7 +118,7 @@ export function remarkExtractLocalImports(options?: { baseUrl?: string }) {
             jsx: "automatic",
             target: "es2022",
           });
-          compiled.set(importPath, result.code);
+          compiled.set(filePath, result.code);
         } catch (err) {
           throw new Error(
             `Failed to compile local module "${filePath}": ${err instanceof Error ? err.message : String(err)}`,
@@ -91,7 +126,7 @@ export function remarkExtractLocalImports(options?: { baseUrl?: string }) {
         }
       }
 
-      const compiledCode = compiled.get(importPath)!;
+      const compiledCode = compiled.get(filePath)!;
 
       // Build the inline replacement:
       //   const { FeatureCard } = await (async () => { <compiled code>; return { FeatureCard }; })();
