@@ -1,5 +1,11 @@
 # @reslide-dev/mdx
 
+## 0.11.0
+
+### Minor Changes
+
+- [#52](https://github.com/nisshi-dev/reslide/pull/52) [`88fb7e4`](https://github.com/nisshi-dev/reslide/commit/88fb7e469096350e65cfef06c73b7d3e3a46d933) Thanks [@nisshi-dev](https://github.com/nisshi-dev)! - MDX からのローカルコンポーネントインポートをサポート。スライドディレクトリ内の.tsx/.ts/.jsx/.js ファイルを import 文で直接参照可能に。
+
 ## 0.9.2
 
 ### Patch Changes
