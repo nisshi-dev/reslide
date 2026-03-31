@@ -1,5 +1,11 @@
 # @reslide-dev/core
 
+## 0.9.1
+
+### Patch Changes
+
+- [#46](https://github.com/nisshi-dev/reslide/pull/46) [`6cd2418`](https://github.com/nisshi-dev/reslide/commit/6cd2418a8571d4f7fbac505a47603eee033d75d5) Thanks [@nisshi-dev](https://github.com/nisshi-dev)! - layout: none のスライドでテーマデフォルトスタイル（p, h1〜h6, ul, ol 等のフォントサイズやマージン）を適用しないように変更。Tailwind クラス等のユーザー指定スタイルが正しく反映されるようになった。
+
 ## 0.9.0
 
 ### Minor Changes
