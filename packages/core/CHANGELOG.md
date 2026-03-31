@@ -1,5 +1,13 @@
 # @reslide-dev/core
 
+## 0.15.3
+
+### Patch Changes
+
+- [#70](https://github.com/nisshi-dev/reslide/pull/70) [`00472e3`](https://github.com/nisshi-dev/reslide/commit/00472e3666f9b2b737ad2a47e31b31e139ff85f2) Thanks [@nisshi-dev](https://github.com/nisshi-dev)! - cli: CSS background-image の読み込み待機を IIFE で正しく実行、初回+遷移後で実行
+  mdx: remarkExtractCssImports を行分割処理に変更し連続 import の根本原因を修正、\_Fragment バインディング追加
+  core: SlideSkelton のレイアウト改善、画像ロード待ちに 5 秒タイムアウト追加
+
 ## 0.15.2
 
 ### Patch Changes

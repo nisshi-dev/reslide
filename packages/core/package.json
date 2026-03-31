@@ -1,6 +1,6 @@
 {
   "name": "@reslide-dev/core",
-  "version": "0.15.2",
+  "version": "0.15.3",
   "description": "Framework-agnostic React presentation components",
   "license": "MIT",
   "files": [
