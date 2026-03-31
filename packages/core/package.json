@@ -19,6 +19,7 @@
     },
     "./themes/default.css": "./src/themes/default.css",
     "./themes/dark.css": "./src/themes/dark.css",
+    "./themes/bare.css": "./src/themes/bare.css",
     "./transitions.css": "./src/transitions.css",
     "./print.css": "./src/themes/print.css",
     "./package.json": "./package.json"

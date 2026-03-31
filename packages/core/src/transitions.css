@@ -144,3 +144,74 @@
     transform: translateY(100%);
   }
 }
+
+/* ── zoom ── */
+.reslide-transition-zoom-enter {
+  animation: reslide-zoom-in 0.3s ease forwards;
+}
+
+.reslide-transition-zoom-exit {
+  animation: reslide-zoom-out 0.3s ease forwards;
+}
+
+@keyframes reslide-zoom-in {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes reslide-zoom-out {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+}
+
+/* ── cover (new slide covers old) ── */
+.reslide-transition-cover-enter {
+  animation: reslide-cover-in 0.3s ease forwards;
+  z-index: 1;
+}
+
+.reslide-transition-cover-exit {
+  animation: none;
+  opacity: 1;
+}
+
+@keyframes reslide-cover-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* ── reveal (old slide exits, revealing new) ── */
+.reslide-transition-reveal-enter {
+  animation: none;
+  opacity: 1;
+}
+
+.reslide-transition-reveal-exit {
+  animation: reslide-reveal-out 0.3s ease forwards;
+  z-index: 1;
+}
+
+@keyframes reslide-reveal-out {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}

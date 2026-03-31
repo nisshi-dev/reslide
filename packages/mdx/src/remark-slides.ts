@@ -126,6 +126,27 @@ export function remarkSlides() {
           value: options.background,
         });
       }
+      if (options.cols) {
+        attrs.push({
+          type: "mdxJsxAttribute",
+          name: "cols",
+          value: options.cols,
+        });
+      }
+      if (options.imageWidth) {
+        attrs.push({
+          type: "mdxJsxAttribute",
+          name: "imageWidth",
+          value: options.imageWidth,
+        });
+      }
+      if (typeof options.style === "string") {
+        attrs.push({
+          type: "mdxJsxAttribute",
+          name: "cssStyle",
+          value: options.style,
+        });
+      }
 
       const slideChildren: RootContent[] = [...content];
 
