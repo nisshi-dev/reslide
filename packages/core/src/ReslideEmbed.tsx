@@ -246,7 +246,8 @@ const skeletonBarStyle: React.CSSProperties = {
 
 /**
  * Skeleton placeholder displayed while MDX content is being evaluated.
- * Mimics a typical slide layout (title + body lines) with a subtle pulse animation.
+ * Mimics a typical slide layout with a subtle pulse animation:
+ * title bar, body text lines, and a page number indicator.
  */
 function SlideSkeleton() {
   return (
@@ -256,27 +257,34 @@ function SlideSkeleton() {
         width: "100%",
         height: "100%",
         backgroundColor: "var(--slide-bg, #fff)",
-        padding: "8% 6%",
+        position: "relative",
+        padding: "7% 5%",
         display: "flex",
         flexDirection: "column",
-        gap: "4%",
       }}
     >
       <style dangerouslySetInnerHTML={{ __html: skeletonKeyframes }} />
-      {/* Title bar */}
-      <div style={{ ...skeletonBarStyle, width: "45%", height: "5%" }} />
-      {/* Body lines */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "2.5%", marginTop: "2%" }}>
-        <div
-          style={{ ...skeletonBarStyle, width: "80%", height: "2.5%", animationDelay: "0.15s" }}
-        />
-        <div
-          style={{ ...skeletonBarStyle, width: "65%", height: "2.5%", animationDelay: "0.3s" }}
-        />
-        <div
-          style={{ ...skeletonBarStyle, width: "72%", height: "2.5%", animationDelay: "0.45s" }}
-        />
+      {/* Title bar — wide and tall */}
+      <div style={{ ...skeletonBarStyle, width: "50%", height: "4.5%", marginBottom: "5%" }} />
+      {/* Body lines — varying widths */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "2.2%" }}>
+        <div style={{ ...skeletonBarStyle, width: "85%", height: "2%", animationDelay: "0.1s" }} />
+        <div style={{ ...skeletonBarStyle, width: "60%", height: "2%", animationDelay: "0.2s" }} />
+        <div style={{ ...skeletonBarStyle, width: "75%", height: "2%", animationDelay: "0.3s" }} />
+        <div style={{ ...skeletonBarStyle, width: "55%", height: "2%", animationDelay: "0.4s" }} />
       </div>
+      {/* Spacer */}
+      <div style={{ flex: 1 }} />
+      {/* Page number indicator — bottom right */}
+      <div
+        style={{
+          ...skeletonBarStyle,
+          width: "6%",
+          height: "1.5%",
+          alignSelf: "flex-end",
+          animationDelay: "0.5s",
+        }}
+      />
     </div>
   );
 }

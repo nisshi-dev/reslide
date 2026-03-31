@@ -18,6 +18,30 @@ const LOAD_WAIT_MS = 2000;
 /** Wait after each slide transition for animations to complete. */
 const TRANSITION_WAIT_MS = 600;
 
+/**
+ * Browser-side script to wait for all CSS background images to be fully loaded.
+ * Must be passed to page.evaluate() as a string.
+ */
+const WAIT_FOR_BG_IMAGES_SCRIPT = `
+async () => {
+  const promises = [];
+  for (const el of document.querySelectorAll('*')) {
+    const bg = getComputedStyle(el).backgroundImage;
+    if (bg && bg !== 'none') {
+      for (const m of bg.matchAll(/url\\(["']?([^"')]+)["']?\\)/g)) {
+        promises.push(new Promise(resolve => {
+          const img = new Image();
+          img.onload = resolve;
+          img.onerror = resolve;
+          img.src = m[1];
+        }));
+      }
+    }
+  }
+  await Promise.all(promises);
+}
+`;
+
 interface ExportOptions {
   format: ExportFormat;
   out: string;
@@ -209,6 +233,9 @@ export async function exportSlides(
     // Extra wait for fonts, images, and initial rendering to settle
     await page.waitForTimeout(LOAD_WAIT_MS);
 
+    // Wait for CSS background images to be fully loaded
+    await page.evaluate(WAIT_FOR_BG_IMAGES_SCRIPT);
+
     // Detect total slides — try slide number text first, fallback to counting slides
     let total = 1;
     const totalText = await page.textContent(".reslide-slide-number").catch(() => null);
@@ -263,6 +290,8 @@ export async function exportSlides(
         await page.waitForTimeout(TRANSITION_WAIT_MS);
         currentSlide++;
       }
+      // Wait for CSS background images on the new slide
+      await page.evaluate(WAIT_FOR_BG_IMAGES_SCRIPT);
     }
 
     if (options.format === "pdf") {

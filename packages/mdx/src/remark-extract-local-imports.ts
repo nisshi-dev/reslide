@@ -162,9 +162,14 @@ export function remarkExtractLocalImports(options?: { baseUrl?: string }) {
 
       if (remainingLines.some((l) => l.trim())) {
         const remaining = remainingLines.join("\n");
+        const remainingEstree = Parser.parse(remaining, {
+          ecmaVersion: 2022,
+          sourceType: "module",
+        });
         newNodes.push({
           type: "mdxjsEsm",
           value: remaining,
+          data: { estree: remainingEstree },
         } as unknown as (typeof tree.children)[0]);
       }
 
@@ -202,7 +207,22 @@ export function remarkExtractLocalImports(options?: { baseUrl?: string }) {
  * resolved with const assignments.
  */
 function buildInlineModule(importClause: string, compiledCode: string): string {
-  const code = stripExports(compiledCode);
+  let code = stripExports(compiledCode);
+
+  // Sucrase generates _Fragment references when JSX Fragment (<>...</>) is used.
+  // After stripping the react/jsx-runtime import, _Fragment would be undefined.
+  // In MDX's function-body output, arguments[0] contains the JSX runtime.
+  // We bind the needed runtime variables at the top of the inlined code.
+  const needsJsxBindings: string[] = [];
+  if (code.includes("_Fragment")) needsJsxBindings.push("Fragment: _Fragment");
+  if (code.includes("_jsx") && !code.includes("_jsx =") && !code.includes("_jsx,"))
+    needsJsxBindings.push("jsx: _jsx");
+  if (code.includes("_jsxs") && !code.includes("_jsxs =") && !code.includes("_jsxs,"))
+    needsJsxBindings.push("jsxs: _jsxs");
+
+  if (needsJsxBindings.length > 0) {
+    code = `var {${needsJsxBindings.join(", ")}} = arguments[0];\n${code}`;
+  }
 
   const defaultMatch = importClause.match(/^(\w+)$/);
   const namedMatch = importClause.match(/^\{([^}]+)\}$/);
