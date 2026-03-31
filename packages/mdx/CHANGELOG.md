@@ -1,5 +1,13 @@
 # @reslide-dev/mdx
 
+## 0.16.0
+
+### Patch Changes
+
+- [#74](https://github.com/nisshi-dev/reslide/pull/74) [`51b8ee2`](https://github.com/nisshi-dev/reslide/commit/51b8ee2bcbf2ef977ee2e4ab20bf6def797b63e4) Thanks [@nisshi-dev](https://github.com/nisshi-dev)! - core: default.css に transition container/slide の height:100%を追加
+  cli: parseSlideRange/generateEntryFiles を utils.ts に切り出し、ユニットテスト 15 件追加
+  mdx: \_Fragment バインディングの二重宣言問題を修正、ランタイム実行テスト 3 件追加
+
 ## 0.15.3
 
 ### Patch Changes

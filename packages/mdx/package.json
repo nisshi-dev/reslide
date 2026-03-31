@@ -1,6 +1,6 @@
 {
   "name": "@reslide-dev/mdx",
-  "version": "0.15.3",
+  "version": "0.16.0",
   "description": "Remark/rehype plugins for reslide MDX preprocessing",
   "license": "MIT",
   "files": [
