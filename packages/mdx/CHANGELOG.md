@@ -1,5 +1,11 @@
 # @reslide-dev/mdx
 
+## 0.9.2
+
+### Patch Changes
+
+- [#48](https://github.com/nisshi-dev/reslide/pull/48) [`c801a65`](https://github.com/nisshi-dev/reslide/commit/c801a651a8fb06a43df09cbc6278e715b4a1ee11) Thanks [@nisshi-dev](https://github.com/nisshi-dev)! - CI 環境での css-extraction テストタイムアウトを修正（Shiki 初回読み込みに 30 秒のタイムアウトを設定）。
+
 ## 0.9.0
 
 ### Minor Changes
