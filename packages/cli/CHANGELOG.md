@@ -1,5 +1,11 @@
 # @reslide-dev/cli
 
+## 0.14.0
+
+### Minor Changes
+
+- [#62](https://github.com/nisshi-dev/reslide/pull/62) [`265aaa3`](https://github.com/nisshi-dev/reslide/commit/265aaa388f6ab8491e661d29257d83d817af6e76) Thanks [@nisshi-dev](https://github.com/nisshi-dev)! - dev/build/export コマンドに --tailwind オプションを追加。Tailwind CSS v4 のユーティリティクラスを使用したスライドのレンダリング・エクスポートをサポート。
+
 ## 0.13.1
 
 ### Patch Changes
