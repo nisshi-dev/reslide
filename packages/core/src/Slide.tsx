@@ -140,6 +140,7 @@ export function Slide({
       return (
         <div
           className={cls}
+          data-layout={layout}
           style={{
             width: "100%",
             height: "100%",
@@ -158,6 +159,7 @@ export function Slide({
       return (
         <div
           className={cls}
+          data-layout={layout}
           style={{
             ...baseStyle,
             flexDirection: "column",
@@ -179,6 +181,7 @@ export function Slide({
       return (
         <div
           className={cls}
+          data-layout={layout}
           style={{
             ...baseStyle,
             flexDirection: "row",
@@ -198,6 +201,7 @@ export function Slide({
       return (
         <div
           className={cls}
+          data-layout={layout}
           style={{ ...baseStyle, flexDirection: "row", ...bgStyle, ...mergedStyle }}
         >
           <div style={{ flex: 1, padding: "72px 40px 72px 100px", overflow: "auto" }}>
@@ -221,6 +225,7 @@ export function Slide({
       return (
         <div
           className={cls}
+          data-layout={layout}
           style={{ ...baseStyle, flexDirection: "row", ...bgStyle, ...mergedStyle }}
         >
           {image && (
@@ -244,6 +249,7 @@ export function Slide({
       return (
         <div
           className={cls}
+          data-layout={layout}
           style={{
             ...baseStyle,
             flexDirection: "column",
@@ -265,6 +271,7 @@ export function Slide({
       return (
         <div
           className={cls}
+          data-layout={layout}
           style={{
             ...baseStyle,
             flexDirection: "column",
@@ -295,6 +302,7 @@ export function Slide({
       return (
         <div
           className={cls}
+          data-layout={layout}
           style={{
             width: "100%",
             height: "100%",
@@ -319,6 +327,7 @@ export function Slide({
       return (
         <div
           className={cls}
+          data-layout={layout}
           style={{
             ...baseStyle,
             flexDirection: "column",
