@@ -195,6 +195,27 @@ import { X } from "./nonexistent"
     await expect(compileMdxSlides(source, { baseUrl })).rejects.toThrow("Local module not found");
   });
 
+  test("strips react/jsx-runtime imports from inlined code", { timeout: 30_000 }, async () => {
+    const baseUrl = pathToFileURL(tmpDir + "/").href;
+    const source = `---
+title: Test
+---
+
+import { FeatureCard } from "./components/feature-card"
+
+# Hello
+
+<FeatureCard title="Test">Content</FeatureCard>
+`;
+    const result = await compileMdxSlides(source, { baseUrl });
+    // The inlined code should NOT contain import from "react/jsx-runtime"
+    // because MDX's run() provides _jsx/_jsxs via arguments[0]
+    expect(result.code).not.toContain('from "react/jsx-runtime"');
+    expect(result.code).not.toContain("from 'react/jsx-runtime'");
+    // The component should still be present
+    expect(result.code).toContain("FeatureCard");
+  });
+
   test("does not process CSS imports", { timeout: 30_000 }, async () => {
     const baseUrl = pathToFileURL(tmpDir + "/").href;
     // CSS imports should be left to remarkExtractCssImports

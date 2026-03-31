@@ -125,8 +125,38 @@ function parseFrontmatter(source: string): Record<string, string> {
   return result;
 }
 
+/**
+ * Returns true if the text consists only of YAML-like `key: value` lines
+ * (i.e. slide frontmatter, not actual content).
+ */
+function isYamlOnly(text: string): boolean {
+  const trimmed = text.trim();
+  if (trimmed.length === 0) return true;
+  return trimmed.split("\n").every((line) => /^\s*(\w[\w-]*):\s*.+$/.test(line.trim()));
+}
+
 function countSlides(source: string): number {
+  // Strip leading headmatter (first ---...--- block)
   const body = source.replace(/^---\n[\s\S]*?\n---\n?/, "");
   const parts = body.split(/\n---\n/);
-  return Math.max(1, parts.filter((p) => p.trim().length > 0).length);
+
+  let count = 0;
+  let i = 0;
+  while (i < parts.length) {
+    const part = parts[i];
+    // If this part is YAML-only, it's a slide separator's frontmatter.
+    // The next part (or end) is the actual slide content for that separator.
+    if (i > 0 && isYamlOnly(part)) {
+      // This YAML block + the preceding --- form one slide boundary.
+      // The content after this YAML (next part) is the slide body.
+      i++;
+      if (i < parts.length && parts[i].trim().length > 0) {
+        count++;
+      }
+    } else if (part.trim().length > 0) {
+      count++;
+    }
+    i++;
+  }
+  return Math.max(1, count);
 }

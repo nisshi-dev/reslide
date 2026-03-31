@@ -8,10 +8,22 @@ import { reslide } from "./vite-plugin.js";
 type ImageFormat = "png" | "jpg" | "webp" | "avif";
 type ExportFormat = "pdf" | ImageFormat;
 
+/** Design resolution — always capture at this size, then resize. */
+const CAPTURE_WIDTH = 1920;
+const CAPTURE_HEIGHT = 1080;
+
+/** Wait after initial page load for fonts/images to settle. */
+const LOAD_WAIT_MS = 2000;
+
+/** Wait after each slide transition for animations to complete. */
+const TRANSITION_WAIT_MS = 600;
+
 interface ExportOptions {
   format: ExportFormat;
   out: string;
+  /** Output width (images are captured at 1920x1080 then resized) */
   width: number;
+  /** Output height (images are captured at 1920x1080 then resized) */
   height: number;
   port: number;
   slides?: string;
@@ -43,10 +55,9 @@ function parseSlideRange(range: string | number, total: number): number[] {
   return [...indices].sort((a, b) => a - b);
 }
 
-const NEEDS_SHARP: Set<ImageFormat> = new Set(["webp", "avif"]);
-
 /**
- * Dynamically import sharp for WebP/AVIF conversion.
+ * Dynamically import sharp (optional peer dependency).
+ * Required for WebP/AVIF export and output resizing.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function loadSharp(): Promise<any> {
@@ -54,45 +65,55 @@ async function loadSharp(): Promise<any> {
   try {
     return await import(mod);
   } catch {
-    console.error("Error: sharp is required for WebP/AVIF export.\n" + "Install it: vp add sharp");
+    console.error("Error: sharp is required for this export.\n" + "Install it: vp add sharp");
     process.exit(1);
   }
 }
 
 /**
- * Convert a PNG buffer to the target image format.
+ * Convert and optionally resize a PNG buffer to the target format/size.
  */
 async function convertImage(
   pngBuffer: Buffer,
   format: ImageFormat,
+  outputWidth: number,
+  outputHeight: number,
   quality?: number,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sharp?: any,
 ): Promise<Buffer> {
-  if (format === "png") return pngBuffer;
-
-  if (format === "jpg") {
-    if (sharp) {
-      return sharp
-        .default(pngBuffer)
-        .jpeg({ quality: quality ?? 90 })
-        .toBuffer();
-    }
+  if (!sharp) {
+    // Without sharp, can only output PNG at capture resolution
     return pngBuffer;
   }
 
-  // WebP / AVIF — always uses sharp
-  const pipeline = sharp.default(pngBuffer);
-  if (format === "webp") {
-    return pipeline.webp({ quality: quality ?? 80 }).toBuffer();
+  let pipeline = sharp.default(pngBuffer);
+
+  // Resize if output dimensions differ from capture
+  if (outputWidth !== CAPTURE_WIDTH || outputHeight !== CAPTURE_HEIGHT) {
+    pipeline = pipeline.resize(outputWidth, outputHeight, { fit: "fill" });
   }
-  return pipeline.avif({ quality: quality ?? 50 }).toBuffer();
+
+  switch (format) {
+    case "png":
+      return pipeline.png().toBuffer();
+    case "jpg":
+      return pipeline.jpeg({ quality: quality ?? 90 }).toBuffer();
+    case "webp":
+      return pipeline.webp({ quality: quality ?? 80 }).toBuffer();
+    case "avif":
+      return pipeline.avif({ quality: quality ?? 50 }).toBuffer();
+  }
 }
 
 /**
  * Export slides to PDF or images using Playwright.
+ *
+ * Slides are always captured at the design resolution (1920x1080) for
+ * consistent rendering, then resized to --width/--height with sharp.
+ *
  * Playwright must be installed by the user: `vp add playwright`
- * sharp is additionally required for WebP/AVIF: `vp add sharp`
+ * sharp is required for resizing and WebP/AVIF: `vp add sharp`
  */
 export async function exportSlides(
   slidesPath: string,
@@ -118,20 +139,16 @@ export async function exportSlides(
     process.exit(1);
   }
 
-  // Load sharp if needed for the target format
+  // Determine if sharp is needed: resizing or non-PNG format
   const imageFormat = options.format === "pdf" ? undefined : options.format;
+  const needsResize = options.width !== CAPTURE_WIDTH || options.height !== CAPTURE_HEIGHT;
+  const needsSharp =
+    imageFormat === "webp" || imageFormat === "avif" || imageFormat === "jpg" || needsResize;
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let sharp: any;
-  if (imageFormat && NEEDS_SHARP.has(imageFormat)) {
+  if (needsSharp) {
     sharp = await loadSharp();
-  }
-  if (imageFormat === "jpg" && !sharp) {
-    try {
-      const mod = "sharp";
-      sharp = await import(mod);
-    } catch {
-      // Fall back to Playwright JPEG
-    }
   }
 
   const tmpDir = resolve(dirname(slidesPath), ".reslide");
@@ -156,12 +173,49 @@ export async function exportSlides(
 
     browser = await pw.chromium.launch();
     const page = await browser.newPage();
-    await page.setViewportSize({ width: options.width, height: options.height });
-    await page.goto(url, { waitUntil: "networkidle" });
-    await page.waitForSelector(".reslide-deck");
 
-    const totalText = await page.textContent(".reslide-slide-number");
-    const total = totalText ? parseInt(totalText.split("/")[1].trim(), 10) : 1;
+    // Always capture at design resolution (1920x1080) for consistent rendering
+    await page.setViewportSize({ width: CAPTURE_WIDTH, height: CAPTURE_HEIGHT });
+    await page.goto(url, { waitUntil: "networkidle" });
+
+    // Wait for the deck to render — use .reslide-slide as fallback selector
+    try {
+      await page.waitForSelector(".reslide-deck", { timeout: 30_000 });
+    } catch {
+      // Try alternative selector in case slide number is hidden
+      await page.waitForSelector(".reslide-slide", { timeout: 10_000 });
+    }
+
+    // Extra wait for fonts, images, and initial rendering to settle
+    await page.waitForTimeout(LOAD_WAIT_MS);
+
+    // Detect total slides — try slide number text first, fallback to counting slides
+    let total = 1;
+    const totalText = await page.textContent(".reslide-slide-number").catch(() => null);
+    if (totalText) {
+      const parsed = parseInt(totalText.split("/")[1]?.trim() ?? "", 10);
+      if (Number.isFinite(parsed) && parsed > 0) total = parsed;
+    } else {
+      // Slide numbers might be hidden; count by navigating
+      let count = 1;
+      const maxSlides = 200;
+      while (count < maxSlides) {
+        await page.keyboard.press("ArrowRight");
+        await page.waitForTimeout(100);
+        // Check if we actually advanced by looking at the URL hash
+        const hash: string = await page.evaluate("window.location.hash");
+        const slideNum = parseInt(hash.replace("#", ""), 10);
+        if (Number.isFinite(slideNum) && slideNum > count) {
+          count = slideNum;
+        } else {
+          break;
+        }
+      }
+      total = count;
+      // Navigate back to first slide
+      await page.evaluate("window.location.hash = ''");
+      await page.waitForTimeout(TRANSITION_WAIT_MS);
+    }
 
     // Determine which slides to export
     const targetIndices = options.slides
@@ -186,7 +240,7 @@ export async function exportSlides(
     async function navigateTo(targetIndex: number) {
       while (currentSlide < targetIndex) {
         await page.keyboard.press("ArrowRight");
-        await page.waitForTimeout(400);
+        await page.waitForTimeout(TRANSITION_WAIT_MS);
         currentSlide++;
       }
     }
@@ -202,21 +256,21 @@ export async function exportSlides(
       const htmlSlides = screenshots
         .map(
           (buf: Buffer) =>
-            `<div style="page-break-after:always;width:${options.width}px;height:${options.height}px">` +
+            `<div style="page-break-after:always;width:${CAPTURE_WIDTH}px;height:${CAPTURE_HEIGHT}px">` +
             `<img src="data:image/png;base64,${buf.toString("base64")}" style="width:100%;height:100%;object-fit:contain"/>` +
             `</div>`,
         )
         .join("");
 
       await pdfPage.setContent(
-        `<html><head><style>@page{size:${options.width}px ${options.height}px;margin:0}body{margin:0}</style></head><body>${htmlSlides}</body></html>`,
+        `<html><head><style>@page{size:${CAPTURE_WIDTH}px ${CAPTURE_HEIGHT}px;margin:0}body{margin:0}</style></head><body>${htmlSlides}</body></html>`,
       );
 
       const pdfPath = resolve(outDir, "slides.pdf");
       await pdfPage.pdf({
         path: pdfPath,
-        width: `${options.width}px`,
-        height: `${options.height}px`,
+        width: `${CAPTURE_WIDTH}px`,
+        height: `${CAPTURE_HEIGHT}px`,
         printBackground: true,
       });
       console.log(`  Exported: ${pdfPath}`);
@@ -227,7 +281,14 @@ export async function exportSlides(
       for (const idx of targetIndices) {
         await navigateTo(idx);
         const pngBuf: Buffer = await page.screenshot({ type: "png" });
-        const outputBuf = await convertImage(pngBuf, fmt, options.quality, sharp);
+        const outputBuf = await convertImage(
+          pngBuf,
+          fmt,
+          options.width,
+          options.height,
+          options.quality,
+          sharp,
+        );
         const filePath = resolve(outDir, `${idx + 1}.${ext}`);
         writeFileSync(filePath, outputBuf);
         console.log(`  Exported: ${filePath}`);
@@ -238,7 +299,6 @@ export async function exportSlides(
   } finally {
     if (browser) await browser.close();
     if (server) await server.close();
-    // Clean up temporary .reslide/ directory
     rmSync(tmpDir, { recursive: true, force: true });
   }
 }

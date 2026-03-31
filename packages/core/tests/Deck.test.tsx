@@ -3,7 +3,10 @@ import { afterEach, expect, test } from "vite-plus/test";
 
 import { Deck, Slide, useDeck } from "../src";
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  window.location.hash = "";
+});
 
 function SlideCounter() {
   const { currentSlide, totalSlides } = useDeck();

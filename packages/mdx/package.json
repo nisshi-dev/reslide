@@ -24,11 +24,11 @@
     "@shikijs/rehype": "catalog:",
     "@shikijs/transformers": "catalog:",
     "acorn": "catalog:",
-    "esbuild": "catalog:",
     "rehype-katex": "catalog:",
     "remark-frontmatter": "5.0.0",
     "remark-gfm": "catalog:",
     "remark-math": "catalog:",
+    "sucrase": "catalog:",
     "unist-util-visit": "5.1.0"
   },
   "devDependencies": {
