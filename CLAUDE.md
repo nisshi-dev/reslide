@@ -97,11 +97,11 @@ Slidev（Vue ベース）の主要機能を React エコシステムで再実装
 
 ## パッケージ構成
 
-| パッケージ      | npm パッケージ名 | 役割                                                         |
-| --------------- | ---------------- | ------------------------------------------------------------ |
-| `packages/core` | `@reslide/core`  | 純粋 React コンポーネント（Deck, Slide, Click, Mark, Notes） |
-| `packages/mdx`  | `@reslide/mdx`   | remark/rehype プラグイン（スライド分割、ディレクティブ変換） |
-| `packages/cli`  | `@reslide/cli`   | Vite ベースの dev/build CLI                                  |
+| パッケージ      | npm パッケージ名    | 役割                                                                             |
+| --------------- | ------------------- | -------------------------------------------------------------------------------- |
+| `packages/core` | `@reslide-dev/core` | React コンポーネント（Deck, Slide, Click, Mark, Notes, SlideNumber 等）          |
+| `packages/mdx`  | `@reslide-dev/mdx`  | remark/rehype プラグイン（スライド分割、ディレクティブ変換、ローカルインポート） |
+| `packages/cli`  | `@reslide-dev/cli`  | Vite ベースの dev/build/export CLI                                               |
 
 ## 技術スタック
 
@@ -109,7 +109,10 @@ Slidev（Vue ベース）の主要機能を React エコシステムで再実装
 - Tailwind CSS v4
 - Vite+（モノレポ・ビルド基盤）
 - tsdown（ライブラリビルド）
+- esbuild（ローカルコンポーネントのトランスパイル）
+- acorn（ESTree 再パース）
 - remark / rehype + remark-directive（MDX プラグイン）
+- Shiki（コードハイライト）、KaTeX（数式）
 - Vitest（テスト）
 
 ## 開発コマンド
@@ -121,12 +124,3 @@ vp test             # テスト実行
 vp check            # lint + format + 型チェック
 vp pack             # ライブラリビルド
 ```
-
-## 実装の優先順位
-
-1. `@reslide/core` — Deck, Slide, useDeck, キーボードナビゲーション, フルスクリーン
-2. `@reslide/mdx` — remarkSlides（`---` 分割）, remarkClick, remarkMark
-3. `@reslide/core` レイアウト — default, center, two-cols, image-right, section, quote
-4. `@reslide/core` 概要モード — サムネイルグリッド表示
-5. `@reslide/cli` — Vite ベースの dev/build コマンド
-6. テーマ・スタイリング — Tailwind CSS v4, CSS 変数によるテーマカスタマイズ
