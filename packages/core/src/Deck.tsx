@@ -298,23 +298,25 @@ export function Deck({
               {children}
             </SlideTransition>
           )}
+          {/* UI overlays — inside scale wrapper, sized in design coordinates (1920×1080) */}
+          {!isOverview && <ClickNavigation onPrev={prev} onNext={next} disabled={isDrawing} />}
+          {!isOverview && <ProgressBar />}
+          {!isOverview &&
+            slideNumbers !== false &&
+            !(slideNumbers === "except-first" && currentSlide === 0) && <SlideNumber />}
         </div>
       )}
-      {/* UI overlays — not scaled, stay at actual viewport size */}
-      {!isOverview && !isPrinting && (
-        <ClickNavigation onPrev={prev} onNext={next} disabled={isDrawing} />
-      )}
-      {!isOverview && !isPrinting && <ProgressBar />}
-      {!isOverview &&
-        !isPrinting &&
-        slideNumbers !== false &&
-        !(slideNumbers === "except-first" && currentSlide === 0) && <SlideNumber />}
+      {/* Interactive overlays — outside scale wrapper (mouse coordinate dependent) */}
       {!isOverview && !isPrinting && (
         <DrawingLayer active={isDrawing} currentSlide={currentSlide} />
       )}
       {!isOverview && !isPrinting && <Pointer active={isPointer} />}
       {!isPrinting && (
-        <NavigationBar isDrawing={isDrawing} onToggleDrawing={() => setIsDrawing((v) => !v)} />
+        <NavigationBar
+          isDrawing={isDrawing}
+          onToggleDrawing={() => setIsDrawing((v) => !v)}
+          scale={scale}
+        />
       )}
     </div>
   );
