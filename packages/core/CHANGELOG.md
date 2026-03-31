@@ -1,5 +1,13 @@
 # @reslide-dev/core
 
+## 0.15.2
+
+### Patch Changes
+
+- [#68](https://github.com/nisshi-dev/reslide/pull/68) [`fb3a56f`](https://github.com/nisshi-dev/reslide/commit/fb3a56f9501889364633ee9343d575c3056f3b4e) Thanks [@nisshi-dev](https://github.com/nisshi-dev)! - cli: CSS background-image の読み込み完了を待機してからスクリーンショット撮影
+  mdx: remainingLines ノードに estree 付与、\_Fragment の arguments[0]バインディング追加
+  core: SlideSkelton のレイアウト改善（タイトル+本文 4 行+ページ番号インジケータ）
+
 ## 0.13.1
 
 ### Patch Changes
