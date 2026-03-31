@@ -3,23 +3,33 @@ import type { ReactNode } from "react";
 
 import { DeckContext } from "./context.js";
 import { SlideIndexContext } from "./slide-context.js";
+import { DEFAULT_DESIGN_WIDTH, DEFAULT_DESIGN_HEIGHT } from "./types.js";
 import type { DeckContextValue } from "./types.js";
 import { usePresenterChannel } from "./use-presenter.js";
-
-const DESIGN_WIDTH = 960;
-const DESIGN_HEIGHT = 540;
 
 export interface PresenterViewProps {
   children: ReactNode;
   /** Render function for notes content per slide */
   notes?: ReactNode[];
+  /** Design width for scaling (default: 1920) */
+  designWidth?: number;
+  /** Design height for scaling (default: 1080) */
+  designHeight?: number;
 }
 
 /**
  * Scaled slide preview — renders at design size and scales to fit container.
  * Maintains 16:9 aspect ratio.
  */
-function ScaledSlide({ children }: { children: ReactNode }) {
+function ScaledSlide({
+  children,
+  designWidth,
+  designHeight,
+}: {
+  children: ReactNode;
+  designWidth: number;
+  designHeight: number;
+}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
 
@@ -30,13 +40,13 @@ function ScaledSlide({ children }: { children: ReactNode }) {
       for (const entry of entries) {
         const { width, height } = entry.contentRect;
         if (width > 0 && height > 0) {
-          setScale(Math.min(width / DESIGN_WIDTH, height / DESIGN_HEIGHT));
+          setScale(Math.min(width / designWidth, height / designHeight));
         }
       }
     });
     observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [designWidth, designHeight]);
 
   return (
     <div
@@ -55,8 +65,8 @@ function ScaledSlide({ children }: { children: ReactNode }) {
           position: "absolute",
           top: "50%",
           left: "50%",
-          width: DESIGN_WIDTH,
-          height: DESIGN_HEIGHT,
+          width: designWidth,
+          height: designHeight,
           transform: `translate(-50%, -50%) scale(${scale})`,
           transformOrigin: "center center",
         }}
@@ -73,7 +83,12 @@ function ScaledSlide({ children }: { children: ReactNode }) {
  * Supports bidirectional control — navigate from this window to
  * drive the main presentation.
  */
-export function PresenterView({ children, notes }: PresenterViewProps) {
+export function PresenterView({
+  children,
+  notes,
+  designWidth = DEFAULT_DESIGN_WIDTH,
+  designHeight = DEFAULT_DESIGN_HEIGHT,
+}: PresenterViewProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [clickStep, setClickStep] = useState(0);
   const [elapsed, setElapsed] = useState(0);
@@ -135,6 +150,8 @@ export function PresenterView({ children, notes }: PresenterViewProps) {
       totalClickSteps: 0,
       isOverview: false,
       isFullscreen: false,
+      designWidth,
+      designHeight,
       next,
       prev,
       goTo,
@@ -142,7 +159,18 @@ export function PresenterView({ children, notes }: PresenterViewProps) {
       toggleFullscreen: noop,
       registerClickSteps: noopReg,
     }),
-    [currentSlide, totalSlides, clickStep, next, prev, goTo, noop, noopReg],
+    [
+      currentSlide,
+      totalSlides,
+      clickStep,
+      designWidth,
+      designHeight,
+      next,
+      prev,
+      goTo,
+      noop,
+      noopReg,
+    ],
   );
 
   return (
@@ -175,7 +203,9 @@ export function PresenterView({ children, notes }: PresenterViewProps) {
           }}
         >
           <SlideIndexContext.Provider value={currentSlide}>
-            <ScaledSlide>{slides[currentSlide]}</ScaledSlide>
+            <ScaledSlide designWidth={designWidth} designHeight={designHeight}>
+              {slides[currentSlide]}
+            </ScaledSlide>
           </SlideIndexContext.Provider>
         </div>
 
@@ -196,7 +226,9 @@ export function PresenterView({ children, notes }: PresenterViewProps) {
           >
             {currentSlide < totalSlides - 1 ? (
               <SlideIndexContext.Provider value={currentSlide + 1}>
-                <ScaledSlide>{slides[currentSlide + 1]}</ScaledSlide>
+                <ScaledSlide designWidth={designWidth} designHeight={designHeight}>
+                  {slides[currentSlide + 1]}
+                </ScaledSlide>
               </SlideIndexContext.Provider>
             ) : (
               <div

@@ -14,11 +14,8 @@ import type { TransitionType } from "./SlideTransition.js";
 import { SlideTransition } from "./SlideTransition.js";
 import { useFullscreen } from "./use-fullscreen.js";
 import { openPresenterWindow, usePresenterSync } from "./use-presenter.js";
+import { DEFAULT_DESIGN_WIDTH, DEFAULT_DESIGN_HEIGHT } from "./types.js";
 import type { DeckContextValue } from "./types.js";
-
-/** Design resolution — slides are authored at this size and scaled to fit */
-const DESIGN_WIDTH = 960;
-const DESIGN_HEIGHT = 540;
 
 export interface DeckProps {
   children: ReactNode;
@@ -26,9 +23,19 @@ export interface DeckProps {
   transition?: TransitionType;
   /** Aspect ratio (default: 16/9). Set to 0 to disable and fill parent. */
   aspectRatio?: number;
+  /** Design width for scaling (default: 1920) */
+  designWidth?: number;
+  /** Design height for scaling (default: 1080) */
+  designHeight?: number;
 }
 
-export function Deck({ children, transition = "none", aspectRatio = 16 / 9 }: DeckProps) {
+export function Deck({
+  children,
+  transition = "none",
+  aspectRatio = 16 / 9,
+  designWidth = DEFAULT_DESIGN_WIDTH,
+  designHeight = DEFAULT_DESIGN_HEIGHT,
+}: DeckProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const deckRef = useRef<HTMLDivElement>(null);
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -204,14 +211,14 @@ export function Deck({ children, transition = "none", aspectRatio = 16 / 9 }: De
       for (const entry of entries) {
         const { width, height } = entry.contentRect;
         if (width > 0 && height > 0) {
-          setScale(Math.min(width / DESIGN_WIDTH, height / DESIGN_HEIGHT));
+          setScale(Math.min(width / designWidth, height / designHeight));
         }
       }
     });
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [designWidth, designHeight]);
 
   const contextValue = useMemo<DeckContextValue>(
     () => ({
@@ -221,6 +228,8 @@ export function Deck({ children, transition = "none", aspectRatio = 16 / 9 }: De
       totalClickSteps,
       isOverview,
       isFullscreen,
+      designWidth,
+      designHeight,
       next,
       prev,
       goTo,
@@ -235,6 +244,8 @@ export function Deck({ children, transition = "none", aspectRatio = 16 / 9 }: De
       totalClickSteps,
       isOverview,
       isFullscreen,
+      designWidth,
+      designHeight,
       next,
       prev,
       goTo,
@@ -269,8 +280,8 @@ export function Deck({ children, transition = "none", aspectRatio = 16 / 9 }: De
             position: "absolute",
             top: "50%",
             left: "50%",
-            width: DESIGN_WIDTH,
-            height: DESIGN_HEIGHT,
+            width: designWidth,
+            height: designHeight,
             transform: `translate(-50%, -50%) scale(${scale})`,
             transformOrigin: "center center",
           }}

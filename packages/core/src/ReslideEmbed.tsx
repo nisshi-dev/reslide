@@ -1,7 +1,8 @@
 import * as runtime from "react/jsx-runtime";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Fragment } from "react";
 import type { ComponentType, ElementType } from "react";
+import type { DeckProps } from "./Deck.js";
 
 import { Click, ClickSteps } from "./Click.js";
 import { CodeEditor } from "./CodeEditor.js";
@@ -25,6 +26,10 @@ export interface ReslideEmbedProps {
   components?: Record<string, ElementType>;
   /** Base URL for resolving relative imports in MDX (e.g. directory URL of the MDX file) */
   baseUrl?: string;
+  /** Design width for scaling (default: 1920) */
+  designWidth?: number;
+  /** Design height for scaling (default: 1080) */
+  designHeight?: number;
   /** Wrapper around the Deck (for styling) */
   className?: string;
   /** Inline styles for the container */
@@ -66,6 +71,8 @@ export function ReslideEmbed({
   transition,
   components: userComponents,
   baseUrl,
+  designWidth,
+  designHeight,
   className,
   style,
 }: ReslideEmbedProps) {
@@ -104,7 +111,20 @@ export function ReslideEmbed({
     );
   }
 
-  const allComponents = { ...builtinComponents, ...userComponents };
+  const DeckWithDesign = useMemo(() => {
+    if (designWidth == null && designHeight == null) return Deck;
+    return function DeckWithResolution(props: DeckProps) {
+      return (
+        <Deck
+          {...props}
+          designWidth={designWidth ?? props.designWidth}
+          designHeight={designHeight ?? props.designHeight}
+        />
+      );
+    };
+  }, [designWidth, designHeight]);
+
+  const allComponents = { ...builtinComponents, Deck: DeckWithDesign, ...userComponents };
 
   // The MDX output from compileMdxSlides wraps everything in <Deck><Slide>...</Slide></Deck>
   // via remarkSlides. We render it directly — the Deck is inside the MDX.

@@ -1,3 +1,7 @@
+/** Default design resolution — slides are authored at this size and scaled to fit */
+export const DEFAULT_DESIGN_WIDTH = 1920;
+export const DEFAULT_DESIGN_HEIGHT = 1080;
+
 export interface DeckState {
   /** Current slide index (0-based) */
   currentSlide: number;
@@ -11,6 +15,10 @@ export interface DeckState {
   isOverview: boolean;
   /** Whether fullscreen is active */
   isFullscreen: boolean;
+  /** Design width for scaling (default: 1920) */
+  designWidth: number;
+  /** Design height for scaling (default: 1080) */
+  designHeight: number;
 }
 
 export interface DeckActions {

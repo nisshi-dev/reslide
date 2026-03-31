@@ -1,16 +1,17 @@
-import { Children, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Children, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 
 import { DeckContext } from "./context.js";
 import { SlideIndexContext } from "./slide-context.js";
+import { DEFAULT_DESIGN_WIDTH, DEFAULT_DESIGN_HEIGHT } from "./types.js";
 import type { DeckContextValue } from "./types.js";
-
-const DESIGN_WIDTH = 960;
-const DESIGN_HEIGHT = 540;
 
 function ScaledSlideCard({ children, index }: { children: ReactNode; index: number }) {
   const frameRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0.3);
+  const ctx = useContext(DeckContext);
+  const dw = ctx?.designWidth ?? DEFAULT_DESIGN_WIDTH;
+  const dh = ctx?.designHeight ?? DEFAULT_DESIGN_HEIGHT;
 
   useEffect(() => {
     const el = frameRef.current;
@@ -20,14 +21,14 @@ function ScaledSlideCard({ children, index }: { children: ReactNode; index: numb
       for (const entry of entries) {
         const { width } = entry.contentRect;
         if (width > 0) {
-          setScale(width / DESIGN_WIDTH);
+          setScale(width / dw);
         }
       }
     });
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [dw]);
 
   return (
     <div className="reslide-print-slide-card">
@@ -36,8 +37,8 @@ function ScaledSlideCard({ children, index }: { children: ReactNode; index: numb
           <div
             className="reslide-print-slide-content"
             style={{
-              width: DESIGN_WIDTH,
-              height: DESIGN_HEIGHT,
+              width: dw,
+              height: dh,
               transform: `scale(${scale})`,
               transformOrigin: "top left",
             }}
@@ -57,6 +58,9 @@ function ScaledSlideCard({ children, index }: { children: ReactNode; index: numb
  */
 export function PrintView({ children }: { children: ReactNode }) {
   const slides = Children.toArray(children);
+  const parentCtx = useContext(DeckContext);
+  const dw = parentCtx?.designWidth ?? DEFAULT_DESIGN_WIDTH;
+  const dh = parentCtx?.designHeight ?? DEFAULT_DESIGN_HEIGHT;
   const noop = useCallback(() => {}, []);
   const noopNum = useCallback((_n: number) => {}, []);
   const noopReg = useCallback((_i: number, _c: number) => {}, []);
@@ -69,6 +73,8 @@ export function PrintView({ children }: { children: ReactNode }) {
       totalClickSteps: 0,
       isOverview: false,
       isFullscreen: false,
+      designWidth: dw,
+      designHeight: dh,
       next: noop,
       prev: noop,
       goTo: noopNum,
@@ -76,7 +82,7 @@ export function PrintView({ children }: { children: ReactNode }) {
       toggleFullscreen: noop,
       registerClickSteps: noopReg,
     }),
-    [slides.length, noop, noopNum, noopReg],
+    [slides.length, dw, dh, noop, noopNum, noopReg],
   );
 
   return (
