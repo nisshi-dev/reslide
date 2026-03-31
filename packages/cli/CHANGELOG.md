@@ -1,5 +1,11 @@
 # @reslide-dev/cli
 
+## 0.10.0
+
+### Minor Changes
+
+- [#50](https://github.com/nisshi-dev/reslide/pull/50) [`ea24db5`](https://github.com/nisshi-dev/reslide/commit/ea24db56e12aad2bec5afdbc2be086e0b5ce2bf6) Thanks [@nisshi-dev](https://github.com/nisshi-dev)! - export コマンドに画像フォーマット（png/jpg/webp/avif）、ページ範囲指定（--slides）、品質指定（--quality）オプションを追加
+
 ## 0.9.2
 
 ### Patch Changes
