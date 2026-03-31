@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { Parser } from "acorn";
 import { transformSync } from "esbuild";
 import type { Root } from "mdast";
 
@@ -138,127 +139,106 @@ export function remarkExtractLocalImports(options?: { baseUrl?: string }) {
       //   - Star:    * as Foo
       const inlined = buildInlineModule(importClause, compiledCode);
 
-      // Replace the ESM import node with the inlined code
-      const replacement = node as { value?: string; data?: Record<string, unknown> };
-      replacement.value = inlined;
+      // Replace the import node with inlined code.
+      // MDX compiler uses data.estree over value, so we must re-parse the
+      // inlined code with acorn to produce a valid ESTree program.
+      const estree = Parser.parse(inlined, {
+        ecmaVersion: 2022,
+        sourceType: "module",
+      });
+      tree.children[i] = {
+        type: "mdxjsEsm",
+        value: inlined,
+        data: { estree },
+      } as unknown as typeof node;
     }
   };
 }
 
 /**
- * Build an IIFE that replaces an import statement with inlined compiled code.
+ * Build inlined module code that replaces an import statement.
+ *
+ * The compiled code is inserted as top-level ESM declarations. We strip
+ * `export` keywords so the names become local bindings, and handle
+ * default exports via a `__default` variable. Import aliases are
+ * resolved with const assignments.
  */
 function buildInlineModule(importClause: string, compiledCode: string): string {
-  // Strip trailing semicolons and whitespace from compiled code
-  const code = compiledCode.trimEnd().replace(/;$/, "");
+  const code = stripExports(compiledCode);
 
   const defaultMatch = importClause.match(/^(\w+)$/);
-  const starMatch = importClause.match(/^\*\s+as\s+(\w+)$/);
   const namedMatch = importClause.match(/^\{([^}]+)\}$/);
-  // Mixed: `Default, { Named }` or `Default, * as Star`
   const mixedNamedMatch = importClause.match(/^(\w+)\s*,\s*\{([^}]+)\}$/);
-  const mixedStarMatch = importClause.match(/^(\w+)\s*,\s*\*\s+as\s+(\w+)$/);
 
-  if (starMatch) {
-    // import * as utils from "./utils"
-    // → const utils = await (async () => { ...code...; return { ...exported }; })();
-    // We wrap everything and re-export all top-level declarations
-    const name = starMatch[1];
-    return `const ${name} = await (async () => {\n${code};\nreturn { ${extractExportedNames(compiledCode).join(", ")} };\n})();`;
-  }
-
-  if (mixedStarMatch) {
-    const defaultName = mixedStarMatch[1];
-    const starName = mixedStarMatch[2];
-    const exports = extractExportedNames(compiledCode);
-    return (
-      `const { default: ${defaultName}, ...__rest } = await (async () => {\n${code};\n` +
-      `return { ${exports.join(", ")} };\n})();\nconst ${starName} = __rest;`
-    );
+  if (defaultMatch) {
+    // import Foo from "./foo" → inline code + const Foo = __default
+    // If the default export is a named function/class with the same name,
+    // skip the alias to avoid duplicate declaration.
+    const name = defaultMatch[1];
+    const hasNamedDefault = new RegExp(`(?:function|class)\\s+${name}\\s*[({]`).test(code);
+    if (hasNamedDefault) return code;
+    return `${code}\nconst ${name} = __default;`;
   }
 
   if (namedMatch) {
-    // import { A, B as C } from "./mod"
-    const specs = namedMatch[1];
-    const exportNames = parseNamedImports(specs);
-    return `const { ${specs} } = await (async () => {\n${code};\nreturn { ${exportNames.join(", ")} };\n})();`;
+    // import { A, B as C } from "./mod" → inline code (names are already declared)
+    // Handle aliases: need to create const C = B
+    const aliases = buildAliases(namedMatch[1]);
+    return aliases ? `${code}\n${aliases}` : code;
   }
 
   if (mixedNamedMatch) {
     const defaultName = mixedNamedMatch[1];
-    const specs = mixedNamedMatch[2];
-    const exportNames = parseNamedImports(specs);
-    return (
-      `const { default: ${defaultName}, ${specs} } = await (async () => {\n${code};\n` +
-      `return { default: ${findDefaultExport(compiledCode)}, ${exportNames.join(", ")} };\n})();`
-    );
+    const aliases = buildAliases(mixedNamedMatch[2]);
+    const parts = [code, `const ${defaultName} = __default;`];
+    if (aliases) parts.push(aliases);
+    return parts.join("\n");
   }
 
-  if (defaultMatch) {
-    // import Foo from "./foo"
-    const name = defaultMatch[1];
-    const defaultExpr = findDefaultExport(compiledCode);
-    return `const ${name} = await (async () => {\n${code};\nreturn ${defaultExpr};\n})();`;
-  }
-
-  // Fallback: treat the whole clause as-is
-  return `const ${importClause} = await (async () => {\n${code};\n})();`;
+  // Star or other — just inline the code
+  return code;
 }
 
 /**
- * Parse named import specifiers to get the original export names.
- * e.g. "A, B as C" → ["A", "B"]
+ * Build const alias assignments for "as" renames in named imports.
+ * e.g. "A, B as C" → "const C = B;" (A needs no alias)
  */
-function parseNamedImports(specs: string): string[] {
-  return specs.split(",").map((s) => {
-    const parts = s.trim().split(/\s+as\s+/);
-    return parts[0].trim();
-  });
-}
-
-/**
- * Find the default export expression in compiled ESM code.
- * esbuild compiles `export default X` to various forms.
- */
-function findDefaultExport(code: string): string {
-  // esbuild with format: "esm" keeps `export default` as-is
-  // Match: export default function Foo / export default class Foo
-  const namedDefault = code.match(/export\s+default\s+(?:function|class)\s+(\w+)/);
-  if (namedDefault) return namedDefault[1];
-
-  // Match: export default <expression>
-  // We'll just reference it as the module's default via a wrapper
-  // The IIFE needs to capture it — safest approach is to use a variable
-  return `__default`;
-}
-
-/**
- * Extract exported names from compiled ESM code.
- * Matches: export { name }, export function name, export const name, etc.
- */
-function extractExportedNames(code: string): string[] {
-  const names = new Set<string>();
-
-  // export function/class name
-  for (const m of code.matchAll(/export\s+(?:function|class)\s+(\w+)/g)) {
-    names.add(m[1]);
-  }
-  // export const/let/var name
-  for (const m of code.matchAll(/export\s+(?:const|let|var)\s+(\w+)/g)) {
-    names.add(m[1]);
-  }
-  // export { a, b, c }
-  for (const m of code.matchAll(/export\s*\{([^}]+)\}/g)) {
-    for (const spec of m[1].split(",")) {
-      const parts = spec.trim().split(/\s+as\s+/);
-      const name = (parts[1] ?? parts[0]).trim();
-      if (name) names.add(name);
+function buildAliases(specs: string): string | null {
+  const aliases: string[] = [];
+  for (const spec of specs.split(",")) {
+    const parts = spec.trim().split(/\s+as\s+/);
+    if (parts.length === 2) {
+      aliases.push(`const ${parts[1].trim()} = ${parts[0].trim()};`);
     }
   }
-  // export default
-  if (/export\s+default\s/.test(code)) {
-    names.add("default");
-  }
+  return aliases.length > 0 ? aliases.join("\n") : null;
+}
 
-  return [...names];
+/**
+ * Strip `export` keywords from compiled ESM code so names become local declarations.
+ * - `export function X` → `function X`
+ * - `export const X` → `const X`
+ * - `export default function X` → `function X; var __default = X`
+ * - `export default <expr>` → `var __default = <expr>`
+ * - `export { ... }` → removed
+ */
+function stripExports(code: string): string {
+  let result = code;
+
+  // export default function/class Name → function/class Name + __default assignment
+  result = result.replace(
+    /export\s+default\s+(function|class)\s+(\w+)/g,
+    "$1 $2;\nvar __default = $2",
+  );
+
+  // export default <expression> → var __default = <expression>
+  result = result.replace(/export\s+default\s+/g, "var __default = ");
+
+  // export function/class/const/let/var → remove export keyword
+  result = result.replace(/export\s+(function|class|const|let|var)\s/g, "$1 ");
+
+  // export { ... } → remove entirely
+  result = result.replace(/export\s*\{[^}]*\}\s*;?/g, "");
+
+  return result;
 }
