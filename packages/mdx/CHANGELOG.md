@@ -1,5 +1,11 @@
 # @reslide-dev/mdx
 
+## 0.11.1
+
+### Patch Changes
+
+- [#54](https://github.com/nisshi-dev/reslide/pull/54) [`d662087`](https://github.com/nisshi-dev/reslide/commit/d66208792f6f1fca966c790c3ab358c0b63cd60c) Thanks [@nisshi-dev](https://github.com/nisshi-dev)! - 拡張子なし相対インポート（`import { X } from "./components/x"`）の自動解決をサポート。.tsx → .ts → .jsx → .js の順で探索。
+
 ## 0.11.0
 
 ### Minor Changes
