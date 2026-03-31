@@ -314,4 +314,84 @@ import { FragmentUser } from "./components/fragment-user"
       expect(result.code).toContain("Fragment: _Fragment");
     }
   });
+
+  test("inlined component executes without runtime errors", { timeout: 30_000 }, async () => {
+    const baseUrl = pathToFileURL(tmpDir + "/").href;
+    const source = `---
+title: Test
+---
+
+import { FeatureCard } from "./components/feature-card"
+
+# Hello
+
+<FeatureCard title="Test">Content</FeatureCard>
+`;
+    const result = await compileMdxSlides(source, { baseUrl });
+    const { run } = await import("@mdx-js/mdx");
+    // @ts-expect-error — react not in mdx devDependencies
+    const runtime = await import("react/jsx-runtime");
+    // @ts-expect-error — react not in mdx devDependencies
+    const { Fragment } = await import("react");
+
+    const mod = await run(result.code, {
+      ...runtime,
+      Fragment,
+    });
+    expect(typeof mod.default).toBe("function");
+  });
+
+  test("Fragment component executes without runtime errors", { timeout: 30_000 }, async () => {
+    const baseUrl = pathToFileURL(tmpDir + "/").href;
+    const source = `---
+title: Test
+---
+
+import { FragmentUser } from "./components/fragment-user"
+
+# Hello
+
+<FragmentUser show={true} />
+`;
+    const result = await compileMdxSlides(source, { baseUrl });
+    const { run } = await import("@mdx-js/mdx");
+    // @ts-expect-error — react not in mdx devDependencies
+    const runtime = await import("react/jsx-runtime");
+    // @ts-expect-error — react not in mdx devDependencies
+    const { Fragment } = await import("react");
+
+    const mod = await run(result.code, {
+      ...runtime,
+      Fragment,
+    });
+    expect(typeof mod.default).toBe("function");
+  });
+
+  test("consecutive CSS + local imports execute at runtime", { timeout: 30_000 }, async () => {
+    const baseUrl = pathToFileURL(tmpDir + "/").href;
+    const source = `---
+title: Test
+---
+import "./slides.css"
+import { FeatureCard } from "./components/feature-card"
+import { Badge } from "./components/badge"
+
+# Hello
+
+<FeatureCard title="Test">Content</FeatureCard>
+<Badge label="New" />
+`;
+    const result = await compileMdxSlides(source, { baseUrl });
+    const { run } = await import("@mdx-js/mdx");
+    // @ts-expect-error — react not in mdx devDependencies
+    const runtime = await import("react/jsx-runtime");
+    // @ts-expect-error — react not in mdx devDependencies
+    const { Fragment } = await import("react");
+
+    const mod = await run(result.code, {
+      ...runtime,
+      Fragment,
+    });
+    expect(typeof mod.default).toBe("function");
+  });
 });
