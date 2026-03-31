@@ -65,7 +65,15 @@ function generateEntryFiles(slidesPath: string, outDir: string, entryOptions?: E
 </html>`,
   );
 
-  const tailwindImport = entryOptions?.tailwind ? `import "tailwindcss";\n` : "";
+  // Generate tailwind.css with @source pointing to the slides directory
+  if (entryOptions?.tailwind) {
+    const slidesDir = dirname(resolve(slidesPath));
+    writeFileSync(
+      resolve(outDir, "tailwind.css"),
+      `@import "tailwindcss";\n@source "${slidesDir}";`,
+    );
+  }
+  const tailwindImport = entryOptions?.tailwind ? `import "./tailwind.css";\n` : "";
   const cssImport = entryOptions?.css ? `import "${resolve(entryOptions.css)}";\n` : "";
   const slideNumbersProp = entryOptions?.noSlideNumbers ? " slideNumbers={false}" : "";
 
