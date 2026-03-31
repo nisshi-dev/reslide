@@ -1,5 +1,12 @@
 # @reslide-dev/mdx
 
+## 0.12.0
+
+### Minor Changes
+
+- [#56](https://github.com/nisshi-dev/reslide/pull/56) [`2386185`](https://github.com/nisshi-dev/reslide/commit/23861858c328ce1a259f20bc886ad9a80bd1993d) Thanks [@nisshi-dev](https://github.com/nisshi-dev)! - MDX: data.estree の再パースでローカルインポートのインライン化を修正、headmatter の layout/defaults サポートを追加
+  CLI: export コマンドのスタイル適用・コンポーネント登録・クリーンアップ等 6 点修正、--public-dir/--css/--no-slide-numbers オプション追加
+
 ## 0.11.1
 
 ### Patch Changes
