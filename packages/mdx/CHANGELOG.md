@@ -1,5 +1,11 @@
 # @reslide-dev/mdx
 
+## 0.8.0
+
+### Minor Changes
+
+- [#40](https://github.com/nisshi-dev/reslide/pull/40) [`0cd0cf1`](https://github.com/nisshi-dev/reslide/commit/0cd0cf105eaf168b90c878a5392f37ed61677600) Thanks [@nisshi-dev](https://github.com/nisshi-dev)! - 第 3 弾改善: Click アニメーション種別(fade/slide-up/slide-left/scale/none)、スライドごと CSS 変数上書き(vars)、GlobalLayer 除外指定(excludeSlides/from/to)、grid レイアウト、SlideIndex/TotalSlides コンポーネント、Shiki テーマカスタマイズ、印刷品質向上
+
 ## 0.7.0
 
 ### Minor Changes
