@@ -34,13 +34,13 @@
     "remark-directive": "catalog:",
     "remark-frontmatter": "catalog:",
     "remark-gfm": "catalog:",
-    "remark-math": "catalog:"
+    "remark-math": "catalog:",
+    "vite": "^6.0.0 || ^7.0.0 || ^8.0.0"
   },
   "devDependencies": {
     "@types/node": "catalog:",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
-    "vite": "catalog:",
     "vite-plus": "catalog:",
     "vitest": "catalog:"
   }

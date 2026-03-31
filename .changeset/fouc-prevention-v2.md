@@ -1,5 +1,7 @@
 ---
 "@reslide-dev/core": patch
+"@reslide-dev/cli": patch
 ---
 
-ReslideEmbedのFOUC対策を強化: rAF2回ネスト、visibility: hidden併用、style注入をコンテンツ外に移動、パルスアニメーション付きスケルトンプレースホルダー追加
+core: ReslideEmbedのFOUC対策強化（rAF2回ネスト、visibility: hidden、style先行注入）、スケルトンプレースホルダー追加
+cli: viteをdependenciesに移動し単体インストール時のエラーを解消
