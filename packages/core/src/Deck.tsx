@@ -27,6 +27,8 @@ export interface DeckProps {
   designWidth?: number;
   /** Design height for scaling (default: 1080) */
   designHeight?: number;
+  /** Show slide numbers. true=all, false=none, "except-first"=hide on first slide */
+  slideNumbers?: boolean | "except-first";
 }
 
 export function Deck({
@@ -35,6 +37,7 @@ export function Deck({
   aspectRatio = 16 / 9,
   designWidth = DEFAULT_DESIGN_WIDTH,
   designHeight = DEFAULT_DESIGN_HEIGHT,
+  slideNumbers = true,
 }: DeckProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const deckRef = useRef<HTMLDivElement>(null);
@@ -302,7 +305,10 @@ export function Deck({
         <ClickNavigation onPrev={prev} onNext={next} disabled={isDrawing} />
       )}
       {!isOverview && !isPrinting && <ProgressBar />}
-      {!isOverview && !isPrinting && <SlideNumber />}
+      {!isOverview &&
+        !isPrinting &&
+        slideNumbers !== false &&
+        !(slideNumbers === "except-first" && currentSlide === 0) && <SlideNumber />}
       {!isOverview && !isPrinting && (
         <DrawingLayer active={isDrawing} currentSlide={currentSlide} />
       )}

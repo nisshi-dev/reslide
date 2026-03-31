@@ -119,6 +119,13 @@ export function remarkSlides() {
           value: options.image,
         });
       }
+      if (options.background) {
+        attrs.push({
+          type: "mdxJsxAttribute",
+          name: "background",
+          value: options.background,
+        });
+      }
 
       const slideChildren: RootContent[] = [...content];
 
