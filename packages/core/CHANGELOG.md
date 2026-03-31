@@ -1,5 +1,12 @@
 # @reslide-dev/core
 
+## 0.13.1
+
+### Patch Changes
+
+- [#60](https://github.com/nisshi-dev/reslide/pull/60) [`02e27bf`](https://github.com/nisshi-dev/reslide/commit/02e27bfd14d4451d16009530770fb25018a24a4b) Thanks [@nisshi-dev](https://github.com/nisshi-dev)! - core: ReslideEmbed の FOUC 対策強化（rAF2 回ネスト、visibility: hidden、style 先行注入）、スケルトンプレースホルダー追加
+  cli: vite を dependencies に移動し単体インストール時のエラーを解消
+
 ## 0.13.0
 
 ### Minor Changes
