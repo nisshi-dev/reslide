@@ -121,17 +121,24 @@ export function ReslideEmbed({
     void evaluate();
   }, [code, baseUrl]);
 
+  // Wait for two animation frames to ensure layout + paint are complete
+  const waitForPaint = useCallback((fn: () => void) => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(fn);
+    });
+  }, []);
+
   // After Content renders, wait for all images to load before showing
   const onContentRendered = useCallback(() => {
     const el = contentRef.current;
     if (!el) {
-      setReady(true);
+      waitForPaint(() => setReady(true));
       return;
     }
 
     const images = el.querySelectorAll("img");
     if (images.length === 0) {
-      requestAnimationFrame(() => setReady(true));
+      waitForPaint(() => setReady(true));
       return;
     }
 
@@ -139,7 +146,9 @@ export function ReslideEmbed({
     const total = images.length;
     const onLoad = () => {
       loaded++;
-      if (loaded >= total) setReady(true);
+      if (loaded >= total) {
+        waitForPaint(() => setReady(true));
+      }
     };
 
     for (const img of images) {
@@ -150,7 +159,7 @@ export function ReslideEmbed({
         img.addEventListener("error", onLoad, { once: true });
       }
     }
-  }, []);
+  }, [waitForPaint]);
 
   // Trigger image check after Content is set
   useEffect(() => {
@@ -185,13 +194,7 @@ export function ReslideEmbed({
           ...style,
         }}
       >
-        <div
-          style={{
-            width: "100%",
-            height: "100%",
-            backgroundColor: "var(--slide-bg, #fff)",
-          }}
-        />
+        <SlideSkeleton />
       </div>
     );
   }
@@ -211,17 +214,68 @@ export function ReslideEmbed({
       style={{ width: "100%", height: "100%", ...style }}
       {...containerProps}
     >
+      {/* Inject CSS before content so styles are parsed before first paint */}
+      {scopedCss && <style dangerouslySetInnerHTML={{ __html: scopedCss }} />}
       <div
         ref={contentRef}
         style={{
           width: "100%",
           height: "100%",
           opacity: ready ? 1 : 0,
-          transition: "opacity 0.2s ease-in",
+          visibility: ready ? "visible" : "hidden",
+          transition: "opacity 0.2s ease-in, visibility 0.2s",
         }}
       >
-        {scopedCss && <style dangerouslySetInnerHTML={{ __html: scopedCss }} />}
         <Content components={allComponents as Record<string, ElementType>} />
+      </div>
+    </div>
+  );
+}
+
+const skeletonKeyframes = `
+@keyframes reslide-skeleton-pulse {
+  0%, 100% { opacity: 0.08; }
+  50% { opacity: 0.15; }
+}`;
+
+const skeletonBarStyle: React.CSSProperties = {
+  backgroundColor: "var(--slide-text, #1a1a1a)",
+  borderRadius: 6,
+  animation: "reslide-skeleton-pulse 1.8s ease-in-out infinite",
+};
+
+/**
+ * Skeleton placeholder displayed while MDX content is being evaluated.
+ * Mimics a typical slide layout (title + body lines) with a subtle pulse animation.
+ */
+function SlideSkeleton() {
+  return (
+    <div
+      className="reslide-skeleton"
+      style={{
+        width: "100%",
+        height: "100%",
+        backgroundColor: "var(--slide-bg, #fff)",
+        padding: "8% 6%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "4%",
+      }}
+    >
+      <style dangerouslySetInnerHTML={{ __html: skeletonKeyframes }} />
+      {/* Title bar */}
+      <div style={{ ...skeletonBarStyle, width: "45%", height: "5%" }} />
+      {/* Body lines */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "2.5%", marginTop: "2%" }}>
+        <div
+          style={{ ...skeletonBarStyle, width: "80%", height: "2.5%", animationDelay: "0.15s" }}
+        />
+        <div
+          style={{ ...skeletonBarStyle, width: "65%", height: "2.5%", animationDelay: "0.3s" }}
+        />
+        <div
+          style={{ ...skeletonBarStyle, width: "72%", height: "2.5%", animationDelay: "0.45s" }}
+        />
       </div>
     </div>
   );
