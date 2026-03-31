@@ -1,5 +1,11 @@
 # @reslide-dev/mdx
 
+## 0.6.0
+
+### Minor Changes
+
+- [#36](https://github.com/nisshi-dev/reslide/pull/36) [`5519c87`](https://github.com/nisshi-dev/reslide/commit/5519c87671130ee2894bc7444be2943e42b64b4f) Thanks [@nisshi-dev](https://github.com/nisshi-dev)! - スライドデザインの自由度を向上: layout:none 追加、padding 値を 1920x1080 向けに調整、background 属性サポート、slideNumbers 制御、overflow:hidden/position:relative を baseStyle に追加、フォントサイズ調整
+
 ## 0.4.0
 
 ### Minor Changes
