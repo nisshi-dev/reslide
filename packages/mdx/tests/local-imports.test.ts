@@ -33,6 +33,36 @@ export const VERSION = "1.0.0";`,
   return <section><h1>{title}</h1></section>;
 }`,
   );
+
+  // Component using JSX Fragment (<>...</>)
+  writeFileSync(
+    join(tmpDir, "components", "fragment-user.tsx"),
+    `export function FragmentUser({ show }: { show: boolean }) {
+  return (
+    <div>
+      {show ? (
+        <>
+          <p>Line A</p>
+          <p>Line B</p>
+        </>
+      ) : (
+        <p>Hidden</p>
+      )}
+    </div>
+  );
+}`,
+  );
+
+  // Second component for multi-import test
+  writeFileSync(
+    join(tmpDir, "components", "badge.tsx"),
+    `export function Badge({ label }: { label: string }) {
+  return <span className="badge">{label}</span>;
+}`,
+  );
+
+  // CSS file for multi-import test
+  writeFileSync(join(tmpDir, "slides.css"), ".custom { color: red; }");
 });
 
 afterAll(() => {
@@ -232,5 +262,46 @@ import "./styles.css"
     // This should not throw about local module resolution
     // (CSS plugin handles it separately, and may throw about missing CSS file)
     await expect(compileMdxSlides(source, { baseUrl })).rejects.toThrow("CSS file not found");
+  });
+
+  test("handles consecutive imports in a single node", { timeout: 30_000 }, async () => {
+    const baseUrl = pathToFileURL(tmpDir + "/").href;
+    // No blank lines between imports — MDX parser combines them into one node
+    const source = `---
+title: Test
+---
+import "./slides.css"
+import { FeatureCard } from "./components/feature-card"
+import { Badge } from "./components/badge"
+
+# Hello
+
+<FeatureCard title="Test">Content</FeatureCard>
+<Badge label="New" />
+`;
+    const result = await compileMdxSlides(source, { baseUrl });
+    // Both components should be inlined
+    expect(result.code).toContain("FeatureCard");
+    expect(result.code).toContain("Badge");
+    // CSS should be extracted
+    expect(result.css).toContain(".custom { color: red; }");
+  });
+
+  test("handles JSX Fragment in inlined component", { timeout: 30_000 }, async () => {
+    const baseUrl = pathToFileURL(tmpDir + "/").href;
+    const source = `---
+title: Test
+---
+
+import { FragmentUser } from "./components/fragment-user"
+
+# Hello
+
+<FragmentUser show={true} />
+`;
+    const result = await compileMdxSlides(source, { baseUrl });
+    expect(result.code).toContain("FragmentUser");
+    // Should not have unresolved _Fragment import
+    expect(result.code).not.toContain('from "react/jsx-runtime"');
   });
 });

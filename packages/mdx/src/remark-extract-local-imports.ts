@@ -83,83 +83,107 @@ export function remarkExtractLocalImports(options?: { baseUrl?: string }) {
       const value = (node as { value?: string }).value;
       if (!value) continue;
 
-      const match = value.match(LOCAL_IMPORT_RE);
-      if (!match) continue;
+      // MDX parser may combine consecutive import lines into a single node.
+      // Split into individual lines and process each import separately.
+      const lines = value.split("\n");
+      const inlinedParts: string[] = [];
+      const remainingLines: string[] = [];
+      let hasLocalImport = false;
 
-      const importClause = match[1].trim();
-      const importPath = match[2];
+      for (const line of lines) {
+        const match = line.match(LOCAL_IMPORT_RE);
+        if (!match) {
+          remainingLines.push(line);
+          continue;
+        }
 
-      // Skip CSS imports — handled by remarkExtractCssImports
-      if (CSS_EXT_RE.test(importPath)) continue;
+        const importClause = match[1].trim();
+        const importPath = match[2];
 
-      if (!baseUrl) {
-        throw new Error(
-          `Cannot resolve local import "${importPath}": no baseUrl provided. ` +
-            `Pass baseUrl option to compileMdxSlides().`,
-        );
-      }
+        // Skip CSS imports — handled by remarkExtractCssImports
+        if (CSS_EXT_RE.test(importPath)) {
+          remainingLines.push(line);
+          continue;
+        }
 
-      // Resolve the file path, trying extensions if omitted
-      let filePath: string;
-      try {
-        filePath = resolveModulePath(importPath, baseUrl);
-      } catch {
-        throw new Error(`Local module not found: "${importPath}" (imported from MDX)`);
-      }
+        if (!baseUrl) {
+          throw new Error(
+            `Cannot resolve local import "${importPath}": no baseUrl provided. ` +
+              `Pass baseUrl option to compileMdxSlides().`,
+          );
+        }
 
-      // Compile only once per resolved file path
-      if (!compiled.has(filePath)) {
-        let source: string;
+        hasLocalImport = true;
+
+        // Resolve the file path, trying extensions if omitted
+        let filePath: string;
         try {
-          source = readFileSync(filePath, "utf-8");
+          filePath = resolveModulePath(importPath, baseUrl);
         } catch {
-          throw new Error(
-            `Local module not found: "${filePath}" (imported as "${importPath}" from MDX)`,
-          );
+          throw new Error(`Local module not found: "${importPath}" (imported from MDX)`);
         }
 
-        try {
-          const transforms = getSucraseTransforms(filePath);
-          const result = transform(source, {
-            transforms,
-            jsxRuntime: "automatic",
-            production: true,
-          });
-          compiled.set(filePath, result.code);
-        } catch (err) {
-          throw new Error(
-            `Failed to compile local module "${filePath}": ${err instanceof Error ? err.message : String(err)}`,
-          );
+        // Compile only once per resolved file path
+        if (!compiled.has(filePath)) {
+          let source: string;
+          try {
+            source = readFileSync(filePath, "utf-8");
+          } catch {
+            throw new Error(
+              `Local module not found: "${filePath}" (imported as "${importPath}" from MDX)`,
+            );
+          }
+
+          try {
+            const transforms = getSucraseTransforms(filePath);
+            const result = transform(source, {
+              transforms,
+              jsxRuntime: "automatic",
+              production: true,
+            });
+            compiled.set(filePath, result.code);
+          } catch (err) {
+            throw new Error(
+              `Failed to compile local module "${filePath}": ${err instanceof Error ? err.message : String(err)}`,
+            );
+          }
         }
+
+        const compiledCode = compiled.get(filePath)!;
+        const inlined = buildInlineModule(importClause, compiledCode);
+        inlinedParts.push(inlined);
+        inlinedNames.push(...extractImportedNames(importClause));
       }
 
-      const compiledCode = compiled.get(filePath)!;
+      if (!hasLocalImport) continue;
 
-      // Build the inline replacement:
-      //   const { FeatureCard } = await (async () => { <compiled code>; return { FeatureCard }; })();
-      //
-      // We need to figure out which names are imported so we can return them.
-      // The import clause can be:
-      //   - Named:   { A, B as C }
-      //   - Default: Foo
-      //   - Star:    * as Foo
-      const inlined = buildInlineModule(importClause, compiledCode);
+      // Build replacement nodes: remaining non-local lines + inlined code
+      const newNodes: typeof tree.children = [];
 
-      // Track the imported names for recma plugin to exclude from props.components
-      inlinedNames.push(...extractImportedNames(importClause));
+      if (remainingLines.some((l) => l.trim())) {
+        const remaining = remainingLines.join("\n");
+        newNodes.push({
+          type: "mdxjsEsm",
+          value: remaining,
+        } as unknown as (typeof tree.children)[0]);
+      }
 
-      // Replace the import node with inlined code.
-      // MDX compiler uses data.estree over value, so we must re-parse the
-      // inlined code with acorn to produce a valid ESTree program.
-      const estree = Parser.parse(inlined, {
-        ecmaVersion: 2022,
-        sourceType: "module",
-      });
-      tree.children[i] = {
-        type: "mdxjsEsm",
-        value: inlined,
-        data: { estree },
-      } as unknown as typeof node;
+      if (inlinedParts.length > 0) {
+        const inlinedCode = inlinedParts.join("\n");
+        const estree = Parser.parse(inlinedCode, {
+          ecmaVersion: 2022,
+          sourceType: "module",
+        });
+        newNodes.push({
+          type: "mdxjsEsm",
+          value: inlinedCode,
+          data: { estree },
+        } as unknown as (typeof tree.children)[0]);
+      }
+
+      // Replace the original node with new nodes
+      tree.children.splice(i, 1, ...newNodes);
+      i += newNodes.length - 1; // Adjust index for inserted nodes
     }
 
     // Store inlined names for the recma plugin to exclude from props.components
