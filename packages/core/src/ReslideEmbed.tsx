@@ -194,13 +194,7 @@ export function ReslideEmbed({
           ...style,
         }}
       >
-        <div
-          style={{
-            width: "100%",
-            height: "100%",
-            backgroundColor: "var(--slide-bg, #fff)",
-          }}
-        />
+        <SlideSkeleton />
       </div>
     );
   }
@@ -233,6 +227,55 @@ export function ReslideEmbed({
         }}
       >
         <Content components={allComponents as Record<string, ElementType>} />
+      </div>
+    </div>
+  );
+}
+
+const skeletonKeyframes = `
+@keyframes reslide-skeleton-pulse {
+  0%, 100% { opacity: 0.08; }
+  50% { opacity: 0.15; }
+}`;
+
+const skeletonBarStyle: React.CSSProperties = {
+  backgroundColor: "var(--slide-text, #1a1a1a)",
+  borderRadius: 6,
+  animation: "reslide-skeleton-pulse 1.8s ease-in-out infinite",
+};
+
+/**
+ * Skeleton placeholder displayed while MDX content is being evaluated.
+ * Mimics a typical slide layout (title + body lines) with a subtle pulse animation.
+ */
+function SlideSkeleton() {
+  return (
+    <div
+      className="reslide-skeleton"
+      style={{
+        width: "100%",
+        height: "100%",
+        backgroundColor: "var(--slide-bg, #fff)",
+        padding: "8% 6%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "4%",
+      }}
+    >
+      <style dangerouslySetInnerHTML={{ __html: skeletonKeyframes }} />
+      {/* Title bar */}
+      <div style={{ ...skeletonBarStyle, width: "45%", height: "5%" }} />
+      {/* Body lines */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "2.5%", marginTop: "2%" }}>
+        <div
+          style={{ ...skeletonBarStyle, width: "80%", height: "2.5%", animationDelay: "0.15s" }}
+        />
+        <div
+          style={{ ...skeletonBarStyle, width: "65%", height: "2.5%", animationDelay: "0.3s" }}
+        />
+        <div
+          style={{ ...skeletonBarStyle, width: "72%", height: "2.5%", animationDelay: "0.45s" }}
+        />
       </div>
     </div>
   );
