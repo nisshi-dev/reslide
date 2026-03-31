@@ -28,6 +28,7 @@
     "@mdx-js/rollup": "3.1.1",
     "@reslide-dev/core": "workspace:*",
     "@reslide-dev/mdx": "workspace:*",
+    "@tailwindcss/vite": "^4.1.0",
     "cac": "7.0.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",

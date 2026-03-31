@@ -17,6 +17,7 @@ export default defineConfig({
     "remark-frontmatter",
     "remark-gfm",
     "remark-math",
+    /^@tailwindcss\//,
   ],
   dts: {
     tsgo: true,
