@@ -3,17 +3,51 @@ import type { Heading, Root, RootContent, Text, Yaml } from "mdast";
 interface SlideOptions {
   layout?: string;
   class?: string;
+  defaults?: Record<string, string>;
   [key: string]: unknown;
 }
 
 function parseYamlString(value: string): SlideOptions {
   const options: SlideOptions = {};
+  let currentBlock: string | null = null;
+  let blockContent: Record<string, string> = {};
+
   for (const line of value.split("\n")) {
+    // Detect nested block start: "defaults:" with no value on same line
+    const blockMatch = line.match(/^(\w[\w-]*):\s*$/);
+    if (blockMatch) {
+      currentBlock = blockMatch[1];
+      blockContent = {};
+      continue;
+    }
+
+    // Indented line inside a block
+    if (currentBlock && /^\s+/.test(line)) {
+      const kvMatch = line.match(/^\s+(\w[\w-]*):\s*(.+)$/);
+      if (kvMatch) {
+        blockContent[kvMatch[1]] = kvMatch[2].trim();
+      }
+      continue;
+    }
+
+    // End of block — save and reset
+    if (currentBlock) {
+      options[currentBlock] = blockContent;
+      currentBlock = null;
+      blockContent = {};
+    }
+
     const match = line.match(/^(\w[\w-]*):\s*(.+)$/);
     if (match) {
       options[match[1]] = match[2].trim();
     }
   }
+
+  // Flush last block if file ends inside one
+  if (currentBlock) {
+    options[currentBlock] = blockContent;
+  }
+
   return options;
 }
 
@@ -84,12 +118,34 @@ export function remarkSlides() {
 
     const slideElements: RootContent[] = [];
 
-    for (const slideContent of slides) {
+    // Extract headmatter (first slide's frontmatter) for layout + defaults
+    let headmatterLayout: string | undefined;
+    let defaults: Record<string, string> | undefined;
+
+    if (slides.length > 0 && slides[0].length > 0) {
+      const firstExtracted = tryExtractOptionsFromNodes(slides[0]);
+      if (firstExtracted) {
+        headmatterLayout = firstExtracted.options.layout as string | undefined;
+        defaults = firstExtracted.options.defaults as Record<string, string> | undefined;
+      }
+    }
+
+    for (let slideIdx = 0; slideIdx < slides.length; slideIdx++) {
+      const slideContent = slides[slideIdx];
       if (slideContent.length === 0) continue;
 
       const extracted = tryExtractOptionsFromNodes(slideContent);
       const options = extracted?.options ?? {};
       const contentStart = extracted?.contentStart ?? 0;
+
+      // Apply layout priority: individual > defaults > headmatter (first slide only)
+      if (!options.layout) {
+        if (slideIdx === 0 && headmatterLayout) {
+          options.layout = headmatterLayout;
+        } else if (defaults?.layout) {
+          options.layout = defaults.layout;
+        }
+      }
 
       const content = slideContent.slice(contentStart);
       if (content.length === 0 && Object.keys(options).length === 0) continue;

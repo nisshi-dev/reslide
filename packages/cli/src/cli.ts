@@ -10,7 +10,12 @@ import { reslide } from "./vite-plugin.js";
 
 const cli = cac("reslide");
 
-function generateEntryFiles(slidesPath: string, outDir: string) {
+interface EntryFileOptions {
+  css?: string;
+  noSlideNumbers?: boolean;
+}
+
+function generateEntryFiles(slidesPath: string, outDir: string, entryOptions?: EntryFileOptions) {
   const absSlides = resolve(slidesPath);
 
   mkdirSync(outDir, { recursive: true });
@@ -36,16 +41,19 @@ function generateEntryFiles(slidesPath: string, outDir: string) {
 </html>`,
   );
 
+  const cssImport = entryOptions?.css ? `import "${resolve(entryOptions.css)}";\n` : "";
+  const slideNumbersProp = entryOptions?.noSlideNumbers ? " slideNumbers={false}" : "";
+
   // main.tsx — imports the MDX slides and renders them
   writeFileSync(
     resolve(outDir, "main.tsx"),
-    `import { StrictMode } from "react";
+    `import "@reslide-dev/core/themes/default.css";
+${cssImport}import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { Deck, Slide, Click, ClickSteps, Mark, Notes, SlotRight } from "@reslide-dev/core";
+import { Deck, Slide, Click, ClickSteps, Mark, Notes, SlotRight, GlobalLayer, Draggable, Mermaid, Toc, CodeEditor, SlideIndex, TotalSlides } from "@reslide-dev/core";
 import Slides from "${absSlides}";
 
-// Make components available to MDX
-const components = { Deck, Slide, Click, ClickSteps, Mark, Notes, SlotRight };
+const components = { Deck: (props: Record<string, unknown>) => <Deck {...props}${slideNumbersProp} />, Slide, Click, ClickSteps, Mark, Notes, SlotRight, GlobalLayer, Draggable, Mermaid, Toc, CodeEditor, SlideIndex, TotalSlides };
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -54,6 +62,21 @@ createRoot(document.getElementById("root")!).render(
 );
 `,
   );
+}
+
+/**
+ * Find the project root by looking for a directory containing public/.
+ * Walks up from the slides file directory.
+ */
+function findPublicDir(slidesPath: string): string | undefined {
+  let dir = resolve(dirname(slidesPath));
+  const root = resolve("/");
+  while (dir !== root) {
+    const candidate = resolve(dir, "public");
+    if (existsSync(candidate)) return candidate;
+    dir = dirname(dir);
+  }
+  return undefined;
 }
 
 cli
@@ -117,6 +140,9 @@ cli
   .option("--height <height>", "Viewport height", { default: 1080 })
   .option("--slides <range>", "Slide range to export (e.g. 1, 1,3-5, 2-8)")
   .option("--quality <quality>", "Image quality for jpg/webp/avif (1-100)")
+  .option("--public-dir <dir>", "Public directory for static assets (auto-detect)")
+  .option("--css <path>", "Additional CSS file to include")
+  .option("--no-slide-numbers", "Hide slide numbers in export")
   .action(
     async (
       slides: string,
@@ -125,8 +151,11 @@ cli
         out: string;
         width: number;
         height: number;
-        slides?: string;
+        slides?: string | number;
         quality?: number;
+        publicDir?: string;
+        css?: string;
+        slideNumbers: boolean;
       },
     ) => {
       const validFormats = ["pdf", "png", "jpg", "webp", "avif"];
@@ -135,16 +164,27 @@ cli
         process.exit(1);
       }
 
+      const publicDir = options.publicDir ?? findPublicDir(slides);
+
       const { exportSlides } = await import("./export.js");
-      await exportSlides(slides, generateEntryFiles, {
-        format: options.format as "pdf" | "png" | "jpg" | "webp" | "avif",
-        out: options.out,
-        width: options.width,
-        height: options.height,
-        port: 4173,
-        slides: options.slides,
-        quality: options.quality,
-      });
+      await exportSlides(
+        slides,
+        (slidesPath, outDir) =>
+          generateEntryFiles(slidesPath, outDir, {
+            css: options.css,
+            noSlideNumbers: !options.slideNumbers,
+          }),
+        {
+          format: options.format as "pdf" | "png" | "jpg" | "webp" | "avif",
+          out: options.out,
+          width: options.width,
+          height: options.height,
+          port: 4173,
+          slides: options.slides != null ? String(options.slides) : undefined,
+          quality: options.quality,
+          publicDir,
+        },
+      );
     },
   );
 

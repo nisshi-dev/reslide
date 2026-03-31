@@ -31,7 +31,10 @@
     "cac": "7.0.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "remark-directive": "catalog:"
+    "remark-directive": "catalog:",
+    "remark-frontmatter": "catalog:",
+    "remark-gfm": "catalog:",
+    "remark-math": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",

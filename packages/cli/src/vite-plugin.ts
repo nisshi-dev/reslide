@@ -1,6 +1,9 @@
 import mdx from "@mdx-js/rollup";
-import { remarkClick, remarkMark, remarkSlides } from "@reslide-dev/mdx";
+import { remarkClick, remarkDirectiveFallback, remarkMark, remarkSlides } from "@reslide-dev/mdx";
 import remarkDirective from "remark-directive";
+import remarkFrontmatter from "remark-frontmatter";
+import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
 import type { Plugin } from "vite";
 
 export interface ReslidePluginOptions {
@@ -15,19 +18,6 @@ export interface ReslidePluginOptions {
 /**
  * Vite plugin for reslide presentations.
  * Sets up MDX processing with reslide's remark plugins.
- *
- * For LaTeX math support:
- * ```ts
- * import remarkMath from 'remark-math'
- * import rehypeKatex from 'rehype-katex'
- * reslide({ remarkPlugins: [remarkMath], rehypePlugins: [rehypeKatex] })
- * ```
- *
- * For Shiki syntax highlighting:
- * ```ts
- * import rehypePrettyCode from 'rehype-pretty-code'
- * reslide({ rehypePlugins: [[rehypePrettyCode, { theme: 'one-dark-pro' }]] })
- * ```
  */
 export function reslide(options: ReslidePluginOptions = {}): Plugin[] {
   const { remarkPlugins = [], rehypePlugins = [], mermaid = false } = options;
@@ -36,9 +26,13 @@ export function reslide(options: ReslidePluginOptions = {}): Plugin[] {
     mdx({
       remarkPlugins: [
         remarkDirective,
+        remarkGfm,
+        [remarkFrontmatter, ["yaml"]],
+        remarkMath,
         remarkSlides,
         remarkClick,
         remarkMark,
+        remarkDirectiveFallback,
         ...(remarkPlugins as never[]),
       ],
       rehypePlugins: rehypePlugins as never[],
