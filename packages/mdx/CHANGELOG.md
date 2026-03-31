@@ -1,5 +1,12 @@
 # @reslide-dev/mdx
 
+## 0.15.1
+
+### Patch Changes
+
+- [#66](https://github.com/nisshi-dev/reslide/pull/66) [`4505085`](https://github.com/nisshi-dev/reslide/commit/4505085af0cab3016098040ba1b3d9f13f028c8c) Thanks [@nisshi-dev](https://github.com/nisshi-dev)! - cli: @tailwindcss/vite を dependencies に追加（--tailwind 使用時にユーザー側のインストールが不要に）
+  mdx: 連続 import 文が 1 つの mdxjsEsm ノードに結合される場合も正しく処理するように修正
+
 ## 0.15.0
 
 ### Minor Changes
