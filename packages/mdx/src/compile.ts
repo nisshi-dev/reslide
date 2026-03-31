@@ -61,6 +61,8 @@ export async function compileMdxSlides(
     rehypePlugins?: unknown[];
     /** Base URL for resolving relative imports in the MDX source (e.g. directory URL of the MDX file) */
     baseUrl?: string;
+    /** Shiki code highlight theme (default: "github-dark") */
+    shikiTheme?: string | { light: string; dark: string };
   },
 ): Promise<CompileResult> {
   const metadata = parseSlideMetadata(source);
@@ -83,7 +85,9 @@ export async function compileMdxSlides(
       [
         rehypeShiki,
         {
-          theme: "github-dark",
+          ...(typeof options?.shikiTheme === "object"
+            ? { themes: options.shikiTheme }
+            : { theme: options?.shikiTheme ?? "github-dark" }),
           transformers: [transformerNotationHighlight()],
         },
       ],

@@ -14,6 +14,7 @@ import { Mermaid } from "./Mermaid.js";
 import { Notes } from "./Notes.js";
 import { Slide } from "./Slide.js";
 import type { TransitionType } from "./SlideTransition.js";
+import { SlideIndex, TotalSlides } from "./SlideInfo.js";
 import { SlotRight } from "./Slot.js";
 import { Toc } from "./Toc.js";
 
@@ -54,6 +55,8 @@ const builtinComponents = {
   Mermaid,
   Toc,
   CodeEditor,
+  SlideIndex,
+  TotalSlides,
 };
 
 /**

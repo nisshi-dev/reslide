@@ -48,13 +48,14 @@ function processNode(node: { children: RootContent[] }) {
     }
 
     stepCounter++;
+    const clickAttrs = getClickAttributes(child, stepCounter);
 
     if (child.type === "containerDirective") {
       // Container directive: wrap existing children
       newChildren.push({
         type: "mdxJsxFlowElement",
         name: "Click",
-        attributes: [createAtAttribute(stepCounter)],
+        attributes: clickAttrs,
         children: "children" in child ? (child.children as RootContent[]) : [],
       } as unknown as RootContent);
       i++;
@@ -75,12 +76,30 @@ function processNode(node: { children: RootContent[] }) {
     newChildren.push({
       type: "mdxJsxFlowElement",
       name: "Click",
-      attributes: [createAtAttribute(stepCounter)],
+      attributes: clickAttrs,
       children: gathered,
     } as unknown as RootContent);
   }
 
   node.children = newChildren;
+}
+
+interface DirectiveAttributes {
+  animation?: string;
+  [key: string]: unknown;
+}
+
+function getClickAttributes(node: RootContent, step: number) {
+  const attrs: Array<{ type: string; name: string; value: unknown }> = [createAtAttribute(step)];
+  const directiveAttrs = (node as { attributes?: DirectiveAttributes }).attributes;
+  if (directiveAttrs?.animation) {
+    attrs.push({
+      type: "mdxJsxAttribute",
+      name: "animation",
+      value: directiveAttrs.animation,
+    });
+  }
+  return attrs;
 }
 
 function createAtAttribute(step: number) {

@@ -85,3 +85,20 @@
     page-break-after: always;
   }
 }
+
+/* ── Full-page slide print (one slide per page) ── */
+@media print {
+  .reslide-deck .reslide-progress-bar,
+  .reslide-deck .reslide-slide-number,
+  .reslide-deck .reslide-navigation-bar,
+  .reslide-deck .reslide-click-navigation,
+  .reslide-deck .reslide-drawing-layer,
+  .reslide-deck .reslide-pointer {
+    display: none !important;
+  }
+}
+
+@page {
+  margin: 0;
+  size: 16in 9in;
+}
