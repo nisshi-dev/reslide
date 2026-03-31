@@ -22,37 +22,37 @@
 }
 
 .reslide-slide h1 {
-  font-size: 2.5rem;
+  font-size: 5rem;
   font-weight: 700;
-  margin-bottom: 1rem;
+  margin-bottom: 2rem;
   line-height: 1.2;
 }
 
 .reslide-slide h2 {
-  font-size: 1.75rem;
+  font-size: 3.5rem;
   font-weight: 600;
-  margin-bottom: 0.75rem;
+  margin-bottom: 1.5rem;
 }
 
 .reslide-slide h3 {
-  font-size: 1.25rem;
+  font-size: 2.5rem;
   font-weight: 600;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
 }
 
 .reslide-slide p {
-  margin-bottom: 0.75rem;
+  margin-bottom: 1.5rem;
 }
 
 .reslide-slide ul {
-  padding-left: 1.5rem;
-  margin-bottom: 0.75rem;
+  padding-left: 3rem;
+  margin-bottom: 1.5rem;
   list-style-type: disc;
 }
 
 .reslide-slide ol {
-  padding-left: 1.5rem;
-  margin-bottom: 0.75rem;
+  padding-left: 3rem;
+  margin-bottom: 1.5rem;
   list-style-type: decimal;
 }
 
@@ -69,7 +69,7 @@
 }
 
 .reslide-slide li {
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.5rem;
 }
 
 .reslide-slide code {
@@ -82,10 +82,10 @@
 .reslide-slide pre {
   background: #1e293b;
   color: #e2e8f0;
-  padding: 1.25rem;
-  border-radius: 0.5rem;
+  padding: 2.5rem;
+  border-radius: 1rem;
   overflow-x: auto;
-  margin-bottom: 1rem;
+  margin-bottom: 2rem;
 }
 
 .reslide-slide pre code {
@@ -96,13 +96,13 @@
 .reslide-slide table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 1rem;
+  margin-bottom: 2rem;
   font-size: 0.9em;
 }
 
 .reslide-slide th,
 .reslide-slide td {
-  padding: 0.5rem 0.75rem;
+  padding: 1rem 1.5rem;
   text-align: left;
   border-bottom: 1px solid #e2e8f0;
 }

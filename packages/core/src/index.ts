@@ -58,3 +58,4 @@ export { useDeck } from "./context.js";
 export { DeckContext } from "./context.js";
 export { useSlideIndex, SlideIndexContext } from "./slide-context.js";
 export type { DeckState, DeckActions, DeckContextValue } from "./types.js";
+export { DEFAULT_DESIGN_WIDTH, DEFAULT_DESIGN_HEIGHT } from "./types.js";
