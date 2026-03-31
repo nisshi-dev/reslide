@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 
 import { createServer } from "vite";
@@ -16,15 +16,17 @@ interface ExportOptions {
   port: number;
   slides?: string;
   quality?: number;
+  publicDir?: string;
 }
 
 /**
  * Parse a slide range string like "1", "1,3,5", "2-5", "1,3-5,8" into
  * a sorted array of 0-based slide indices.
  */
-function parseSlideRange(range: string, total: number): number[] {
+function parseSlideRange(range: string | number, total: number): number[] {
+  const rangeStr = String(range);
   const indices = new Set<number>();
-  for (const token of range.split(",")) {
+  for (const token of rangeStr.split(",")) {
     const trimmed = token.trim();
     const dashMatch = trimmed.match(/^(\d+)-(\d+)$/);
     if (dashMatch) {
@@ -76,7 +78,6 @@ async function convertImage(
         .jpeg({ quality: quality ?? 90 })
         .toBuffer();
     }
-    // Unreachable when sharp is loaded for jpg via Playwright
     return pngBuffer;
   }
 
@@ -124,112 +125,120 @@ export async function exportSlides(
   if (imageFormat && NEEDS_SHARP.has(imageFormat)) {
     sharp = await loadSharp();
   }
-  // Also use sharp for jpg to get quality control (Playwright JPEG quality is limited)
   if (imageFormat === "jpg" && !sharp) {
     try {
       const mod = "sharp";
       sharp = await import(mod);
     } catch {
-      // Fall back to Playwright JPEG — quality option may be less precise
+      // Fall back to Playwright JPEG
     }
   }
 
   const tmpDir = resolve(dirname(slidesPath), ".reslide");
   generateEntryFiles(slidesPath, tmpDir);
 
-  const server = await createServer({
-    root: tmpDir,
-    plugins: [reslide()],
-    server: { port: options.port },
-  });
-  await server.listen();
-  const url = `http://localhost:${options.port}`;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let browser: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let server: any;
 
-  console.log("Starting export...");
+  try {
+    server = await createServer({
+      root: tmpDir,
+      plugins: [reslide()],
+      server: { port: options.port },
+      publicDir: options.publicDir,
+    });
+    await server.listen();
+    const url = `http://localhost:${options.port}`;
 
-  const browser = await pw.chromium.launch();
-  const page = await browser.newPage();
-  await page.setViewportSize({ width: options.width, height: options.height });
-  await page.goto(url, { waitUntil: "networkidle" });
-  await page.waitForSelector(".reslide-deck");
+    console.log("Starting export...");
 
-  const totalText = await page.textContent(".reslide-slide-number");
-  const total = totalText ? parseInt(totalText.split("/")[1].trim(), 10) : 1;
+    browser = await pw.chromium.launch();
+    const page = await browser.newPage();
+    await page.setViewportSize({ width: options.width, height: options.height });
+    await page.goto(url, { waitUntil: "networkidle" });
+    await page.waitForSelector(".reslide-deck");
 
-  // Determine which slides to export
-  const targetIndices = options.slides
-    ? parseSlideRange(options.slides, total)
-    : Array.from({ length: total }, (_, i) => i);
+    const totalText = await page.textContent(".reslide-slide-number");
+    const total = totalText ? parseInt(totalText.split("/")[1].trim(), 10) : 1;
 
-  if (targetIndices.length === 0) {
-    console.error("Error: No valid slides in the specified range.");
-    await browser.close();
-    await server.close();
-    process.exit(1);
-  }
+    // Determine which slides to export
+    const targetIndices = options.slides
+      ? parseSlideRange(options.slides, total)
+      : Array.from({ length: total }, (_, i) => i);
 
-  console.log(
-    `Found ${total} slides, exporting ${targetIndices.length}: [${targetIndices.map((i) => i + 1).join(", ")}]`,
-  );
-
-  const outDir = resolve(options.out);
-  mkdirSync(outDir, { recursive: true });
-
-  // Navigate to each target slide and capture screenshots
-  let currentSlide = 0;
-
-  async function navigateTo(targetIndex: number) {
-    while (currentSlide < targetIndex) {
-      await page.keyboard.press("ArrowRight");
-      await page.waitForTimeout(400);
-      currentSlide++;
-    }
-  }
-
-  if (options.format === "pdf") {
-    const screenshots: Buffer[] = [];
-    for (const idx of targetIndices) {
-      await navigateTo(idx);
-      screenshots.push(await page.screenshot({ type: "png" }));
+    if (targetIndices.length === 0) {
+      console.error("Error: No valid slides in the specified range.");
+      process.exit(1);
     }
 
-    const pdfPage = await browser.newPage();
-    const htmlSlides = screenshots
-      .map(
-        (buf: Buffer) =>
-          `<div style="page-break-after:always;width:${options.width}px;height:${options.height}px">` +
-          `<img src="data:image/png;base64,${buf.toString("base64")}" style="width:100%;height:100%;object-fit:contain"/>` +
-          `</div>`,
-      )
-      .join("");
-
-    await pdfPage.setContent(
-      `<html><head><style>@page{size:${options.width}px ${options.height}px;margin:0}body{margin:0}</style></head><body>${htmlSlides}</body></html>`,
+    console.log(
+      `Found ${total} slides, exporting ${targetIndices.length}: [${targetIndices.map((i) => i + 1).join(", ")}]`,
     );
 
-    const pdfPath = resolve(outDir, "slides.pdf");
-    await pdfPage.pdf({
-      path: pdfPath,
-      width: `${options.width}px`,
-      height: `${options.height}px`,
-      printBackground: true,
-    });
-    console.log(`  Exported: ${pdfPath}`);
-  } else {
-    const fmt = options.format as ImageFormat;
-    const ext = fmt === "jpg" ? "jpg" : fmt;
+    const outDir = resolve(options.out);
+    mkdirSync(outDir, { recursive: true });
 
-    for (const idx of targetIndices) {
-      await navigateTo(idx);
-      const pngBuf: Buffer = await page.screenshot({ type: "png" });
-      const outputBuf = await convertImage(pngBuf, fmt, options.quality, sharp);
-      const filePath = resolve(outDir, `slide-${String(idx + 1).padStart(3, "0")}.${ext}`);
-      writeFileSync(filePath, outputBuf);
-      console.log(`  Exported: ${filePath}`);
+    // Navigate to each target slide and capture screenshots
+    let currentSlide = 0;
+
+    async function navigateTo(targetIndex: number) {
+      while (currentSlide < targetIndex) {
+        await page.keyboard.press("ArrowRight");
+        await page.waitForTimeout(400);
+        currentSlide++;
+      }
     }
-  }
 
-  await browser.close();
-  await server.close();
-  console.log("\nExport complete!");
+    if (options.format === "pdf") {
+      const screenshots: Buffer[] = [];
+      for (const idx of targetIndices) {
+        await navigateTo(idx);
+        screenshots.push(await page.screenshot({ type: "png" }));
+      }
+
+      const pdfPage = await browser.newPage();
+      const htmlSlides = screenshots
+        .map(
+          (buf: Buffer) =>
+            `<div style="page-break-after:always;width:${options.width}px;height:${options.height}px">` +
+            `<img src="data:image/png;base64,${buf.toString("base64")}" style="width:100%;height:100%;object-fit:contain"/>` +
+            `</div>`,
+        )
+        .join("");
+
+      await pdfPage.setContent(
+        `<html><head><style>@page{size:${options.width}px ${options.height}px;margin:0}body{margin:0}</style></head><body>${htmlSlides}</body></html>`,
+      );
+
+      const pdfPath = resolve(outDir, "slides.pdf");
+      await pdfPage.pdf({
+        path: pdfPath,
+        width: `${options.width}px`,
+        height: `${options.height}px`,
+        printBackground: true,
+      });
+      console.log(`  Exported: ${pdfPath}`);
+    } else {
+      const fmt = options.format as ImageFormat;
+      const ext = fmt === "jpg" ? "jpg" : fmt;
+
+      for (const idx of targetIndices) {
+        await navigateTo(idx);
+        const pngBuf: Buffer = await page.screenshot({ type: "png" });
+        const outputBuf = await convertImage(pngBuf, fmt, options.quality, sharp);
+        const filePath = resolve(outDir, `${idx + 1}.${ext}`);
+        writeFileSync(filePath, outputBuf);
+        console.log(`  Exported: ${filePath}`);
+      }
+    }
+
+    console.log("\nExport complete!");
+  } finally {
+    if (browser) await browser.close();
+    if (server) await server.close();
+    // Clean up temporary .reslide/ directory
+    rmSync(tmpDir, { recursive: true, force: true });
+  }
 }
