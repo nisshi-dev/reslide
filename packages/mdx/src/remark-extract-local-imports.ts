@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { Parser } from "acorn";
-import { transformSync } from "esbuild";
+import { transform } from "sucrase";
 import type { Root } from "mdast";
 
 /**
@@ -28,11 +28,15 @@ const CSS_EXT_RE = /\.css$/;
 /** Extensions that indicate a TS/JS module. */
 const MODULE_EXTENSIONS = [".tsx", ".ts", ".jsx", ".js"] as const;
 
-function getLoader(filePath: string): "tsx" | "ts" | "jsx" | "js" {
-  if (filePath.endsWith(".tsx")) return "tsx";
-  if (filePath.endsWith(".ts")) return "ts";
-  if (filePath.endsWith(".jsx")) return "jsx";
-  return "js";
+function getSucraseTransforms(filePath: string): Array<"typescript" | "jsx"> {
+  const transforms: Array<"typescript" | "jsx"> = [];
+  if (filePath.endsWith(".ts") || filePath.endsWith(".tsx")) {
+    transforms.push("typescript");
+  }
+  if (filePath.endsWith(".tsx") || filePath.endsWith(".jsx")) {
+    transforms.push("jsx");
+  }
+  return transforms;
 }
 
 /**
@@ -113,11 +117,11 @@ export function remarkExtractLocalImports(options?: { baseUrl?: string }) {
         }
 
         try {
-          const result = transformSync(source, {
-            loader: getLoader(filePath),
-            format: "esm",
-            jsx: "automatic",
-            target: "es2022",
+          const transforms = getSucraseTransforms(filePath);
+          const result = transform(source, {
+            transforms,
+            jsxRuntime: "automatic",
+            production: true,
           });
           compiled.set(filePath, result.code);
         } catch (err) {
@@ -231,11 +235,15 @@ function stripExports(code: string): string {
   // Also remove bare react imports: import React from "react"
   result = result.replace(/import\s+\w+\s+from\s*["']react["']\s*;?\n?/g, "");
 
-  // export default function/class Name → function/class Name + __default assignment
-  result = result.replace(
-    /export\s+default\s+(function|class)\s+(\w+)/g,
-    "$1 $2;\nvar __default = $2",
-  );
+  // export default function/class Name(...) { ... }
+  // → function Name(...) { ... }\nvar __default = Name;
+  // We match the full statement to avoid breaking the function signature.
+  result = result.replace(/export\s+default\s+(?=function|class)/g, "");
+  // Now extract the name from the remaining `function Name` / `class Name` for __default
+  const defaultFnMatch = result.match(/^(function|class)\s+(\w+)/m);
+  if (defaultFnMatch && !result.includes("var __default")) {
+    result += `\nvar __default = ${defaultFnMatch[2]};`;
+  }
 
   // export default <expression> → var __default = <expression>
   result = result.replace(/export\s+default\s+/g, "var __default = ");
