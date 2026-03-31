@@ -1,5 +1,12 @@
 # @reslide-dev/mdx
 
+## 0.15.0
+
+### Minor Changes
+
+- [#64](https://github.com/nisshi-dev/reslide/pull/64) [`ddcc03d`](https://github.com/nisshi-dev/reslide/commit/ddcc03d2b2633f4e8dea70efcfb504c559bca3f3) Thanks [@nisshi-dev](https://github.com/nisshi-dev)! - mdx: recmaExcludeInlinedComponents プラグインを追加。ローカルインポートでインライン化されたコンポーネントを props.components の分割代入から除外し、ReslideEmbed の components prop への登録なしで動作するように。
+  cli: Vite サーバーに server.fs.allow を追加し、スライドディレクトリ外のファイルアクセスを許可。
+
 ## 0.13.0
 
 ### Minor Changes
