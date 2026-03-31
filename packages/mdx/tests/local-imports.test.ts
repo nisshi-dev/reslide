@@ -283,6 +283,13 @@ import { Badge } from "./components/badge"
     // Both components should be inlined
     expect(result.code).toContain("FeatureCard");
     expect(result.code).toContain("Badge");
+    // Components should NOT be in props.components (recma plugin should exclude them)
+    // Debug: find all _missingMdxReference calls in the output
+    const missingRefs = [...result.code.matchAll(/_missingMdxReference\("(\w+)"/g)].map(
+      (m) => m[1],
+    );
+    expect(missingRefs).not.toContain("FeatureCard");
+    expect(missingRefs).not.toContain("Badge");
     // CSS should be extracted
     expect(result.css).toContain(".custom { color: red; }");
   });
