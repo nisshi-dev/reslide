@@ -1,5 +1,11 @@
 # @reslide-dev/core
 
+## 0.4.0
+
+### Minor Changes
+
+- [#32](https://github.com/nisshi-dev/reslide/pull/32) [`70ec361`](https://github.com/nisshi-dev/reslide/commit/70ec361fffcdc38e58a36d70b68eda5458e21a80) Thanks [@nisshi-dev](https://github.com/nisshi-dev)! - MDX 内の相対 import 文が正しく解決されるよう、compileMdxSlides と ReslideEmbed に baseUrl オプションを追加
+
 ## 0.3.1
 
 ### Patch Changes
