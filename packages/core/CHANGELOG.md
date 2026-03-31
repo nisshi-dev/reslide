@@ -1,5 +1,11 @@
 # @reslide-dev/core
 
+## 0.7.0
+
+### Minor Changes
+
+- [#38](https://github.com/nisshi-dev/reslide/pull/38) [`635d053`](https://github.com/nisshi-dev/reslide/commit/635d05343253d998131c4e2296db7d4cd4256949) Thanks [@nisshi-dev](https://github.com/nisshi-dev)! - スライドカスタマイズ機能を包括的に強化: two-cols カラム比率(cols)、image 幅(imageWidth)、bare.css テーマ、font-family CSS 変数化、zoom/cover/reveal トランジション、style frontmatter、aspectRatio 転送、ProgressBar CSS 変数化
+
 ## 0.6.0
 
 ### Minor Changes
