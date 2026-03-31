@@ -108,23 +108,42 @@ cli
   });
 
 cli
-  .command("export <slides>", "Export slides to PDF or PNG (requires Playwright)")
-  .option("--format <format>", "Export format: pdf or png", { default: "pdf" })
+  .command("export <slides>", "Export slides to PDF or images (requires Playwright)")
+  .option("--format <format>", "Export format: pdf, png, jpg, webp, avif", {
+    default: "pdf",
+  })
   .option("--out <dir>", "Output directory", { default: "export" })
   .option("--width <width>", "Viewport width", { default: 1920 })
   .option("--height <height>", "Viewport height", { default: 1080 })
+  .option("--slides <range>", "Slide range to export (e.g. 1, 1,3-5, 2-8)")
+  .option("--quality <quality>", "Image quality for jpg/webp/avif (1-100)")
   .action(
     async (
       slides: string,
-      options: { format: string; out: string; width: number; height: number },
+      options: {
+        format: string;
+        out: string;
+        width: number;
+        height: number;
+        slides?: string;
+        quality?: number;
+      },
     ) => {
+      const validFormats = ["pdf", "png", "jpg", "webp", "avif"];
+      if (!validFormats.includes(options.format)) {
+        console.error(`Error: Invalid format "${options.format}". Use: ${validFormats.join(", ")}`);
+        process.exit(1);
+      }
+
       const { exportSlides } = await import("./export.js");
       await exportSlides(slides, generateEntryFiles, {
-        format: options.format as "pdf" | "png",
+        format: options.format as "pdf" | "png" | "jpg" | "webp" | "avif",
         out: options.out,
         width: options.width,
         height: options.height,
         port: 4173,
+        slides: options.slides,
+        quality: options.quality,
       });
     },
   );
