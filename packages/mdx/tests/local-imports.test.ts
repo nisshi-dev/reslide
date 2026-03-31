@@ -148,4 +148,66 @@ import { FeatureCard } from "./components/feature-card"
     expect(result.code).toContain("Deck");
     expect(result.code).toContain("Slide");
   });
+
+  test("resolves extensionless .tsx import", { timeout: 30_000 }, async () => {
+    const baseUrl = pathToFileURL(tmpDir + "/").href;
+    const source = `---
+title: Test
+---
+
+import { FeatureCard } from "./components/feature-card"
+
+# Hello
+
+<FeatureCard title="Test">Content</FeatureCard>
+`;
+    const result = await compileMdxSlides(source, { baseUrl });
+    // Should be inlined (no unresolved import)
+    expect(result.code).not.toContain('from "./components/feature-card"');
+    expect(result.code).toContain("FeatureCard");
+  });
+
+  test("resolves extensionless .ts import", { timeout: 30_000 }, async () => {
+    const baseUrl = pathToFileURL(tmpDir + "/").href;
+    const source = `---
+title: Test
+---
+
+import { greet } from "./utils"
+
+# Hello
+`;
+    const result = await compileMdxSlides(source, { baseUrl });
+    expect(result.code).not.toContain('from "./utils"');
+    expect(result.code).toContain("greet");
+  });
+
+  test("throws on extensionless import with no matching file", async () => {
+    const baseUrl = pathToFileURL(tmpDir + "/").href;
+    const source = `---
+title: Test
+---
+
+import { X } from "./nonexistent"
+
+# Hello
+`;
+    await expect(compileMdxSlides(source, { baseUrl })).rejects.toThrow("Local module not found");
+  });
+
+  test("does not process CSS imports", { timeout: 30_000 }, async () => {
+    const baseUrl = pathToFileURL(tmpDir + "/").href;
+    // CSS imports should be left to remarkExtractCssImports
+    const source = `---
+title: Test
+---
+
+import "./styles.css"
+
+# Hello
+`;
+    // This should not throw about local module resolution
+    // (CSS plugin handles it separately, and may throw about missing CSS file)
+    await expect(compileMdxSlides(source, { baseUrl })).rejects.toThrow("CSS file not found");
+  });
 });
