@@ -1,21 +1,97 @@
-import { existsSync, mkdirSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 
 import { createServer } from "vite";
 
 import { reslide } from "./vite-plugin.js";
 
+type ImageFormat = "png" | "jpg" | "webp" | "avif";
+type ExportFormat = "pdf" | ImageFormat;
+
 interface ExportOptions {
-  format: "pdf" | "png";
+  format: ExportFormat;
   out: string;
   width: number;
   height: number;
   port: number;
+  slides?: string;
+  quality?: number;
 }
 
 /**
- * Export slides to PDF or PNG using Playwright.
+ * Parse a slide range string like "1", "1,3,5", "2-5", "1,3-5,8" into
+ * a sorted array of 0-based slide indices.
+ */
+function parseSlideRange(range: string, total: number): number[] {
+  const indices = new Set<number>();
+  for (const token of range.split(",")) {
+    const trimmed = token.trim();
+    const dashMatch = trimmed.match(/^(\d+)-(\d+)$/);
+    if (dashMatch) {
+      const start = parseInt(dashMatch[1], 10);
+      const end = parseInt(dashMatch[2], 10);
+      for (let i = start; i <= end; i++) {
+        if (i >= 1 && i <= total) indices.add(i - 1);
+      }
+    } else {
+      const n = parseInt(trimmed, 10);
+      if (n >= 1 && n <= total) indices.add(n - 1);
+    }
+  }
+  return [...indices].sort((a, b) => a - b);
+}
+
+const NEEDS_SHARP: Set<ImageFormat> = new Set(["webp", "avif"]);
+
+/**
+ * Dynamically import sharp for WebP/AVIF conversion.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function loadSharp(): Promise<any> {
+  const mod = "sharp";
+  try {
+    return await import(mod);
+  } catch {
+    console.error("Error: sharp is required for WebP/AVIF export.\n" + "Install it: vp add sharp");
+    process.exit(1);
+  }
+}
+
+/**
+ * Convert a PNG buffer to the target image format.
+ */
+async function convertImage(
+  pngBuffer: Buffer,
+  format: ImageFormat,
+  quality?: number,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  sharp?: any,
+): Promise<Buffer> {
+  if (format === "png") return pngBuffer;
+
+  if (format === "jpg") {
+    if (sharp) {
+      return sharp
+        .default(pngBuffer)
+        .jpeg({ quality: quality ?? 90 })
+        .toBuffer();
+    }
+    // Unreachable when sharp is loaded for jpg via Playwright
+    return pngBuffer;
+  }
+
+  // WebP / AVIF — always uses sharp
+  const pipeline = sharp.default(pngBuffer);
+  if (format === "webp") {
+    return pipeline.webp({ quality: quality ?? 80 }).toBuffer();
+  }
+  return pipeline.avif({ quality: quality ?? 50 }).toBuffer();
+}
+
+/**
+ * Export slides to PDF or images using Playwright.
  * Playwright must be installed by the user: `vp add playwright`
+ * sharp is additionally required for WebP/AVIF: `vp add sharp`
  */
 export async function exportSlides(
   slidesPath: string,
@@ -28,7 +104,6 @@ export async function exportSlides(
   }
 
   // Dynamic import of Playwright (optional peer dependency).
-  // Use a variable to prevent bundlers from statically resolving the import.
   const playwrightModule = "playwright";
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let pw: any;
@@ -40,6 +115,23 @@ export async function exportSlides(
         "Install it: vp add playwright && vp dlx playwright install chromium",
     );
     process.exit(1);
+  }
+
+  // Load sharp if needed for the target format
+  const imageFormat = options.format === "pdf" ? undefined : options.format;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let sharp: any;
+  if (imageFormat && NEEDS_SHARP.has(imageFormat)) {
+    sharp = await loadSharp();
+  }
+  // Also use sharp for jpg to get quality control (Playwright JPEG quality is limited)
+  if (imageFormat === "jpg" && !sharp) {
+    try {
+      const mod = "sharp";
+      sharp = await import(mod);
+    } catch {
+      // Fall back to Playwright JPEG — quality option may be less precise
+    }
   }
 
   const tmpDir = resolve(dirname(slidesPath), ".reslide");
@@ -64,28 +156,40 @@ export async function exportSlides(
   const totalText = await page.textContent(".reslide-slide-number");
   const total = totalText ? parseInt(totalText.split("/")[1].trim(), 10) : 1;
 
-  console.log(`Found ${total} slides`);
+  // Determine which slides to export
+  const targetIndices = options.slides
+    ? parseSlideRange(options.slides, total)
+    : Array.from({ length: total }, (_, i) => i);
+
+  if (targetIndices.length === 0) {
+    console.error("Error: No valid slides in the specified range.");
+    await browser.close();
+    await server.close();
+    process.exit(1);
+  }
+
+  console.log(
+    `Found ${total} slides, exporting ${targetIndices.length}: [${targetIndices.map((i) => i + 1).join(", ")}]`,
+  );
 
   const outDir = resolve(options.out);
   mkdirSync(outDir, { recursive: true });
 
-  if (options.format === "png") {
-    for (let i = 0; i < total; i++) {
-      if (i > 0) {
-        await page.keyboard.press("ArrowRight");
-        await page.waitForTimeout(400);
-      }
-      const path = resolve(outDir, `slide-${String(i + 1).padStart(3, "0")}.png`);
-      await page.screenshot({ path });
-      console.log(`  Exported: ${path}`);
+  // Navigate to each target slide and capture screenshots
+  let currentSlide = 0;
+
+  async function navigateTo(targetIndex: number) {
+    while (currentSlide < targetIndex) {
+      await page.keyboard.press("ArrowRight");
+      await page.waitForTimeout(400);
+      currentSlide++;
     }
-  } else {
+  }
+
+  if (options.format === "pdf") {
     const screenshots: Buffer[] = [];
-    for (let i = 0; i < total; i++) {
-      if (i > 0) {
-        await page.keyboard.press("ArrowRight");
-        await page.waitForTimeout(400);
-      }
+    for (const idx of targetIndices) {
+      await navigateTo(idx);
       screenshots.push(await page.screenshot({ type: "png" }));
     }
 
@@ -111,6 +215,18 @@ export async function exportSlides(
       printBackground: true,
     });
     console.log(`  Exported: ${pdfPath}`);
+  } else {
+    const fmt = options.format as ImageFormat;
+    const ext = fmt === "jpg" ? "jpg" : fmt;
+
+    for (const idx of targetIndices) {
+      await navigateTo(idx);
+      const pngBuf: Buffer = await page.screenshot({ type: "png" });
+      const outputBuf = await convertImage(pngBuf, fmt, options.quality, sharp);
+      const filePath = resolve(outDir, `slide-${String(idx + 1).padStart(3, "0")}.${ext}`);
+      writeFileSync(filePath, outputBuf);
+      console.log(`  Exported: ${filePath}`);
+    }
   }
 
   await browser.close();
