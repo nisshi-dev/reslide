@@ -22,8 +22,7 @@ const TRANSITION_WAIT_MS = 600;
  * Browser-side script to wait for all CSS background images to be fully loaded.
  * Must be passed to page.evaluate() as a string.
  */
-const WAIT_FOR_BG_IMAGES_SCRIPT = `
-async () => {
+const WAIT_FOR_BG_IMAGES_SCRIPT = `(async () => {
   const promises = [];
   for (const el of document.querySelectorAll('*')) {
     const bg = getComputedStyle(el).backgroundImage;
@@ -39,8 +38,7 @@ async () => {
     }
   }
   await Promise.all(promises);
-}
-`;
+})()`;
 
 interface ExportOptions {
   format: ExportFormat;
