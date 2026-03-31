@@ -79,7 +79,7 @@ const builtinComponents = {
  */
 export function ReslideEmbed({
   code,
-  transition,
+  transition: _transition,
   components: userComponents,
   baseUrl,
   designWidth,

@@ -27,11 +27,13 @@ export async function exportSlides(
     process.exit(1);
   }
 
-  // Dynamic import of Playwright (optional peer dependency)
+  // Dynamic import of Playwright (optional peer dependency).
+  // Use a variable to prevent bundlers from statically resolving the import.
+  const playwrightModule = "playwright";
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let pw: any;
   try {
-    pw = await (Function('return import("playwright")')() as Promise<unknown>);
+    pw = await import(playwrightModule);
   } catch {
     console.error(
       "Error: Playwright is required for export.\n" +

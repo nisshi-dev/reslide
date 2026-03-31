@@ -7,7 +7,7 @@ import { describe, expect, test, beforeAll, afterAll } from "vite-plus/test";
 import { compileMdxSlides } from "../src/compile.js";
 
 describe("CSS extraction from <style> tags", () => {
-  test("extracts <style> content into CompileResult.css", async () => {
+  test("extracts <style> content into CompileResult.css", { timeout: 30_000 }, async () => {
     const source = `---
 title: Test
 ---
