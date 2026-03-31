@@ -2,6 +2,7 @@ export { remarkSlides } from "./remark-slides.js";
 export { remarkClick } from "./remark-click.js";
 export { remarkMark } from "./remark-mark.js";
 export { remarkDirectiveFallback } from "./remark-directive-fallback.js";
+export { recmaExcludeInlinedComponents } from "./recma-exclude-inlined-components.js";
 export { remarkExtractCssImports } from "./remark-extract-css-imports.js";
 export { remarkExtractLocalImports } from "./remark-extract-local-imports.js";
 export { rehypeExtractStyle } from "./rehype-extract-style.js";

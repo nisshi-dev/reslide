@@ -73,6 +73,8 @@ export function remarkExtractLocalImports(options?: { baseUrl?: string }) {
     const baseUrl = options?.baseUrl ?? (file.data.baseUrl as string | undefined);
     // Track already-compiled modules to deduplicate identical imports
     const compiled = new Map<string, string>();
+    // Track names that were inlined so recma plugin can exclude them from props.components
+    const inlinedNames: string[] = [];
 
     for (let i = 0; i < tree.children.length; i++) {
       const node = tree.children[i];
@@ -143,6 +145,9 @@ export function remarkExtractLocalImports(options?: { baseUrl?: string }) {
       //   - Star:    * as Foo
       const inlined = buildInlineModule(importClause, compiledCode);
 
+      // Track the imported names for recma plugin to exclude from props.components
+      inlinedNames.push(...extractImportedNames(importClause));
+
       // Replace the import node with inlined code.
       // MDX compiler uses data.estree over value, so we must re-parse the
       // inlined code with acorn to produce a valid ESTree program.
@@ -155,6 +160,11 @@ export function remarkExtractLocalImports(options?: { baseUrl?: string }) {
         value: inlined,
         data: { estree },
       } as unknown as typeof node;
+    }
+
+    // Store inlined names for the recma plugin to exclude from props.components
+    if (inlinedNames.length > 0) {
+      file.data.inlinedComponentNames = inlinedNames;
     }
   };
 }
@@ -201,6 +211,38 @@ function buildInlineModule(importClause: string, compiledCode: string): string {
 
   // Star or other — just inline the code
   return code;
+}
+
+/**
+ * Extract the local binding names from an import clause.
+ * e.g. "{ A, B as C }" → ["A", "C"], "Foo" → ["Foo"], "* as X" → ["X"]
+ */
+function extractImportedNames(importClause: string): string[] {
+  const names: string[] = [];
+
+  const namedMatch = importClause.match(/^\{([^}]+)\}$/);
+  const defaultMatch = importClause.match(/^(\w+)$/);
+  const starMatch = importClause.match(/^\*\s+as\s+(\w+)$/);
+  const mixedNamedMatch = importClause.match(/^(\w+)\s*,\s*\{([^}]+)\}$/);
+
+  if (namedMatch) {
+    for (const spec of namedMatch[1].split(",")) {
+      const parts = spec.trim().split(/\s+as\s+/);
+      names.push((parts[1] ?? parts[0]).trim());
+    }
+  } else if (defaultMatch) {
+    names.push(defaultMatch[1]);
+  } else if (starMatch) {
+    names.push(starMatch[1]);
+  } else if (mixedNamedMatch) {
+    names.push(mixedNamedMatch[1]);
+    for (const spec of mixedNamedMatch[2].split(",")) {
+      const parts = spec.trim().split(/\s+as\s+/);
+      names.push((parts[1] ?? parts[0]).trim());
+    }
+  }
+
+  return names;
 }
 
 /**
