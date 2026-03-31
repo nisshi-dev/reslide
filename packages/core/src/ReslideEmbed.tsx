@@ -1,5 +1,5 @@
 import * as runtime from "react/jsx-runtime";
-import { useEffect, useId, useMemo, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { Fragment } from "react";
 import type { ComponentType, ElementType } from "react";
 import type { DeckProps } from "./Deck.js";
@@ -104,8 +104,11 @@ export function ReslideEmbed({
   const [Content, setContent] = useState<ComponentType<{
     components?: Record<string, ElementType>;
   }> | null>(null);
+  const [ready, setReady] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    setReady(false);
     async function evaluate() {
       const { run } = await import("@mdx-js/mdx");
       const mod = await run(code, {
@@ -117,6 +120,44 @@ export function ReslideEmbed({
     }
     void evaluate();
   }, [code, baseUrl]);
+
+  // After Content renders, wait for all images to load before showing
+  const onContentRendered = useCallback(() => {
+    const el = contentRef.current;
+    if (!el) {
+      setReady(true);
+      return;
+    }
+
+    const images = el.querySelectorAll("img");
+    if (images.length === 0) {
+      requestAnimationFrame(() => setReady(true));
+      return;
+    }
+
+    let loaded = 0;
+    const total = images.length;
+    const onLoad = () => {
+      loaded++;
+      if (loaded >= total) setReady(true);
+    };
+
+    for (const img of images) {
+      if (img.complete) {
+        onLoad();
+      } else {
+        img.addEventListener("load", onLoad, { once: true });
+        img.addEventListener("error", onLoad, { once: true });
+      }
+    }
+  }, []);
+
+  // Trigger image check after Content is set
+  useEffect(() => {
+    if (Content) {
+      requestAnimationFrame(onContentRendered);
+    }
+  }, [Content, onContentRendered]);
 
   const DeckWithDesign = useMemo(() => {
     if (designWidth == null && designHeight == null && slideNumbers == null && aspectRatio == null)
@@ -139,15 +180,18 @@ export function ReslideEmbed({
       <div
         className={className}
         style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
           width: "100%",
           height: "100%",
           ...style,
         }}
       >
-        <div style={{ opacity: 0.5 }}>Loading slides...</div>
+        <div
+          style={{
+            width: "100%",
+            height: "100%",
+            backgroundColor: "var(--slide-bg, #fff)",
+          }}
+        />
       </div>
     );
   }
@@ -167,8 +211,18 @@ export function ReslideEmbed({
       style={{ width: "100%", height: "100%", ...style }}
       {...containerProps}
     >
-      {scopedCss && <style dangerouslySetInnerHTML={{ __html: scopedCss }} />}
-      <Content components={allComponents as Record<string, ElementType>} />
+      <div
+        ref={contentRef}
+        style={{
+          width: "100%",
+          height: "100%",
+          opacity: ready ? 1 : 0,
+          transition: "opacity 0.2s ease-in",
+        }}
+      >
+        {scopedCss && <style dangerouslySetInnerHTML={{ __html: scopedCss }} />}
+        <Content components={allComponents as Record<string, ElementType>} />
+      </div>
     </div>
   );
 }
