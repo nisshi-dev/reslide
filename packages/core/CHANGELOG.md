@@ -1,5 +1,12 @@
 # @reslide-dev/core
 
+## 0.15.4
+
+### Patch Changes
+
+- [#72](https://github.com/nisshi-dev/reslide/pull/72) [`904c62c`](https://github.com/nisshi-dev/reslide/commit/904c62c9651d87dac6e9a16d2cf3d2af7cc8ef53) Thanks [@nisshi-dev](https://github.com/nisshi-dev)! - core: SlideTransition の container/slide に width:100%/height:100%を追加し、export 時に要素の高さが 0 になる問題を修正
+  cli: Tailwind v4 の@source でスライドディレクトリを明示指定し、Vite ルート外のクラスもスキャン対象に
+
 ## 0.15.3
 
 ### Patch Changes
