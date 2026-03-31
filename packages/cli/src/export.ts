@@ -180,7 +180,10 @@ export async function exportSlides(
     server = await createServer({
       root: tmpDir,
       plugins,
-      server: { port: options.port },
+      server: {
+        port: options.port,
+        fs: { allow: [tmpDir, resolve(dirname(slidesPath)), process.cwd()] },
+      },
       publicDir: options.publicDir,
     });
     await server.listen();

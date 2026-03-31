@@ -126,6 +126,7 @@ cli
         port: options.port,
         host: options.host,
         open: true,
+        fs: { allow: [tmpDir, resolve(dirname(slides)), process.cwd()] },
       },
     });
 
