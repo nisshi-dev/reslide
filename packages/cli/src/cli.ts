@@ -6,13 +6,37 @@ import { dirname, resolve } from "node:path";
 import { cac } from "cac";
 import { build, createServer } from "vite";
 
+import type { Plugin } from "vite";
+
 import { reslide } from "./vite-plugin.js";
 
 const cli = cac("reslide");
 
+/**
+ * Build Vite plugin array, optionally including Tailwind CSS v4.
+ */
+async function buildPlugins(options?: { tailwind?: boolean }): Promise<Plugin[]> {
+  const plugins: Plugin[] = [...reslide()];
+  if (options?.tailwind) {
+    try {
+      const mod = "@tailwindcss/vite";
+      const tailwindcss = await import(mod);
+      plugins.push((tailwindcss.default ?? tailwindcss)());
+    } catch {
+      console.error(
+        "Error: @tailwindcss/vite is required for --tailwind.\n" +
+          "Install it: vp add @tailwindcss/vite",
+      );
+      process.exit(1);
+    }
+  }
+  return plugins;
+}
+
 interface EntryFileOptions {
   css?: string;
   noSlideNumbers?: boolean;
+  tailwind?: boolean;
 }
 
 function generateEntryFiles(slidesPath: string, outDir: string, entryOptions?: EntryFileOptions) {
@@ -41,6 +65,7 @@ function generateEntryFiles(slidesPath: string, outDir: string, entryOptions?: E
 </html>`,
   );
 
+  const tailwindImport = entryOptions?.tailwind ? `import "tailwindcss";\n` : "";
   const cssImport = entryOptions?.css ? `import "${resolve(entryOptions.css)}";\n` : "";
   const slideNumbersProp = entryOptions?.noSlideNumbers ? " slideNumbers={false}" : "";
 
@@ -48,7 +73,7 @@ function generateEntryFiles(slidesPath: string, outDir: string, entryOptions?: E
   writeFileSync(
     resolve(outDir, "main.tsx"),
     `import "@reslide-dev/core/themes/default.css";
-${cssImport}import { StrictMode } from "react";
+${tailwindImport}${cssImport}import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { Deck, Slide, Click, ClickSteps, Mark, Notes, SlotRight, GlobalLayer, Draggable, Mermaid, Toc, CodeEditor, SlideIndex, TotalSlides } from "@reslide-dev/core";
 import Slides from "${absSlides}";
@@ -83,18 +108,20 @@ cli
   .command("dev <slides>", "Start development server")
   .option("--port <port>", "Port number", { default: 3030 })
   .option("--host", "Expose to network")
-  .action(async (slides: string, options: { port: number; host?: boolean }) => {
+  .option("--tailwind", "Enable Tailwind CSS v4 processing")
+  .action(async (slides: string, options: { port: number; host?: boolean; tailwind?: boolean }) => {
     if (!existsSync(slides)) {
       console.error(`Error: File not found: ${slides}`);
       process.exit(1);
     }
 
     const tmpDir = resolve(dirname(slides), ".reslide");
-    generateEntryFiles(slides, tmpDir);
+    generateEntryFiles(slides, tmpDir, { tailwind: options.tailwind });
 
+    const plugins = await buildPlugins({ tailwind: options.tailwind });
     const server = await createServer({
       root: tmpDir,
-      plugins: [reslide()],
+      plugins,
       server: {
         port: options.port,
         host: options.host,
@@ -109,18 +136,20 @@ cli
 cli
   .command("build <slides>", "Build static presentation")
   .option("--out <dir>", "Output directory", { default: "dist" })
-  .action(async (slides: string, options: { out: string }) => {
+  .option("--tailwind", "Enable Tailwind CSS v4 processing")
+  .action(async (slides: string, options: { out: string; tailwind?: boolean }) => {
     if (!existsSync(slides)) {
       console.error(`Error: File not found: ${slides}`);
       process.exit(1);
     }
 
     const tmpDir = resolve(dirname(slides), ".reslide");
-    generateEntryFiles(slides, tmpDir);
+    generateEntryFiles(slides, tmpDir, { tailwind: options.tailwind });
 
+    const plugins = await buildPlugins({ tailwind: options.tailwind });
     await build({
       root: tmpDir,
-      plugins: [reslide()],
+      plugins,
       build: {
         outDir: resolve(options.out),
         emptyOutDir: true,
@@ -143,6 +172,7 @@ cli
   .option("--public-dir <dir>", "Public directory for static assets (auto-detect)")
   .option("--css <path>", "Additional CSS file to include")
   .option("--no-slide-numbers", "Hide slide numbers in export")
+  .option("--tailwind", "Enable Tailwind CSS v4 processing")
   .action(
     async (
       slides: string,
@@ -156,6 +186,7 @@ cli
         publicDir?: string;
         css?: string;
         slideNumbers: boolean;
+        tailwind?: boolean;
       },
     ) => {
       const validFormats = ["pdf", "png", "jpg", "webp", "avif"];
@@ -173,6 +204,7 @@ cli
           generateEntryFiles(slidesPath, outDir, {
             css: options.css,
             noSlideNumbers: !options.slideNumbers,
+            tailwind: options.tailwind,
           }),
         {
           format: options.format as "pdf" | "png" | "jpg" | "webp" | "avif",
@@ -183,6 +215,7 @@ cli
           slides: options.slides != null ? String(options.slides) : undefined,
           quality: options.quality,
           publicDir,
+          tailwind: options.tailwind,
         },
       );
     },

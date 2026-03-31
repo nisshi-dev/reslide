@@ -29,6 +29,7 @@ interface ExportOptions {
   slides?: string;
   quality?: number;
   publicDir?: string;
+  tailwind?: boolean;
 }
 
 /**
@@ -160,9 +161,25 @@ export async function exportSlides(
   let server: any;
 
   try {
+    // Build Vite plugins, optionally including Tailwind CSS v4
+    const plugins = [...reslide()];
+    if (options.tailwind) {
+      try {
+        const mod = "@tailwindcss/vite";
+        const tailwindcss = await import(mod);
+        plugins.push((tailwindcss.default ?? tailwindcss)());
+      } catch {
+        console.error(
+          "Error: @tailwindcss/vite is required for --tailwind.\n" +
+            "Install it: vp add @tailwindcss/vite",
+        );
+        process.exit(1);
+      }
+    }
+
     server = await createServer({
       root: tmpDir,
-      plugins: [reslide()],
+      plugins,
       server: { port: options.port },
       publicDir: options.publicDir,
     });
