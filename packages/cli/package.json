@@ -1,6 +1,6 @@
 {
   "name": "@reslide-dev/cli",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Vite-based dev/build CLI for reslide presentations",
   "license": "MIT",
   "bin": {
