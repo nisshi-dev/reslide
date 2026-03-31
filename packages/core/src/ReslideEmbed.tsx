@@ -102,6 +102,22 @@ export function ReslideEmbed({
     void evaluate();
   }, [code, baseUrl]);
 
+  const DeckWithDesign = useMemo(() => {
+    if (designWidth == null && designHeight == null && slideNumbers == null && aspectRatio == null)
+      return Deck;
+    return function DeckWithOverrides(props: DeckProps) {
+      return (
+        <Deck
+          {...props}
+          designWidth={designWidth ?? props.designWidth}
+          designHeight={designHeight ?? props.designHeight}
+          slideNumbers={slideNumbers ?? props.slideNumbers}
+          aspectRatio={aspectRatio ?? props.aspectRatio}
+        />
+      );
+    };
+  }, [designWidth, designHeight, slideNumbers, aspectRatio]);
+
   if (!Content) {
     return (
       <div
@@ -119,22 +135,6 @@ export function ReslideEmbed({
       </div>
     );
   }
-
-  const DeckWithDesign = useMemo(() => {
-    if (designWidth == null && designHeight == null && slideNumbers == null && aspectRatio == null)
-      return Deck;
-    return function DeckWithOverrides(props: DeckProps) {
-      return (
-        <Deck
-          {...props}
-          designWidth={designWidth ?? props.designWidth}
-          designHeight={designHeight ?? props.designHeight}
-          slideNumbers={slideNumbers ?? props.slideNumbers}
-          aspectRatio={aspectRatio ?? props.aspectRatio}
-        />
-      );
-    };
-  }, [designWidth, designHeight, slideNumbers, aspectRatio]);
 
   const allComponents = { ...builtinComponents, Deck: DeckWithDesign, ...userComponents };
 
