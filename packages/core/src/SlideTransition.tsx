@@ -61,27 +61,41 @@ export function SlideTransition({ children, currentSlide, transition }: SlideTra
 
   if (transition === "none" || !isAnimating) {
     return (
-      <div className="reslide-transition-container">
+      <div
+        className="reslide-transition-container"
+        style={{ width: "100%", height: "100%", position: "relative" }}
+      >
         <SlideIndexContext.Provider value={displaySlide}>
-          <div className="reslide-transition-slide">{slides[displaySlide]}</div>
+          <div className="reslide-transition-slide" style={{ width: "100%", height: "100%" }}>
+            {slides[displaySlide]}
+          </div>
         </SlideIndexContext.Provider>
       </div>
     );
   }
 
   return (
-    <div className="reslide-transition-container">
+    <div
+      className="reslide-transition-container"
+      style={{ width: "100%", height: "100%", position: "relative" }}
+    >
       {/* Exiting slide */}
       {prevSlide != null && (
         <SlideIndexContext.Provider value={prevSlide}>
-          <div className={`reslide-transition-slide reslide-transition-${resolvedTransition}-exit`}>
+          <div
+            className={`reslide-transition-slide reslide-transition-${resolvedTransition}-exit`}
+            style={{ width: "100%", height: "100%" }}
+          >
             {slides[prevSlide]}
           </div>
         </SlideIndexContext.Provider>
       )}
       {/* Entering slide */}
       <SlideIndexContext.Provider value={displaySlide}>
-        <div className={`reslide-transition-slide reslide-transition-${resolvedTransition}-enter`}>
+        <div
+          className={`reslide-transition-slide reslide-transition-${resolvedTransition}-enter`}
+          style={{ width: "100%", height: "100%" }}
+        >
           {slides[displaySlide]}
         </div>
       </SlideIndexContext.Provider>
