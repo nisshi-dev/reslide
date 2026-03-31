@@ -34,6 +34,7 @@
   },
   "devDependencies": {
     "@types/mdast": "catalog:",
+    "@types/node": "catalog:",
     "@types/unist": "catalog:",
     "remark": "15.0.1",
     "remark-directive": "catalog:",

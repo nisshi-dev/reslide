@@ -7,8 +7,10 @@ import remarkFrontmatter from "remark-frontmatter";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 
+import { rehypeExtractStyle } from "./rehype-extract-style.js";
 import { remarkClick } from "./remark-click.js";
 import { remarkDirectiveFallback } from "./remark-directive-fallback.js";
+import { remarkExtractCssImports } from "./remark-extract-css-imports.js";
 import { remarkMark } from "./remark-mark.js";
 import { remarkSlides } from "./remark-slides.js";
 
@@ -19,6 +21,8 @@ export interface CompileResult {
   metadata: SlideMetadata;
   /** Base URL for resolving relative imports in MDX (pass-through from options) */
   baseUrl?: string;
+  /** Extracted CSS from <style> tags and CSS file imports */
+  css?: string;
 }
 
 export interface SlideMetadata {
@@ -74,6 +78,8 @@ export async function compileMdxSlides(
       remarkGfm,
       [remarkFrontmatter, ["yaml"]],
       remarkMath,
+      [remarkExtractCssImports, { baseUrl: options?.baseUrl }],
+      rehypeExtractStyle,
       remarkSlides,
       remarkClick,
       remarkMark,
@@ -96,10 +102,13 @@ export async function compileMdxSlides(
     providerImportSource: undefined,
   });
 
+  const css = result.data.css as string | undefined;
+
   return {
     code: String(result),
     metadata,
     ...(options?.baseUrl != null && { baseUrl: options.baseUrl }),
+    ...(css != null && { css }),
   };
 }
 

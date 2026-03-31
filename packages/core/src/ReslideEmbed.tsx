@@ -1,5 +1,5 @@
 import * as runtime from "react/jsx-runtime";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { Fragment } from "react";
 import type { ComponentType, ElementType } from "react";
 import type { DeckProps } from "./Deck.js";
@@ -39,6 +39,10 @@ export interface ReslideEmbedProps {
   className?: string;
   /** Inline styles for the container */
   style?: React.CSSProperties;
+  /** CSS string extracted from MDX <style> tags and CSS imports */
+  css?: string;
+  /** Enable CSS scoping to prevent style leakage (default: true) */
+  scopeCss?: boolean;
 }
 
 /** Built-in reslide components available in MDX */
@@ -84,7 +88,19 @@ export function ReslideEmbed({
   aspectRatio,
   className,
   style,
+  css,
+  scopeCss: scopeCssEnabled = true,
 }: ReslideEmbedProps) {
+  const reslideId = useId();
+  const scopeAttr = `data-reslide-id`;
+
+  const scopedCss = useMemo(() => {
+    if (!css) return undefined;
+    if (!scopeCssEnabled) return css;
+    // Use @scope for robust CSS scoping
+    return `@scope ([${scopeAttr}="${reslideId}"]) {\n${css}\n}`;
+  }, [css, scopeCssEnabled, reslideId, scopeAttr]);
+
   const [Content, setContent] = useState<ComponentType<{
     components?: Record<string, ElementType>;
   }> | null>(null);
@@ -140,8 +156,18 @@ export function ReslideEmbed({
 
   // The MDX output from compileMdxSlides wraps everything in <Deck><Slide>...</Slide></Deck>
   // via remarkSlides. We render it directly — the Deck is inside the MDX.
+  // CSS is injected via dangerouslySetInnerHTML because React does not support
+  // rendering text children inside <style> elements. The CSS originates from the
+  // author's own MDX source (compile-time extraction), not from untrusted user input.
+  const containerProps = css ? { [scopeAttr]: reslideId } : undefined;
+
   return (
-    <div className={className} style={{ width: "100%", height: "100%", ...style }}>
+    <div
+      className={className}
+      style={{ width: "100%", height: "100%", ...style }}
+      {...containerProps}
+    >
+      {scopedCss && <style dangerouslySetInnerHTML={{ __html: scopedCss }} />}
       <Content components={allComponents as Record<string, ElementType>} />
     </div>
   );
