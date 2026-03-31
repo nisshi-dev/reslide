@@ -1,5 +1,19 @@
 # @reslide-dev/cli
 
+## 0.13.0
+
+### Minor Changes
+
+- [#58](https://github.com/nisshi-dev/reslide/pull/58) [`346fafa`](https://github.com/nisshi-dev/reslide/commit/346fafa2aead7a1978bdb51929acd2bd276621c6) Thanks [@nisshi-dev](https://github.com/nisshi-dev)! - core: URL ハッシュによるスライド位置保持、SlideNumber CSS 変数対応、ReslideEmbed FOUC 防止（画像読み込み待機+フェードイン）
+  mdx: countSlides のレイアウト付き区切り二重カウント修正、ローカルインポートの jsx-runtime 除去、esbuild→sucrase 移行（ネイティブバイナリ依存解消）
+  cli: export コマンド安定性改善（1920x1080 キャプチャ → リサイズ、待機時間延長、フォールバックセレクタ）
+
+### Patch Changes
+
+- Updated dependencies [[`346fafa`](https://github.com/nisshi-dev/reslide/commit/346fafa2aead7a1978bdb51929acd2bd276621c6)]:
+  - @reslide-dev/core@0.13.0
+  - @reslide-dev/mdx@0.13.0
+
 ## 0.12.0
 
 ### Minor Changes
