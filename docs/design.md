@@ -165,6 +165,28 @@ const { code, metadata, css } = await compileMdxSlides(source, {
 const { title, slideCount } = parseSlideMetadata(source);
 ```
 
+### ReslideEmbed（クライアントレンダリング）
+
+`compileMdxSlides()` で得たコードを `ReslideEmbed` コンポーネントでレンダリング:
+
+```tsx
+import { ReslideEmbed } from "@reslide-dev/core";
+
+<ReslideEmbed
+  code={compiledCode}
+  css={extractedCss}
+  baseUrl={baseUrl}
+  transition="fade"
+  slideNumbers="except-first"
+/>;
+```
+
+- MDX の `run()` でクライアント評価、ビルトインコンポーネントを自動提供
+- ローカルインポートのインライン化コードは `run()` のスコープで動作（react/jsx-runtime の import は除去済み）
+- FOUC 防止: コンテンツの opacity を 0 に保ち、全画像の読み込み完了後にフェードイン（0.2s ease-in）
+- ローディング中はスライド背景色のスケルトンプレースホルダーを表示
+- CSS スコーピング: `@scope` を使い複数スライド埋め込みでもスタイルが漏れない
+
 ### 記法
 
 ```mdx
@@ -217,9 +239,12 @@ reslide export slides.mdx --format avif --no-slide-numbers --css ./globals.css
 対応形式: `pdf`, `png`, `jpg`, `webp`, `avif`
 オプション: `--slides`, `--quality`, `--public-dir`, `--css`, `--no-slide-numbers`, `--width`, `--height`
 
+- 常に 1920x1080 のデザイン解像度でキャプチャし、`--width` / `--height` で出力サイズにリサイズ（sharp）
 - テーマ CSS を自動インポート（`@reslide-dev/core/themes/default.css`）
 - 全ビルトインコンポーネントを自動登録
 - `--public-dir` で静的アセットディレクトリ指定（自動検出あり）
+- 初期ロード待機 2000ms、トランジション待機 600ms で安定したキャプチャ
+- スライド番号非表示時は URL ハッシュからスライド数を自動検出
 - 処理完了後に一時ディレクトリ `.reslide/` を自動クリーンアップ
 
 ### Vite プラグイン
@@ -286,7 +311,7 @@ export default defineConfig({
 - Tailwind CSS v4
 - Vite+（モノレポ・ビルド基盤）
 - tsdown（ライブラリビルド）
-- esbuild（ローカルコンポーネントのトランスパイル）
+- sucrase（ローカルコンポーネントのトランスパイル — ネイティブバイナリ不要）
 - acorn（ESTree 再パース）
 - remark / rehype（MDX プラグイン）
 - remark-directive（`::click`, `::mark` 記法）

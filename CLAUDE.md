@@ -109,7 +109,7 @@ Slidev（Vue ベース）の主要機能を React エコシステムで再実装
 - Tailwind CSS v4
 - Vite+（モノレポ・ビルド基盤）
 - tsdown（ライブラリビルド）
-- esbuild（ローカルコンポーネントのトランスパイル）
+- sucrase（ローカルコンポーネントのトランスパイル — ネイティブバイナリ不要）
 - acorn（ESTree 再パース）
 - remark / rehype + remark-directive（MDX プラグイン）
 - Shiki（コードハイライト）、KaTeX（数式）
