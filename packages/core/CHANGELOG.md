@@ -1,5 +1,11 @@
 # @reslide-dev/core
 
+## 0.5.0
+
+### Minor Changes
+
+- [#34](https://github.com/nisshi-dev/reslide/pull/34) [`1e58aa5`](https://github.com/nisshi-dev/reslide/commit/1e58aa54df7bee4ca5c92304eef13ade9d922418) Thanks [@nisshi-dev](https://github.com/nisshi-dev)! - デザイン解像度を 960x540 → 1920x1080 に変更し、Deck / ReslideEmbed の designWidth / designHeight props で任意の解像度に上書き可能にした。テーマ CSS のフォントサイズも 1920x1080 向けに調整。
+
 ## 0.4.0
 
 ### Minor Changes
