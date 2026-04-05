@@ -1,5 +1,13 @@
 # @reslide-dev/core
 
+## 0.18.2
+
+### Patch Changes
+
+- [#82](https://github.com/nisshi-dev/reslide/pull/82) [`8a4233a`](https://github.com/nisshi-dev/reslide/commit/8a4233a9d87788920bfe3d92142b07123eb82f30) Thanks [@nisshi-dev](https://github.com/nisshi-dev)! - fix: ReslideEmbed が高さ固定の親なしで高さ 0 になるバグを修正
+
+  aspectRatio が指定されている場合、最外コンテナに height:100% ではなく aspect-ratio を設定するよう変更。Deck の letterbox-inner からも height:100% を削除し、aspect-ratio との競合を解消。ブログ記事等のフローレイアウトに埋め込んだ際にスライドが正しく表示されるようになった。
+
 ## 0.18.1
 
 ### Patch Changes
