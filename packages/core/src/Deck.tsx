@@ -381,8 +381,9 @@ export function Deck({
         <div
           className="reslide-letterbox-inner"
           style={{
-            height: "100%",
+            maxHeight: "100%",
             maxWidth: "100%",
+            width: "100%",
             aspectRatio: String(aspectRatio),
             overflow: "hidden",
           }}
