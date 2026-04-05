@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * Lightweight entry point for embedding slides.
  *
