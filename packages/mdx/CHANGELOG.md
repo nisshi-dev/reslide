@@ -1,5 +1,14 @@
 # @reslide-dev/mdx
 
+## 0.17.0
+
+### Minor Changes
+
+- [#76](https://github.com/nisshi-dev/reslide/pull/76) [`eac1b9e`](https://github.com/nisshi-dev/reslide/commit/eac1b9e59b5dd9945131a6289b93a66b8dfbed17) Thanks [@nisshi-dev](https://github.com/nisshi-dev)! - 埋め込み機能の追加: ReslideRemoteEmbed、toEmbedData、embedded モード
+  - `@reslide-dev/core`: URL からコンパイル済みスライドデータを fetch して描画する `ReslideRemoteEmbed` コンポーネントを追加
+  - `@reslide-dev/core`: 記事内埋め込みに適したミニマルコントロールバーを表示する `embedded` prop を `Deck`/`ReslideEmbed`/`ReslideRemoteEmbed` に追加
+  - `@reslide-dev/mdx`: `CompileResult` を API レスポンス用 JSON に変換する `toEmbedData` 関数と `ReslideEmbedData` 型を追加
+
 ## 0.16.0
 
 ### Patch Changes
