@@ -42,6 +42,12 @@ export interface ReslideServerEmbedProps {
   style?: React.CSSProperties;
   /** Custom fallback UI when data is null/undefined. Overrides the default placeholder. */
   fallback?: ReactNode;
+  /** Show/hide the embedded toolbar (default: true) */
+  toolbar?: boolean;
+  /** Show/hide the progress bar in embedded mode (default: true) */
+  progressBar?: boolean;
+  /** Show/hide click navigation zones in embedded mode (default: true) */
+  clickNavigation?: boolean;
 }
 
 /**
@@ -96,6 +102,9 @@ export function ReslideServerEmbed({
   className,
   style,
   fallback,
+  toolbar,
+  progressBar,
+  clickNavigation,
 }: ReslideServerEmbedProps) {
   if (!data) {
     if (fallback !== undefined) {
@@ -105,7 +114,14 @@ export function ReslideServerEmbed({
   }
 
   const resolved = resolveEmbedData(data);
-  const embedded: boolean | EmbeddedOptions = sourceUrl ? { sourceUrl } : true;
+  const embeddedOpts: EmbeddedOptions = {
+    ...(sourceUrl != null && { sourceUrl }),
+    ...(toolbar !== undefined && { toolbar }),
+    ...(progressBar !== undefined && { progressBar }),
+    ...(clickNavigation !== undefined && { clickNavigation }),
+  };
+  const embedded: boolean | EmbeddedOptions =
+    Object.keys(embeddedOpts).length > 0 ? embeddedOpts : true;
 
   return (
     <ReslideEmbedClient

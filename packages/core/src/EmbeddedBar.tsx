@@ -1,86 +1,151 @@
+import { useCallback, useEffect, useRef, useState } from "react";
+
 import { useDeck } from "./context.js";
 
 /**
  * Minimal control bar for embedded slide viewers.
- * Always visible at the bottom — inspired by SpeakerDeck/Canva embeds.
- *
- * Shows: prev/next arrows, slide counter, and an optional link to the source presentation.
+ * Hidden by default — appears on hover/touch with a slide-up animation.
+ * Positioned at the bottom-center as a compact pill-shaped bar.
  */
 export function EmbeddedBar({ sourceUrl, scale = 1 }: { sourceUrl?: string; scale?: number }) {
   const { currentSlide, totalSlides, clickStep, totalClickSteps, next, prev } = useDeck();
+  const [visible, setVisible] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout>>(null);
+  const barRef = useRef<HTMLDivElement>(null);
+
+  const show = useCallback(() => {
+    setVisible(true);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => setVisible(false), 2500);
+  }, []);
+
+  // Show on mouse enter over the deck area (parent has position: relative)
+  useEffect(() => {
+    const deck = barRef.current?.closest(".reslide-deck");
+    if (!deck) return;
+
+    const handleEnter = () => show();
+    const handleLeave = () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => setVisible(false), 800);
+    };
+
+    deck.addEventListener("mouseenter", handleEnter);
+    deck.addEventListener("mouseleave", handleLeave);
+    // Show briefly on touch
+    deck.addEventListener("touchstart", handleEnter, { passive: true });
+
+    return () => {
+      deck.removeEventListener("mouseenter", handleEnter);
+      deck.removeEventListener("mouseleave", handleLeave);
+      deck.removeEventListener("touchstart", handleEnter);
+    };
+  }, [show]);
+
+  // Keep visible while hovering over the bar itself
+  const handleBarEnter = () => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    setVisible(true);
+  };
+  const handleBarLeave = () => {
+    timerRef.current = setTimeout(() => setVisible(false), 1200);
+  };
 
   return (
     <div
+      ref={barRef}
       className="reslide-embedded-bar"
+      onMouseEnter={handleBarEnter}
+      onMouseLeave={handleBarLeave}
       style={{
         position: "absolute",
-        bottom: 0,
-        left: 0,
-        right: 0,
+        bottom: 8 / scale,
+        left: "50%",
+        transform: `translateX(-50%) translateY(${visible ? "0" : "0.5rem"}) scale(${1 / scale})`,
+        transformOrigin: "bottom center",
         display: "flex",
         alignItems: "center",
-        justifyContent: "space-between",
-        padding: "0 0.5rem",
-        height: "2.25rem",
-        backgroundColor: "rgba(0, 0, 0, 0.75)",
-        backdropFilter: "blur(8px)",
+        gap: "0.125rem",
+        padding: "0.25rem 0.5rem",
+        backgroundColor: "rgba(15, 23, 42, 0.65)",
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
+        borderRadius: "1.5rem",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
+        transition: "opacity 0.2s ease, transform 0.2s ease",
+        opacity: visible ? 1 : 0,
+        pointerEvents: visible ? "auto" : "none",
+        zIndex: 200,
         color: "#e2e8f0",
-        fontSize: "0.8125rem",
+        fontSize: "0.75rem",
         fontFamily: "system-ui, sans-serif",
         fontVariantNumeric: "tabular-nums",
-        zIndex: 200,
-        transform: `scale(${1 / scale})`,
-        transformOrigin: "bottom left",
-        width: `${scale * 100}%`,
+        userSelect: "none",
       }}
     >
-      {/* Left section: navigation */}
-      <div style={{ display: "flex", alignItems: "center", gap: "0.125rem" }}>
-        <EmbeddedButton onClick={prev} title="Previous">
-          <ArrowIcon direction="left" />
-        </EmbeddedButton>
+      <EmbeddedButton onClick={prev} title="Previous">
+        <ArrowIcon direction="left" />
+      </EmbeddedButton>
 
-        <span style={{ padding: "0 0.375rem", userSelect: "none", whiteSpace: "nowrap" }}>
-          {currentSlide + 1} / {totalSlides}
-          {clickStep > 0 && totalClickSteps > 0 && (
-            <span style={{ opacity: 0.6, marginLeft: "0.25rem" }}>
-              ({clickStep}/{totalClickSteps})
-            </span>
-          )}
-        </span>
+      <span
+        style={{
+          padding: "0 0.375rem",
+          whiteSpace: "nowrap",
+          letterSpacing: "0.02em",
+        }}
+      >
+        {currentSlide + 1}
+        <span style={{ opacity: 0.4, margin: "0 0.125rem" }}>/</span>
+        {totalSlides}
+        {clickStep > 0 && totalClickSteps > 0 && (
+          <span style={{ opacity: 0.4, marginLeft: "0.25rem", fontSize: "0.625rem" }}>
+            {clickStep}/{totalClickSteps}
+          </span>
+        )}
+      </span>
 
-        <EmbeddedButton onClick={next} title="Next">
-          <ArrowIcon direction="right" />
-        </EmbeddedButton>
-      </div>
+      <EmbeddedButton onClick={next} title="Next">
+        <ArrowIcon direction="right" />
+      </EmbeddedButton>
 
-      {/* Right section: source link */}
       {sourceUrl && (
-        <a
-          href={sourceUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          title="Open presentation"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: "1.75rem",
-            height: "1.75rem",
-            color: "#cbd5e1",
-            borderRadius: "0.25rem",
-            transition: "color 0.15s",
-            textDecoration: "none",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.color = "#fff";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.color = "#cbd5e1";
-          }}
-        >
-          <ExternalLinkIcon />
-        </a>
+        <>
+          <div
+            style={{
+              width: 1,
+              height: "0.875rem",
+              backgroundColor: "rgba(255, 255, 255, 0.15)",
+              margin: "0 0.125rem",
+            }}
+          />
+          <a
+            href={sourceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Open presentation"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "1.5rem",
+              height: "1.5rem",
+              color: "rgba(203, 213, 225, 0.7)",
+              borderRadius: "50%",
+              transition: "color 0.15s, background 0.15s",
+              textDecoration: "none",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = "#fff";
+              e.currentTarget.style.background = "rgba(255,255,255,0.1)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = "rgba(203, 213, 225, 0.7)";
+              e.currentTarget.style.background = "none";
+            }}
+          >
+            <ExternalLinkIcon />
+          </a>
+        </>
       )}
     </div>
   );
@@ -104,21 +169,23 @@ function EmbeddedButton({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        width: "1.75rem",
-        height: "1.75rem",
+        width: "1.5rem",
+        height: "1.5rem",
         background: "none",
         border: "none",
-        borderRadius: "0.25rem",
+        borderRadius: "50%",
         cursor: "pointer",
-        color: "#cbd5e1",
+        color: "rgba(203, 213, 225, 0.8)",
         transition: "background 0.15s, color 0.15s",
         padding: 0,
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.background = "rgba(255,255,255,0.15)";
+        e.currentTarget.style.background = "rgba(255,255,255,0.12)";
+        e.currentTarget.style.color = "#fff";
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.background = "none";
+        e.currentTarget.style.color = "rgba(203, 213, 225, 0.8)";
       }}
     >
       {children}
@@ -129,12 +196,12 @@ function EmbeddedButton({
 function ArrowIcon({ direction }: { direction: "left" | "right" }) {
   return (
     <svg
-      width="14"
-      height="14"
+      width="12"
+      height="12"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2"
+      strokeWidth="2.5"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
@@ -150,12 +217,12 @@ function ArrowIcon({ direction }: { direction: "left" | "right" }) {
 function ExternalLinkIcon() {
   return (
     <svg
-      width="14"
-      height="14"
+      width="11"
+      height="11"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2"
+      strokeWidth="2.5"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
