@@ -28,7 +28,7 @@ catalog:
   sucrase: ^3.35.1
   typescript: 5.x
   unified: 11.0.5
-  vite: npm:@voidzero-dev/vite-plus-core@0.1.13
+  vite: npm:@voidzero-dev/vite-plus-core@latest
   vite-plus: latest
   vitest: npm:@voidzero-dev/vite-plus-test@latest
 
