@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { EmbeddedOptions } from "./Deck.js";
 import { ReslideEmbed } from "./ReslideEmbed.js";
 import type { TransitionType } from "./SlideTransition.js";
 
@@ -28,6 +29,8 @@ export interface ReslideRemoteEmbedProps {
   fallback?: React.ReactNode;
   /** Custom error UI */
   errorFallback?: React.ReactNode | ((error: Error) => React.ReactNode);
+  /** Enable embedded mode with minimal control bar. Pass an object with sourceUrl to link to the original presentation. */
+  embedded?: boolean | EmbeddedOptions;
 }
 
 // Hardcoded CSS keyframe for the skeleton pulse animation.
@@ -101,6 +104,7 @@ export function ReslideRemoteEmbed({
   style,
   fallback,
   errorFallback,
+  embedded,
 }: ReslideRemoteEmbedProps) {
   const [data, setData] = useState<RemoteSlideData | null>(null);
   const [error, setError] = useState<Error | null>(null);
@@ -143,6 +147,7 @@ export function ReslideRemoteEmbed({
       css={data.css}
       designHeight={data.designHeight}
       designWidth={data.designWidth}
+      embedded={embedded}
       slideNumbers={slideNumbers}
       style={style}
       transition={data.transition as TransitionType}

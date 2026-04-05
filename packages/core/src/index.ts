@@ -1,5 +1,5 @@
 export { Deck } from "./Deck.js";
-export type { DeckProps } from "./Deck.js";
+export type { DeckProps, EmbeddedOptions } from "./Deck.js";
 
 export { Slide } from "./Slide.js";
 export type { SlideProps } from "./Slide.js";

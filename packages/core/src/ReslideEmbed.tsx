@@ -2,7 +2,7 @@ import * as runtime from "react/jsx-runtime";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { Fragment } from "react";
 import type { ComponentType, ElementType } from "react";
-import type { DeckProps } from "./Deck.js";
+import type { DeckProps, EmbeddedOptions } from "./Deck.js";
 
 import { Click, ClickSteps } from "./Click.js";
 import { CodeEditor } from "./CodeEditor.js";
@@ -43,6 +43,8 @@ export interface ReslideEmbedProps {
   css?: string;
   /** Enable CSS scoping to prevent style leakage (default: true) */
   scopeCss?: boolean;
+  /** Enable embedded mode with minimal control bar. Pass an object with sourceUrl to link to the original presentation. */
+  embedded?: boolean | EmbeddedOptions;
 }
 
 /** Built-in reslide components available in MDX */
@@ -90,6 +92,7 @@ export function ReslideEmbed({
   style,
   css,
   scopeCss: scopeCssEnabled = true,
+  embedded,
 }: ReslideEmbedProps) {
   const reslideId = useId();
   const scopeAttr = `data-reslide-id`;
@@ -186,7 +189,13 @@ export function ReslideEmbed({
   }, [Content, onContentRendered]);
 
   const DeckWithDesign = useMemo(() => {
-    if (designWidth == null && designHeight == null && slideNumbers == null && aspectRatio == null)
+    if (
+      designWidth == null &&
+      designHeight == null &&
+      slideNumbers == null &&
+      aspectRatio == null &&
+      embedded == null
+    )
       return Deck;
     return function DeckWithOverrides(props: DeckProps) {
       return (
@@ -196,10 +205,11 @@ export function ReslideEmbed({
           designHeight={designHeight ?? props.designHeight}
           slideNumbers={slideNumbers ?? props.slideNumbers}
           aspectRatio={aspectRatio ?? props.aspectRatio}
+          embedded={embedded ?? props.embedded}
         />
       );
     };
-  }, [designWidth, designHeight, slideNumbers, aspectRatio]);
+  }, [designWidth, designHeight, slideNumbers, aspectRatio, embedded]);
 
   if (!Content) {
     return (

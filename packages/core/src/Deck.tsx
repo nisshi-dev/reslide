@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { ClickNavigation } from "./ClickNavigation.js";
 import { DeckContext } from "./context.js";
 import { DrawingLayer } from "./DrawingLayer.js";
+import { EmbeddedBar } from "./EmbeddedBar.js";
 import { NavigationBar } from "./NavigationBar.js";
 import { Pointer } from "./Pointer.js";
 import { PrintView } from "./PrintView.js";
@@ -17,6 +18,11 @@ import { openPresenterWindow, usePresenterSync } from "./use-presenter.js";
 import { DEFAULT_DESIGN_WIDTH, DEFAULT_DESIGN_HEIGHT } from "./types.js";
 import type { DeckContextValue } from "./types.js";
 
+export interface EmbeddedOptions {
+  /** URL to the original presentation page (renders an external-link icon) */
+  sourceUrl?: string;
+}
+
 export interface DeckProps {
   children: ReactNode;
   /** Slide transition type */
@@ -29,6 +35,8 @@ export interface DeckProps {
   designHeight?: number;
   /** Show slide numbers. true=all, false=none, "except-first"=hide on first slide */
   slideNumbers?: boolean | "except-first";
+  /** Enable embedded mode with minimal control bar. Pass an object with sourceUrl to add a link to the original presentation. */
+  embedded?: boolean | EmbeddedOptions;
 }
 
 export function Deck({
@@ -38,7 +46,10 @@ export function Deck({
   designWidth = DEFAULT_DESIGN_WIDTH,
   designHeight = DEFAULT_DESIGN_HEIGHT,
   slideNumbers = true,
+  embedded = false,
 }: DeckProps) {
+  const isEmbedded = embedded !== false;
+  const embeddedSourceUrl = typeof embedded === "object" ? embedded.sourceUrl : undefined;
   const containerRef = useRef<HTMLDivElement>(null);
   const deckRef = useRef<HTMLDivElement>(null);
   const [currentSlide, setCurrentSlide] = useState(() => {
@@ -127,6 +138,7 @@ export function Deck({
           prev();
           break;
         case "Escape":
+          if (isEmbedded) break;
           // Don't toggle overview when exiting fullscreen — the browser
           // handles fullscreen exit natively before JS events fire
           if (!document.fullscreenElement) {
@@ -135,19 +147,23 @@ export function Deck({
           }
           break;
         case "f":
+          if (isEmbedded) break;
           e.preventDefault();
           toggleFullscreen();
           break;
         case "p":
+          if (isEmbedded) break;
           e.preventDefault();
           openPresenterWindow();
           break;
         case "d":
+          if (isEmbedded) break;
           e.preventDefault();
           setIsDrawing((v) => !v);
           setIsPointer(false);
           break;
         case "q":
+          if (isEmbedded) break;
           e.preventDefault();
           setIsPointer((v) => !v);
           setIsDrawing(false);
@@ -319,16 +335,20 @@ export function Deck({
         </div>
       )}
       {/* Interactive overlays — outside scale wrapper (mouse coordinate dependent) */}
-      {!isOverview && !isPrinting && (
+      {!isEmbedded && !isOverview && !isPrinting && (
         <DrawingLayer active={isDrawing} currentSlide={currentSlide} />
       )}
-      {!isOverview && !isPrinting && <Pointer active={isPointer} />}
-      {!isPrinting && (
-        <NavigationBar
-          isDrawing={isDrawing}
-          onToggleDrawing={() => setIsDrawing((v) => !v)}
-          scale={scale}
-        />
+      {!isEmbedded && !isOverview && !isPrinting && <Pointer active={isPointer} />}
+      {isEmbedded ? (
+        <EmbeddedBar sourceUrl={embeddedSourceUrl} scale={scale} />
+      ) : (
+        !isPrinting && (
+          <NavigationBar
+            isDrawing={isDrawing}
+            onToggleDrawing={() => setIsDrawing((v) => !v)}
+            scale={scale}
+          />
+        )
       )}
     </div>
   );
