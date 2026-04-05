@@ -129,6 +129,9 @@ export type ReslideEmbedData = {
   designHeight?: number;
 };
 
+/** Input type for `toEmbedProps` — accepts either a full CompileResult or a pre-converted ReslideEmbedData. */
+export type EmbedDataInput = CompileResult | ReslideEmbedData;
+
 /**
  * Convert a CompileResult to the JSON shape expected by ReslideRemoteEmbed.
  *
@@ -152,6 +155,26 @@ export function toEmbedData(result: CompileResult): ReslideEmbedData {
       designHeight: Number(result.metadata.designHeight),
     }),
   };
+}
+
+/**
+ * Convert a CompileResult or ReslideEmbedData to props for `<ReslideEmbed>`.
+ *
+ * Accepts either a full `CompileResult` (from `compileMdxSlides`) or a
+ * pre-converted `ReslideEmbedData` (from `toEmbedData`).
+ *
+ * Usage (Server Component):
+ * ```tsx
+ * import { compileMdxSlides, toEmbedProps } from "@reslide-dev/mdx";
+ * const result = await compileMdxSlides(source, { baseUrl });
+ * <ReslideEmbed {...toEmbedProps(result)} />
+ * ```
+ */
+export function toEmbedProps(input: EmbedDataInput): ReslideEmbedData {
+  if ("metadata" in input) {
+    return toEmbedData(input);
+  }
+  return input;
 }
 
 function parseFrontmatter(source: string): Record<string, string> {
