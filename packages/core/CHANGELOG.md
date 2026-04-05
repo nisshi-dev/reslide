@@ -1,5 +1,13 @@
 # @reslide-dev/core
 
+## 0.18.1
+
+### Patch Changes
+
+- [#80](https://github.com/nisshi-dev/reslide/pull/80) [`0c0a106`](https://github.com/nisshi-dev/reslide/commit/0c0a106d1a9efc333e463a6d148bead320c638de) Thanks [@nisshi-dev](https://github.com/nisshi-dev)! - fix: ReslideServerEmbed の "use client" 境界を正しく分離
+
+  ビルド出力で ReslideEmbedClient が server.mjs にインライン化され、"use client" ディレクティブが消失していた問題を修正。Next.js App Router の Server Component から使用した際に createContext エラーが発生していた。
+
 ## 0.18.0
 
 ### Minor Changes
