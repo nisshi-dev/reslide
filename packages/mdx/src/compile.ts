@@ -116,6 +116,44 @@ export async function compileMdxSlides(
   };
 }
 
+/**
+ * Serializable data shape for embedding slides via API responses.
+ * Matches the JSON format expected by `ReslideRemoteEmbed` in `@reslide-dev/core`.
+ */
+export type ReslideEmbedData = {
+  code: string;
+  css?: string;
+  transition?: string;
+  baseUrl?: string;
+  designWidth?: number;
+  designHeight?: number;
+};
+
+/**
+ * Convert a CompileResult to the JSON shape expected by ReslideRemoteEmbed.
+ *
+ * Usage (API Route):
+ * ```ts
+ * import { compileMdxSlides, toEmbedData } from "@reslide-dev/mdx";
+ * const result = await compileMdxSlides(source, { baseUrl });
+ * return NextResponse.json(toEmbedData(result));
+ * ```
+ */
+export function toEmbedData(result: CompileResult): ReslideEmbedData {
+  return {
+    code: result.code,
+    ...(result.css != null && { css: result.css }),
+    ...(result.metadata.transition != null && { transition: result.metadata.transition }),
+    ...(result.baseUrl != null && { baseUrl: result.baseUrl }),
+    ...(result.metadata.designWidth != null && {
+      designWidth: Number(result.metadata.designWidth),
+    }),
+    ...(result.metadata.designHeight != null && {
+      designHeight: Number(result.metadata.designHeight),
+    }),
+  };
+}
+
 function parseFrontmatter(source: string): Record<string, string> {
   const match = source.match(/^---\n([\s\S]*?)\n---/);
   if (!match) return {};

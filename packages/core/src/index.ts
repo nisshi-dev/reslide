@@ -56,6 +56,9 @@ export { SlideIndex, TotalSlides } from "./SlideInfo.js";
 export { ReslideEmbed } from "./ReslideEmbed.js";
 export type { ReslideEmbedProps } from "./ReslideEmbed.js";
 
+export { ReslideRemoteEmbed } from "./ReslideRemoteEmbed.js";
+export type { ReslideRemoteEmbedProps } from "./ReslideRemoteEmbed.js";
+
 export { useDeck } from "./context.js";
 export { DeckContext } from "./context.js";
 export { useSlideIndex, SlideIndexContext } from "./slide-context.js";
