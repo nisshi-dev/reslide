@@ -1,5 +1,5 @@
 export { Deck } from "./Deck.js";
-export type { DeckProps } from "./Deck.js";
+export type { DeckProps, EmbeddedOptions } from "./Deck.js";
 
 export { Slide } from "./Slide.js";
 export type { SlideProps } from "./Slide.js";
@@ -55,6 +55,9 @@ export { SlideIndex, TotalSlides } from "./SlideInfo.js";
 
 export { ReslideEmbed } from "./ReslideEmbed.js";
 export type { ReslideEmbedProps } from "./ReslideEmbed.js";
+
+export { ReslideRemoteEmbed } from "./ReslideRemoteEmbed.js";
+export type { ReslideRemoteEmbedProps } from "./ReslideRemoteEmbed.js";
 
 export { useDeck } from "./context.js";
 export { DeckContext } from "./context.js";
