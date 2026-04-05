@@ -1,5 +1,13 @@
 # @reslide-dev/core
 
+## 0.19.0
+
+### Minor Changes
+
+- [#84](https://github.com/nisshi-dev/reslide/pull/84) [`69ee7d8`](https://github.com/nisshi-dev/reslide/commit/69ee7d8ffdb03033954508f1dc54393bc30f9e87) Thanks [@nisshi-dev](https://github.com/nisshi-dev)! - feat: 埋め込みモード UI のカスタマイズ対応
+
+  EmbeddedOptions に `toolbar`, `progressBar`, `clickNavigation`, `slideNumbers`, `toolbarComponent` オプションを追加。埋め込み時のツールバー・プログレスバー・クリックナビゲーション等を個別に表示/非表示でき、カスタムツールバーコンポーネントで完全に差し替え可能に。ReslideServerEmbed にも `toolbar`, `progressBar`, `clickNavigation` props を追加。
+
 ## 0.18.2
 
 ### Patch Changes
