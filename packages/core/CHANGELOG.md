@@ -1,5 +1,15 @@
 # @reslide-dev/core
 
+## 0.18.0
+
+### Minor Changes
+
+- [#78](https://github.com/nisshi-dev/reslide/pull/78) [`c76ea28`](https://github.com/nisshi-dev/reslide/commit/c76ea287b505dce9a04ce8425dd12877efbba9c4) Thanks [@nisshi-dev](https://github.com/nisshi-dev)! - ReslideServerEmbed: RSC 対応の Server Component を追加。`@reslide-dev/core/server` からインポート可能。data が null/undefined 時のフォールバック UI 内蔵。
+
+  `@reslide-dev/core/embed` サブパスエクスポートを追加。ReslideEmbed のみの軽量エントリポイント。
+
+  CSS テーマを composable 化。default.css のハードコード値をカスタムプロパティに切り出し、dark.css / bare.css はプロパティの上書きだけに簡素化。
+
 ## 0.17.0
 
 ### Minor Changes
