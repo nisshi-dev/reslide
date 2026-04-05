@@ -17,6 +17,14 @@
       "types": "./dist/mdx-components.d.mts",
       "import": "./dist/mdx-components.mjs"
     },
+    "./embed": {
+      "types": "./dist/embed.d.mts",
+      "import": "./dist/embed.mjs"
+    },
+    "./server": {
+      "types": "./dist/server.d.mts",
+      "import": "./dist/server.mjs"
+    },
     "./themes/default.css": "./src/themes/default.css",
     "./themes/dark.css": "./src/themes/dark.css",
     "./themes/bare.css": "./src/themes/bare.css",

@@ -6,5 +6,5 @@ export { recmaExcludeInlinedComponents } from "./recma-exclude-inlined-component
 export { remarkExtractCssImports } from "./remark-extract-css-imports.js";
 export { remarkExtractLocalImports } from "./remark-extract-local-imports.js";
 export { rehypeExtractStyle } from "./rehype-extract-style.js";
-export { compileMdxSlides, parseSlideMetadata, toEmbedData } from "./compile.js";
-export type { CompileResult, SlideMetadata, ReslideEmbedData } from "./compile.js";
+export { compileMdxSlides, parseSlideMetadata, toEmbedData, toEmbedProps } from "./compile.js";
+export type { CompileResult, SlideMetadata, ReslideEmbedData, EmbedDataInput } from "./compile.js";

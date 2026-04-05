@@ -1,46 +1,13 @@
+/**
+ * Bare theme for reslide — minimal styling, system fonts.
+ *
+ * Use together with default.css for structural rules,
+ * or standalone for a truly minimal look.
+ */
 :root {
   --slide-bg: #ffffff;
   --slide-text: #1a1a2e;
   --slide-accent: #16a34a;
   --slide-section-text: #ffffff;
   --slide-font-family: system-ui, -apple-system, sans-serif;
-  --slide-progress: var(--slide-accent, #16a34a);
-  --slide-progress-height: 3px;
-
-  --mark-yellow: #fef08a;
-  --mark-orange: #fed7aa;
-  --mark-red: #fecaca;
-  --mark-blue: #bfdbfe;
-  --mark-green: #bbf7d0;
-  --mark-purple: #e9d5ff;
-}
-
-.reslide-deck {
-  font-family: var(--slide-font-family);
-  line-height: 1.6;
-}
-
-.reslide-slide:not([data-layout="none"]) ul {
-  list-style-type: disc;
-}
-
-.reslide-slide:not([data-layout="none"]) ol {
-  list-style-type: decimal;
-}
-
-.reslide-slide:not([data-layout="none"]) ul ul {
-  list-style-type: circle;
-}
-
-.reslide-slide:not([data-layout="none"]) ul ul ul {
-  list-style-type: square;
-}
-
-.reslide-slide:not([data-layout="none"]) ol ol {
-  list-style-type: lower-alpha;
-}
-
-.reslide-slide:not([data-layout="none"]) pre code {
-  background: none;
-  padding: 0;
 }
