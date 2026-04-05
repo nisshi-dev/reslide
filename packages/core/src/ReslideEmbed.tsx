@@ -211,16 +211,20 @@ export function ReslideEmbed({
     };
   }, [designWidth, designHeight, slideNumbers, aspectRatio, embedded]);
 
+  // When aspectRatio is set, use it on the outermost container so the component
+  // has an intrinsic height in flow layouts (e.g. blog articles).
+  // When aspectRatio is 0 (fill parent), use height: 100% for the legacy behavior.
+  const containerStyle: React.CSSProperties = {
+    width: "100%",
+    ...(aspectRatio != null && aspectRatio > 0
+      ? { aspectRatio: String(aspectRatio) }
+      : { height: "100%" }),
+    ...style,
+  };
+
   if (!Content) {
     return (
-      <div
-        className={className}
-        style={{
-          width: "100%",
-          height: "100%",
-          ...style,
-        }}
-      >
+      <div className={className} style={containerStyle}>
         <SlideSkeleton />
       </div>
     );
@@ -228,19 +232,10 @@ export function ReslideEmbed({
 
   const allComponents = { ...builtinComponents, Deck: DeckWithDesign, ...userComponents };
 
-  // The MDX output from compileMdxSlides wraps everything in <Deck><Slide>...</Slide></Deck>
-  // via remarkSlides. We render it directly — the Deck is inside the MDX.
-  // CSS is injected via dangerouslySetInnerHTML because React does not support
-  // rendering text children inside <style> elements. The CSS originates from the
-  // author's own MDX source (compile-time extraction), not from untrusted user input.
   const containerProps = css ? { [scopeAttr]: reslideId } : undefined;
 
   return (
-    <div
-      className={className}
-      style={{ width: "100%", height: "100%", ...style }}
-      {...containerProps}
-    >
+    <div className={className} style={containerStyle} {...containerProps}>
       {/* Inject CSS before content so styles are parsed before first paint */}
       {scopedCss && <style dangerouslySetInnerHTML={{ __html: scopedCss }} />}
       <div

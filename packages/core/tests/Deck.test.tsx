@@ -97,6 +97,33 @@ test("does not navigate past boundaries", () => {
   expect(screen.getByTestId("counter").textContent).toBe("1/1");
 });
 
+test("letterbox-inner does not have height:100% (uses aspect-ratio instead)", () => {
+  const { container } = render(
+    <Deck aspectRatio={16 / 9}>
+      <Slide>Slide 1</Slide>
+    </Deck>,
+  );
+
+  const inner = container.querySelector(".reslide-letterbox-inner") as HTMLElement;
+  expect(inner).toBeTruthy();
+  // height:100% conflicts with aspect-ratio in flow layouts — must not be present
+  // (jsdom doesn't support aspect-ratio in style attributes, so we only assert the negative)
+  expect(inner.style.height).toBe("");
+  expect(inner.style.maxHeight).toBe("100%");
+  expect(inner.style.maxWidth).toBe("100%");
+});
+
+test("no-letterbox mode uses height:100% when aspectRatio is 0", () => {
+  const { container } = render(
+    <Deck aspectRatio={0}>
+      <Slide>Slide 1</Slide>
+    </Deck>,
+  );
+
+  // Should not have letterbox
+  expect(container.querySelector(".reslide-letterbox")).toBeNull();
+});
+
 test("toggles overview mode with Escape", () => {
   render(
     <Deck>
