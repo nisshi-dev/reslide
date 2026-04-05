@@ -18,9 +18,25 @@ import { openPresenterWindow, usePresenterSync } from "./use-presenter.js";
 import { DEFAULT_DESIGN_WIDTH, DEFAULT_DESIGN_HEIGHT } from "./types.js";
 import type { DeckContextValue } from "./types.js";
 
+/** Props passed to a custom embedded toolbar component */
+export interface EmbeddedToolbarProps {
+  sourceUrl?: string;
+  scale: number;
+}
+
 export interface EmbeddedOptions {
   /** URL to the original presentation page (renders an external-link icon) */
   sourceUrl?: string;
+  /** Show/hide the embedded toolbar (default: true) */
+  toolbar?: boolean;
+  /** Show/hide the progress bar in embedded mode (default: true) */
+  progressBar?: boolean;
+  /** Show/hide the click navigation zones in embedded mode (default: true) */
+  clickNavigation?: boolean;
+  /** Override slide number display for embedded mode */
+  slideNumbers?: boolean | "except-first";
+  /** Custom toolbar component to replace EmbeddedBar (client-only, not available in ReslideServerEmbed) */
+  toolbarComponent?: React.ComponentType<EmbeddedToolbarProps>;
 }
 
 export interface DeckProps {
@@ -49,7 +65,16 @@ export function Deck({
   embedded = false,
 }: DeckProps) {
   const isEmbedded = embedded !== false;
-  const embeddedSourceUrl = typeof embedded === "object" ? embedded.sourceUrl : undefined;
+  const embeddedOpts: EmbeddedOptions = typeof embedded === "object" ? embedded : {};
+  const embeddedSourceUrl = embeddedOpts.sourceUrl;
+  const showToolbar = embeddedOpts.toolbar !== false;
+  const showProgressBar = embeddedOpts.progressBar !== false;
+  const showClickNav = embeddedOpts.clickNavigation !== false;
+  const CustomToolbar = embeddedOpts.toolbarComponent;
+  const effectiveSlideNumbers =
+    isEmbedded && embeddedOpts.slideNumbers !== undefined
+      ? embeddedOpts.slideNumbers
+      : slideNumbers;
   const containerRef = useRef<HTMLDivElement>(null);
   const deckRef = useRef<HTMLDivElement>(null);
   const [currentSlide, setCurrentSlide] = useState(() => {
@@ -327,11 +352,13 @@ export function Deck({
             </SlideTransition>
           )}
           {/* UI overlays — inside scale wrapper, sized in design coordinates (1920×1080) */}
-          {!isOverview && <ClickNavigation onPrev={prev} onNext={next} disabled={isDrawing} />}
-          {!isOverview && <ProgressBar />}
+          {!isOverview && (!isEmbedded || showClickNav) && (
+            <ClickNavigation onPrev={prev} onNext={next} disabled={isDrawing} />
+          )}
+          {!isOverview && (!isEmbedded || showProgressBar) && <ProgressBar />}
           {!isOverview &&
-            slideNumbers !== false &&
-            !(slideNumbers === "except-first" && currentSlide === 0) && <SlideNumber />}
+            effectiveSlideNumbers !== false &&
+            !(effectiveSlideNumbers === "except-first" && currentSlide === 0) && <SlideNumber />}
         </div>
       )}
       {/* Interactive overlays — outside scale wrapper (mouse coordinate dependent) */}
@@ -340,7 +367,13 @@ export function Deck({
       )}
       {!isEmbedded && !isOverview && !isPrinting && <Pointer active={isPointer} />}
       {isEmbedded ? (
-        <EmbeddedBar sourceUrl={embeddedSourceUrl} scale={scale} />
+        showToolbar ? (
+          CustomToolbar ? (
+            <CustomToolbar sourceUrl={embeddedSourceUrl} scale={scale} />
+          ) : (
+            <EmbeddedBar sourceUrl={embeddedSourceUrl} scale={scale} />
+          )
+        ) : null
       ) : (
         !isPrinting && (
           <NavigationBar

@@ -124,6 +124,90 @@ test("no-letterbox mode uses height:100% when aspectRatio is 0", () => {
   expect(container.querySelector(".reslide-letterbox")).toBeNull();
 });
 
+// --- Embedded mode UI customization tests ---
+
+test("embedded: true renders EmbeddedBar (backward compat)", () => {
+  const { container } = render(
+    <Deck embedded>
+      <Slide>Slide 1</Slide>
+    </Deck>,
+  );
+
+  expect(container.querySelector(".reslide-embedded-bar")).toBeTruthy();
+});
+
+test("embedded: { toolbar: false } hides EmbeddedBar", () => {
+  const { container } = render(
+    <Deck embedded={{ toolbar: false }}>
+      <Slide>Slide 1</Slide>
+    </Deck>,
+  );
+
+  expect(container.querySelector(".reslide-embedded-bar")).toBeNull();
+});
+
+test("embedded: { progressBar: false } hides ProgressBar", () => {
+  const { container } = render(
+    <Deck embedded={{ progressBar: false }}>
+      <Slide>Slide 1</Slide>
+    </Deck>,
+  );
+
+  expect(container.querySelector(".reslide-progress-bar")).toBeNull();
+});
+
+test("embedded: { clickNavigation: false } hides ClickNavigation", () => {
+  render(
+    <Deck embedded={{ clickNavigation: false }}>
+      <Slide>Slide 1</Slide>
+    </Deck>,
+  );
+
+  // ClickNavigation renders buttons with aria-label "Previous slide" / "Next slide"
+  expect(screen.queryByLabelText("Previous slide")).toBeNull();
+  expect(screen.queryByLabelText("Next slide")).toBeNull();
+});
+
+test("embedded slideNumbers overrides Deck-level slideNumbers", () => {
+  const { container } = render(
+    <Deck slideNumbers={false} embedded={{ slideNumbers: true }}>
+      <Slide>Slide 1</Slide>
+    </Deck>,
+  );
+
+  expect(container.querySelector(".reslide-slide-number")).toBeTruthy();
+});
+
+test("custom toolbarComponent replaces EmbeddedBar", () => {
+  function MyToolbar() {
+    return <div data-testid="custom-toolbar" />;
+  }
+
+  const { container } = render(
+    <Deck embedded={{ toolbarComponent: MyToolbar }}>
+      <Slide>Slide 1</Slide>
+    </Deck>,
+  );
+
+  expect(screen.getByTestId("custom-toolbar")).toBeTruthy();
+  expect(container.querySelector(".reslide-embedded-bar")).toBeNull();
+});
+
+test("toolbar: false suppresses custom toolbarComponent too", () => {
+  function MyToolbar() {
+    return <div data-testid="custom-toolbar" />;
+  }
+
+  const { container } = render(
+    <Deck embedded={{ toolbar: false, toolbarComponent: MyToolbar }}>
+      <Slide>Slide 1</Slide>
+    </Deck>,
+  );
+
+  expect(screen.queryByTestId("custom-toolbar")).toBeNull();
+  expect(container.querySelector(".reslide-embedded-bar")).toBeNull();
+});
+
 test("toggles overview mode with Escape", () => {
   render(
     <Deck>
